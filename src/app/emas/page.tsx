@@ -4,10 +4,11 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Settings, Plus, TrendingUp, TrendingDown, Coins, LineChart } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
-import { Person, GoldPurchase, GoldPriceItem } from '@/lib/gold/actions';
+import { Person, GoldPurchase } from '@/lib/gold/actions';
 import { calculateGoldAssetSummary } from '@/lib/gold/profit';
 import { GoldCard } from '@/components/gold/GoldCard';
 import { PurchaseModal } from '@/components/gold/PurchaseModal';
+import { SellModal } from '@/components/gold/SellModal';
 
 export default function GoldPage() {
   const [people, setPeople] = useState<Person[]>([]);
@@ -19,9 +20,12 @@ export default function GoldPage() {
   const [selectedPersonId, setSelectedPersonId] = useState('');
   const [showSold, setShowSold] = useState(false);
 
-  // Modal
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // Modals
+  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
   const [editingPurchase, setEditingPurchase] = useState<GoldPurchase | null>(null);
+
+  const [isSellModalOpen, setIsSellModalOpen] = useState(false);
+  const [sellingPurchase, setSellingPurchase] = useState<GoldPurchase | null>(null);
 
   const supabase = createClient();
 
@@ -107,6 +111,19 @@ export default function GoldPage() {
       if (error) throw error;
     }
 
+    await fetchData();
+  };
+
+  const handleConfirmSell = async (id: string, soldAt: string, soldPricePerPiece: number) => {
+    const { error } = await supabase
+      .from('gold_purchases')
+      .update({
+        sold_at: soldAt,
+        sold_price_per_piece: soldPricePerPiece,
+      })
+      .eq('id', id);
+
+    if (error) throw error;
     await fetchData();
   };
 
@@ -343,9 +360,13 @@ export default function GoldPage() {
                   currentBuyback={currentBuyback}
                   onEdit={(p) => {
                     setEditingPurchase(p);
-                    setIsModalOpen(true);
+                    setIsPurchaseModalOpen(true);
                   }}
                   onDelete={handleDeletePurchase}
+                  onSell={(p) => {
+                    setSellingPurchase(p);
+                    setIsSellModalOpen(true);
+                  }}
                 />
               );
             })}
@@ -357,7 +378,7 @@ export default function GoldPage() {
       <button
         onClick={() => {
           setEditingPurchase(null);
-          setIsModalOpen(true);
+          setIsPurchaseModalOpen(true);
         }}
         style={{
           position: 'fixed',
@@ -381,16 +402,26 @@ export default function GoldPage() {
         <Plus size={28} />
       </button>
 
-      {/* Purchase Modal */}
+      {/* Modals */}
       <PurchaseModal
-        isOpen={isModalOpen}
+        isOpen={isPurchaseModalOpen}
         onClose={() => {
-          setIsModalOpen(false);
+          setIsPurchaseModalOpen(false);
           setEditingPurchase(null);
         }}
         people={people}
         initialData={editingPurchase}
         onSave={handleSavePurchase}
+      />
+
+      <SellModal
+        isOpen={isSellModalOpen}
+        onClose={() => {
+          setIsSellModalOpen(false);
+          setSellingPurchase(null);
+        }}
+        purchase={sellingPurchase}
+        onConfirmSell={handleConfirmSell}
       />
     </div>
   );

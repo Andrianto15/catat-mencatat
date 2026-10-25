@@ -31,3 +31,39 @@ export interface GoldPriceItem {
   buyback_price: number | null;
   status: string;
 }
+
+export interface SellInput {
+  purchase_date: string;
+  sold_at: string;
+  sold_price_per_piece: number;
+}
+
+export function validateSellInput(input: SellInput): { isValid: boolean; error?: string } {
+  if (!input.sold_at) {
+    return { isValid: false, error: 'Tanggal penjualan wajib diisi.' };
+  }
+  if (input.sold_at < input.purchase_date) {
+    return { isValid: false, error: 'Tanggal jual tidak boleh sebelum tanggal beli.' };
+  }
+  if (!input.sold_price_per_piece || input.sold_price_per_piece <= 0) {
+    return { isValid: false, error: 'Harga jual per keping harus lebih dari 0.' };
+  }
+  return { isValid: true };
+}
+
+export function calculateRealizedProfit(params: {
+  piece_count?: number;
+  price_per_piece: number;
+  sold_price_per_piece: number;
+}) {
+  const count = params.piece_count && params.piece_count > 0 ? params.piece_count : 1;
+  const totalCost = count * params.price_per_piece;
+  const totalSold = count * params.sold_price_per_piece;
+  const realizedProfitRp = totalSold - totalCost;
+  const realizedProfitPct = totalCost > 0 ? Math.round(((realizedProfitRp / totalCost) * 100) * 100) / 100 : 0;
+
+  return {
+    realizedProfitRp,
+    realizedProfitPct,
+  };
+}
