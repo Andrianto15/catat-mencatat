@@ -2,10 +2,11 @@
 
 | | |
 |---|---|
-| Status | Implementation Complete (v0.1.0) |
+| Status | Implementation Complete (v0.4.5) |
 | Tanggal | 25-10-2026 |
 | Pemilik | Andrian (pengguna tunggal) |
 | Stack | Next.js (App Router) + Supabase (Postgres, Auth) + PWA + Vercel |
+| Lisensi | MIT License |
 | Sumber | `docs/app_requirement.txt`, `docs/req_catat_zakat_mal.png`, sesi brainstorming 25-10-2026 |
 
 Penanda: **[keputusan builder/AI]** = ditetapkan saat diskusi tanpa konfirmasi eksplisit, boleh dikoreksi.
@@ -70,14 +71,26 @@ As pengguna, I want halaman utama hanya berisi ikon modul, so that tampilan bers
 **F0.3 Input cepat**
 As pengguna, I want form yang cepat diisi berulang, so that memasukkan data lama tidak melelahkan.
 - Acceptance:
-  - Form tambah memakai modal (bottom sheet di HP).
+  - Form tambah memakai modal responsif:
+    - Mobile (< 640px): bottom sheet (`border-radius` atas, safe-area-inset bottom).
+    - Desktop (≥ 640px): dialog rata tengah vertikal & horizontal (`align-items: center`), full rounded corners (`var(--radius-xl)`), elevasi bayangan halus.
+  - Dropdown select (`.form-select`) memiliki panah custom chevron dengan jarak proporsional dari tepi kanan (`right: 1rem`) dan padding teks aman (`padding-right: 2.5rem`), warna stroke otomatis menyesuaikan tema.
+  - Textarea input (`.form-textarea`) dibatasi resize hanya vertikal dengan batas minimum 60px dan maksimum 160px agar tidak melebihi container modal.
+  - Interaksi backdrop overlay dilengkapi guard `onMouseDown`: pelepasan drag kursor atau resize handle di luar modal tidak akan menutup modal secara tidak sengaja.
   - Tombol "Simpan" dan "Simpan & tambah lagi" (modal tetap terbuka, field direset kecuali field "sticky").
   - Field sticky (motor, tempat, pemilik, brand) default ke nilai input terakhir.
   - Tanggal boleh diisi mundur tanpa batas, tidak boleh di masa depan.
   - Setiap catatan bisa diedit dan dihapus (hapus dengan konfirmasi).
 
-**F0.4 Format angka**
-- Rupiah ditampilkan format `id-ID` (`Rp 1.234.567`); input angka mendukung pemisah ribuan.
+**F0.4 Format angka & Pemisah Ribuan (Thousand Separator)**
+- Rupiah dan kuantitas besar ditampilkan dalam format `id-ID` (`Rp 1.234.567` atau `12.000 km`).
+- Seluruh input angka pada formulir menggunakan komponen `NumberInput` dengan pemisah ribuan otomatis (`.`):
+  - Modul Motor: Kilometer (`current_km`) dan Biaya Servis (`cost`).
+  - Modul Zakat: Harga Emas Acuan (`gold_price_per_gram`) dan Saldo Tiap Rekening (`balances[acc.id]`).
+  - Modul Emas: Jumlah Keping (`piece_count`), Harga Beli per Keping (`price_per_piece`), Harga Jual per Keping (`sold_price_per_piece`), serta Harga Jual/Buyback Manual (`prices/page.tsx`).
+  - Gramasi Emas (`weight_gram`) mendukung desimal (`allowDecimal`) dengan pemisah koma `,`.
+- Input menggunakan `type="text"` dipadukan `inputMode="numeric"` (atau `inputMode="decimal"`) agar keyboard angka pada perangkat mobile tetap aktif dan mencegah browser memblokir separator titik/koma.
+- Parsing angka dilakukan secara otomatis ke format `number` murni untuk state dan database.
 - Kolom "No" pada riwayat = nomor urut tampilan, tidak disimpan di database.
 
 **F0.5 Dukungan PWA (Progressive Web App)**
@@ -87,6 +100,44 @@ As pengguna, I want menginstall aplikasi ke home screen HP layaknya native app, 
   - Display mode: `standalone`.
   - Service worker caching untuk app shell, static assets (CSS, JS, fonts).
   - Halaman offline fallback jika koneksi internet terputus saat mengakses halaman baru.
+
+**F0.6 Switch Theme (Dark / Light / System)**
+As pengguna, I want mengubah tema aplikasi antara Terang (Light), Gelap (Dark), dan Otomatis Sistem (System), so that mata nyaman saat menggunakan aplikasi dalam berbagai kondisi pencahayaan.
+- Acceptance:
+  - Tombol ikon toggle tema tersedia di header halaman utama dan header modul-modul (`/motor`, `/emas`, `/zakat`).
+  - Siklus pergantian saat tombol diklik: Terang (`light`) -> Gelap (`dark`) -> Sistem (`system`) -> Terang.
+  - Pilihan tersimpan di `localStorage` (`catat_theme`).
+  - Script anti-flicker (anti-FOUC) disematkan di `<head>` agar tema langsung aktif sebelum render pertama tanpa flicker putih/hitam.
+  - Mode sistem sinkron otomatis dengan perubahan `prefers-color-scheme` pada perangkat pengguna.
+  - Aksesibilitas tap target minimal 44x44px untuk kenyamanan sentuhan mobile.
+
+**F0.7 Footer Aplikasi**
+As pengguna, I want melihat footer informatif di semua halaman termasuk login, so that terdapat informasi identitas aplikasi dan lisensi yang konsisten.
+- Acceptance:
+  - Footer terpasang di seluruh halaman aplikasi (`/login`, `/`, `/motor`, `/emas`, `/zakat`, dan halaman pengaturan).
+  - Menggunakan tag semantik `<footer>`.
+  - Memuat nama aplikasi "Catat-Mencatat", badge versi dinamis dari `package.json` (`v{version}`), deskripsi ringkas "Aplikasi Pencatatan Pribadi", tahun berjalan dinamis, serta status lisensi MIT.
+  - Desain *mobile-first* bersih tanpa slop visual, mematuhi padding safe area bawah layar (`calc(1.25rem + env(safe-area-inset-bottom))`) agar ramah layar sentuh HP.
+  - Tata letak sticky bottom flex flow sehingga footer tetap berada di bagian bawah tampilan pada halaman pendek maupun panjang.
+
+**F0.8 Standar Aksesibilitas, Modal & Ergonomi Mobile (Audit Impeccable)**
+As pengguna, I want aplikasi mematuhi standar aksesibilitas WCAG dan kenyamanan sentuhan mobile, so that navigasi dan input data selalu mulus dan inklusif.
+- Acceptance:
+  - Viewport tidak mengunci zoom pengguna (`userScalable: false` / `maximumScale: 1` ditiadakan untuk WCAG 1.4.4 Resize Text).
+  - Seluruh modal dialog mengimplementasikan WAI-ARIA (`role="dialog"`, `aria-modal="true"`, `aria-labelledby`), tombol tutup 44x44px dengan `aria-label="Tutup"`, serta penutupan via tombol `Escape` dan klik luar modal.
+  - Semua label formulir terhubung eksplisit dengan input ID (`<label htmlFor="...">` dan `<input id="...">`).
+  - Target sentuhan interaktif (termasuk filter pills, tombol penutup modal, dan kontrol header) memenuhi standar minimal 44x44px.
+  - Desain token semantik status (`--color-danger-bg`, `--color-danger-text`, `--color-success-bg`, `--color-success-text`) terdefinisi untuk mode terang dan gelap.
+  - Kartu statistik ringkasan servis motor mengadopsi grid auto-fit responsif agar angka tidak terpotong pada layar HP sempit (<360px).
+
+**F0.9 Identitas Visual, Logo & Favicon**
+As pengguna, I want aplikasi memiliki logo representatif, favicon, dan icon home screen mobile yang konsisten, so that aplikasi mudah dikenali saat dibuka di browser maupun diinstall di smartphone.
+- Acceptance:
+  - Komponen Logo SVG (`Logo.tsx`) mandiri, scalable, tanpa dependensi eksternal, dengan aksesibilitas `role="img"` dan `aria-label="Logo Catat-Mencatat"`.
+  - Desain logo merepresentasikan esensi "catat-mencatat": notepad spiral minimalis berlatar Steel Blue (`#4682b4`), item checklist aktif dengan checkmark hijau (`#10b981`), dan pensil aksen emas (`#f59e0b`) pada sudut 45 derajat.
+  - Logo terpasang di atas judul pada halaman Login (`/login`) dengan centering rapi dan ukuran proporsional mobile (60x60px).
+  - Favicon multi-format tersedia di `public/favicon.ico` (32x32 ICO) dan `public/favicon.svg` (vektor modern), terdaftar di `<head>` dan `metadata.icons` pada [layout.tsx](file:///Users/andriantonuriskandar/Documents/Playground/catat-mencatat/src/app/layout.tsx).
+  - PWA home screen icon tersedia di `public/icons/icon-192x192.png`, `public/icons/icon-512x512.png`, dan `public/apple-touch-icon.png`, terkonfigurasi dengan `purpose: "any maskable"` pada `manifest.json`.
 
 ### 5.1 Modul Servis Motor
 

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Lock, Check, Sparkles } from 'lucide-react';
 import { getHijriRamadhanDate } from '@/lib/zakat/hijri';
 import { calculateZakat, getRoundingChips } from '@/lib/zakat/engine';
+import { NumberInput } from '@/components/NumberInput';
 
 export interface ZakatAccount {
   id: string;
@@ -54,6 +55,7 @@ export function YearModal({
   const [balances, setBalances] = useState<Record<string, number>>({});
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const isBackdropClickRef = React.useRef(false);
 
   useEffect(() => {
     if (initialData) {
@@ -75,6 +77,17 @@ export function YearModal({
       setBalances({});
     }
   }, [initialData, latestGoldPrice1g]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -133,29 +146,28 @@ export function YearModal({
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      inset: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      zIndex: 50,
-      display: 'flex',
-      alignItems: 'flex-end',
-      justifyContent: 'center',
-    }}>
-      <div style={{
-        width: '100%',
-        maxWidth: '560px',
-        backgroundColor: 'var(--bg-card)',
-        borderTopLeftRadius: 'var(--radius-xl)',
-        borderTopRightRadius: 'var(--radius-xl)',
-        maxHeight: '92vh',
-        overflowY: 'auto',
-        padding: '1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom))',
-        border: '1px solid var(--border-card)',
-      }}>
+    <div
+      className="modal-overlay"
+      onMouseDown={(e) => {
+        isBackdropClickRef.current = e.target === e.currentTarget;
+      }}
+      onClick={(e) => {
+        if (isBackdropClickRef.current && e.target === e.currentTarget) {
+          onClose();
+        }
+        isBackdropClickRef.current = false;
+      }}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="year-modal-title"
+        className="modal-content"
+        style={{ maxWidth: '560px', maxHeight: '92vh' }}
+      >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
           <div>
-            <h3 style={{ fontSize: '1.125rem', fontWeight: 600 }}>
+            <h3 id="year-modal-title" style={{ fontSize: '1.125rem', fontWeight: 600 }}>
               {initialData ? `Edit Saldo Zakat ${hijriYear} H` : `Input Zakat Tahun ${hijriYear} H`}
             </h3>
             <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
@@ -164,12 +176,20 @@ export function YearModal({
           </div>
           <button
             onClick={onClose}
+            aria-label="Tutup"
+            title="Tutup"
             style={{
               background: 'none',
               border: 'none',
               cursor: 'pointer',
               color: 'var(--text-muted)',
-              padding: '0.25rem',
+              padding: '0.5rem',
+              minHeight: '44px',
+              minWidth: '44px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: 'var(--radius-lg)',
             }}
           >
             <X size={20} />
@@ -179,8 +199,8 @@ export function YearModal({
         {error && (
           <div style={{
             padding: '0.625rem',
-            backgroundColor: '#fee2e2',
-            color: '#b91c1c',
+            backgroundColor: 'var(--color-danger-bg)',
+            color: 'var(--color-danger-text)',
             borderRadius: 'var(--radius-lg)',
             fontSize: '0.8125rem',
             marginBottom: '1rem',
@@ -193,10 +213,14 @@ export function YearModal({
           {/* Header Params */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}>
+              <label
+                htmlFor="zakat-hijri-year"
+                style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}
+              >
                 Tahun Hijriah
               </label>
               <input
+                id="zakat-hijri-year"
                 type="number"
                 required
                 value={hijriYear}
@@ -213,10 +237,14 @@ export function YearModal({
               />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}>
+              <label
+                htmlFor="zakat-ref-date"
+                style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}
+              >
                 Ref: 1 Ramadhan
               </label>
               <input
+                id="zakat-ref-date"
                 type="date"
                 required
                 value={referenceDate}
@@ -235,14 +263,17 @@ export function YearModal({
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}>
+            <label
+              htmlFor="zakat-gold-price"
+              style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}
+            >
               Harga Emas Acuan (Rp / gram)
             </label>
-            <input
-              type="number"
+            <NumberInput
+              id="zakat-gold-price"
               required
               value={goldPrice}
-              onChange={(e) => setGoldPrice(Number(e.target.value))}
+              onChange={(val) => setGoldPrice(val === '' ? 0 : val)}
               style={{
                 width: '100%',
                 padding: '0.625rem',
@@ -295,13 +326,13 @@ export function YearModal({
                       )}
                     </div>
                     <div style={{ width: '160px' }}>
-                      <input
-                        type="number"
+                      <NumberInput
+                        id={`zakat-acc-${acc.id}`}
+                        aria-label={`Saldo ${acc.account_name}`}
                         placeholder="0"
                         value={balances[acc.id] ?? ''}
-                        onChange={(e) => {
-                          const val = e.target.value === '' ? 0 : Number(e.target.value);
-                          setBalances((prev) => ({ ...prev, [acc.id]: val }));
+                        onChange={(val) => {
+                          setBalances((prev) => ({ ...prev, [acc.id]: val === '' ? 0 : val }));
                         }}
                         style={{
                           width: '100%',

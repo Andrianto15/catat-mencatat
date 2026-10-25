@@ -4,11 +4,11 @@ import { WifiOff, RotateCcw } from 'lucide-react';
 export default function OfflinePage() {
   return (
     <div style={{
-      minHeight: '100vh',
+      flex: 1,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '1.5rem',
+      padding: '2rem 1.5rem',
       backgroundColor: 'var(--bg-main)',
     }}>
       <div style={{

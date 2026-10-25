@@ -52,9 +52,15 @@ export function ServiceCard({ service, motorName, onEdit, onDelete }: ServiceCar
               style={{
                 background: 'none',
                 border: 'none',
-                padding: '0.375rem',
+                padding: '0.5rem',
                 cursor: 'pointer',
                 color: 'var(--text-muted)',
+                minHeight: '44px',
+                minWidth: '44px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 'var(--radius-lg)',
               }}
               aria-label="Edit"
             >
@@ -67,9 +73,15 @@ export function ServiceCard({ service, motorName, onEdit, onDelete }: ServiceCar
               style={{
                 background: 'none',
                 border: 'none',
-                padding: '0.375rem',
+                padding: '0.5rem',
                 cursor: 'pointer',
                 color: '#ef4444',
+                minHeight: '44px',
+                minWidth: '44px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 'var(--radius-lg)',
               }}
               aria-label="Hapus"
             >

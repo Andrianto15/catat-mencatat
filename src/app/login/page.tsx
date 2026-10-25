@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import Logo from '@/components/Logo';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -33,11 +34,11 @@ export default function LoginPage() {
 
   return (
     <div style={{
-      minHeight: '100vh',
+      flex: 1,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '1rem',
+      padding: '2rem 1rem',
       backgroundColor: 'var(--bg-main)',
     }}>
       <div style={{
@@ -49,6 +50,9 @@ export default function LoginPage() {
         padding: '2rem 1.5rem',
       }}>
         <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.75rem' }}>
+            <Logo size={60} />
+          </div>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-main)' }}>
             Catat-Mencatat
           </h1>
@@ -61,8 +65,8 @@ export default function LoginPage() {
           <div style={{
             padding: '0.75rem',
             marginBottom: '1rem',
-            backgroundColor: '#fee2e2',
-            color: '#b91c1c',
+            backgroundColor: 'var(--color-danger-bg)',
+            color: 'var(--color-danger-text)',
             borderRadius: 'var(--radius-lg)',
             fontSize: '0.875rem',
           }}>
@@ -72,10 +76,14 @@ export default function LoginPage() {
 
         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div>
-            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.375rem' }}>
+            <label
+              htmlFor="login-email"
+              style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.375rem' }}
+            >
               Email
             </label>
             <input
+              id="login-email"
               type="email"
               required
               value={email}
@@ -90,15 +98,22 @@ export default function LoginPage() {
                 color: 'var(--text-main)',
                 fontSize: '1rem',
                 outline: 'none',
+                boxShadow: 'none',
               }}
+              onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--color-primary)')}
+              onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--border-card)')}
             />
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.375rem' }}>
+            <label
+              htmlFor="login-password"
+              style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.375rem' }}
+            >
               Kata Sandi
             </label>
             <input
+              id="login-password"
               type="password"
               required
               value={password}
@@ -113,7 +128,10 @@ export default function LoginPage() {
                 color: 'var(--text-main)',
                 fontSize: '1rem',
                 outline: 'none',
+                boxShadow: 'none',
               }}
+              onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--color-primary)')}
+              onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--border-card)')}
             />
           </div>
 

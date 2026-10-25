@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, RefreshCw, Edit2, Check, X, AlertCircle } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { NumberInput } from '@/components/NumberInput';
 
 interface GoldPriceRow {
   id: string;
@@ -263,10 +264,9 @@ export default function GoldPricesPage() {
                           <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>
                             Harga Jual (Rp)
                           </label>
-                          <input
-                            type="number"
+                          <NumberInput
                             value={editSellPrice}
-                            onChange={(e) => setEditSellPrice(e.target.value === '' ? '' : Number(e.target.value))}
+                            onChange={setEditSellPrice}
                             style={{
                               width: '100%',
                               padding: '0.4rem',
@@ -282,10 +282,9 @@ export default function GoldPricesPage() {
                           <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>
                             Harga Buyback (Rp)
                           </label>
-                          <input
-                            type="number"
+                          <NumberInput
                             value={editBuybackPrice}
-                            onChange={(e) => setEditBuybackPrice(e.target.value === '' ? '' : Number(e.target.value))}
+                            onChange={setEditBuybackPrice}
                             style={{
                               width: '100%',
                               padding: '0.4rem',

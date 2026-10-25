@@ -26,3 +26,12 @@ yarn-error.log*
 # Coverage
 coverage/
 next-env.d.ts
+
+# Codebase memory
+.codebase-memory/
+
+# AI
+AGENTS.md
+
+# TypeScript
+*.tsbuildinfo

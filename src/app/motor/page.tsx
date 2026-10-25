@@ -13,6 +13,7 @@ import {
 import { ServiceCard } from '@/components/motor/ServiceCard';
 import { ServiceFilter } from '@/components/motor/ServiceFilter';
 import { ServiceModal } from '@/components/motor/ServiceModal';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function MotorPage() {
   const [motors, setMotors] = useState<Motor[]>([]);
@@ -106,7 +107,7 @@ export default function MotorPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-main)', paddingBottom: '5rem' }}>
+    <div style={{ flex: 1, backgroundColor: 'var(--bg-main)', paddingBottom: '5rem' }}>
       {/* Header */}
       <header style={{
         position: 'sticky',
@@ -143,29 +144,32 @@ export default function MotorPage() {
           </div>
         </div>
 
-        <Link
-          href="/motor/settings"
-          style={{
-            padding: '0.375rem',
-            display: 'flex',
-            alignItems: 'center',
-            color: 'var(--text-muted)',
-            borderRadius: 'var(--radius-lg)',
-            minHeight: '44px',
-            minWidth: '44px',
-            justifyContent: 'center',
-          }}
-          title="Pengaturan Motor"
-        >
-          <Settings size={20} />
-        </Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+          <ThemeToggle />
+          <Link
+            href="/motor/settings"
+            style={{
+              padding: '0.375rem',
+              display: 'flex',
+              alignItems: 'center',
+              color: 'var(--text-muted)',
+              borderRadius: 'var(--radius-lg)',
+              minHeight: '44px',
+              minWidth: '44px',
+              justifyContent: 'center',
+            }}
+            title="Pengaturan Motor"
+          >
+            <Settings size={20} />
+          </Link>
+        </div>
       </header>
 
       <main style={{ maxWidth: '800px', margin: '0 auto', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         {/* Stats Summary */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))',
           gap: '0.75rem',
         }}>
           <div style={{

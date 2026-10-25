@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Motor, MotorServiceItem } from '@/lib/motor/actions';
+import { NumberInput } from '@/components/NumberInput';
 
 interface ServiceModalProps {
   isOpen: boolean;
@@ -27,6 +28,7 @@ export function ServiceModal({
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const isBackdropClickRef = React.useRef(false);
 
   useEffect(() => {
     if (initialData) {
@@ -42,6 +44,17 @@ export function ServiceModal({
       }
     }
   }, [initialData, motors]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -79,7 +92,6 @@ export function ServiceModal({
       );
 
       if (keepOpen) {
-        // Sticky fields: keep motorId, serviceDate, workshopName intact. Clear item specifics.
         setCost('');
         setNotes('');
       } else {
@@ -93,38 +105,45 @@ export function ServiceModal({
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      inset: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      zIndex: 50,
-      display: 'flex',
-      alignItems: 'flex-end',
-      justifyContent: 'center',
-    }}>
-      <div style={{
-        width: '100%',
-        maxWidth: '540px',
-        backgroundColor: 'var(--bg-card)',
-        borderTopLeftRadius: 'var(--radius-xl)',
-        borderTopRightRadius: 'var(--radius-xl)',
-        maxHeight: '90vh',
-        overflowY: 'auto',
-        padding: '1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom))',
-        border: '1px solid var(--border-card)',
-      }}>
+    <div
+      className="modal-overlay"
+      onMouseDown={(e) => {
+        isBackdropClickRef.current = e.target === e.currentTarget;
+      }}
+      onClick={(e) => {
+        if (isBackdropClickRef.current && e.target === e.currentTarget) {
+          onClose();
+        }
+        isBackdropClickRef.current = false;
+      }}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="service-modal-title"
+        className="modal-content"
+        style={{ maxWidth: '540px' }}
+      >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <h3 style={{ fontSize: '1.125rem', fontWeight: 600 }}>
+          <h3 id="service-modal-title" style={{ fontSize: '1.125rem', fontWeight: 600 }}>
             {initialData ? 'Ubah Catatan Servis' : 'Tambah Catatan Servis'}
           </h3>
           <button
             onClick={onClose}
+            aria-label="Tutup"
+            title="Tutup"
             style={{
               background: 'none',
               border: 'none',
               cursor: 'pointer',
               color: 'var(--text-muted)',
-              padding: '0.25rem',
+              padding: '0.5rem',
+              minHeight: '44px',
+              minWidth: '44px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: 'var(--radius-lg)',
             }}
           >
             <X size={20} />
@@ -134,8 +153,8 @@ export function ServiceModal({
         {error && (
           <div style={{
             padding: '0.625rem',
-            backgroundColor: '#fee2e2',
-            color: '#b91c1c',
+            backgroundColor: 'var(--color-danger-bg)',
+            color: 'var(--color-danger-text)',
             borderRadius: 'var(--radius-lg)',
             fontSize: '0.8125rem',
             marginBottom: '1rem',
@@ -146,21 +165,17 @@ export function ServiceModal({
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
           <div>
-            <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}>
+            <label
+              htmlFor="service-motor"
+              style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}
+            >
               Motor
             </label>
             <select
+              id="service-motor"
+              className="form-select"
               value={motorId}
               onChange={(e) => setMotorId(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '0.625rem',
-                borderRadius: 'var(--radius-lg)',
-                border: '1px solid var(--border-card)',
-                backgroundColor: 'transparent',
-                color: 'var(--text-main)',
-                fontSize: '0.875rem',
-              }}
             >
               {motors.map((m) => (
                 <option key={m.id} value={m.id} style={{ color: '#000' }}>
@@ -172,10 +187,14 @@ export function ServiceModal({
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}>
+              <label
+                htmlFor="service-date"
+                style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}
+              >
                 Tanggal Servis
               </label>
               <input
+                id="service-date"
                 type="date"
                 required
                 value={serviceDate}
@@ -192,14 +211,17 @@ export function ServiceModal({
               />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}>
+              <label
+                htmlFor="service-km"
+                style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}
+              >
                 Kilometer (km)
               </label>
-              <input
-                type="number"
+              <NumberInput
+                id="service-km"
                 placeholder="12000"
                 value={currentKm}
-                onChange={(e) => setCurrentKm(e.target.value === '' ? '' : Number(e.target.value))}
+                onChange={setCurrentKm}
                 style={{
                   width: '100%',
                   padding: '0.625rem',
@@ -214,14 +236,17 @@ export function ServiceModal({
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}>
+            <label
+              htmlFor="service-cost"
+              style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}
+            >
               Biaya Servis (Rp)
             </label>
-            <input
-              type="number"
+            <NumberInput
+              id="service-cost"
               placeholder="150000"
               value={cost}
-              onChange={(e) => setCost(e.target.value === '' ? '' : Number(e.target.value))}
+              onChange={setCost}
               style={{
                 width: '100%',
                 padding: '0.625rem',
@@ -235,10 +260,14 @@ export function ServiceModal({
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}>
+            <label
+              htmlFor="service-workshop"
+              style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}
+            >
               Nama Bengkel (Opsional)
             </label>
             <input
+              id="service-workshop"
               type="text"
               placeholder="Bengkel Resmi / Ahass"
               value={workshopName}
@@ -256,23 +285,19 @@ export function ServiceModal({
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}>
+            <label
+              htmlFor="service-notes"
+              style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}
+            >
               Keterangan / Item Servis
             </label>
             <textarea
+              id="service-notes"
+              className="form-textarea"
               rows={2}
               placeholder="Ganti oli mesin, cek kampas rem..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '0.625rem',
-                borderRadius: 'var(--radius-lg)',
-                border: '1px solid var(--border-card)',
-                backgroundColor: 'transparent',
-                color: 'var(--text-main)',
-                fontSize: '0.875rem',
-              }}
             />
           </div>
 

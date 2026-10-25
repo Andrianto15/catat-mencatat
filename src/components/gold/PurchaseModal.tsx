@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Person, GoldPurchase } from '@/lib/gold/actions';
+import { NumberInput } from '@/components/NumberInput';
 
 interface PurchaseModalProps {
   isOpen: boolean;
@@ -28,6 +29,7 @@ export function PurchaseModal({
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const isBackdropClickRef = React.useRef(false);
 
   useEffect(() => {
     if (initialData) {
@@ -44,6 +46,17 @@ export function PurchaseModal({
       }
     }
   }, [initialData, people]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -100,38 +113,45 @@ export function PurchaseModal({
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      inset: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      zIndex: 50,
-      display: 'flex',
-      alignItems: 'flex-end',
-      justifyContent: 'center',
-    }}>
-      <div style={{
-        width: '100%',
-        maxWidth: '540px',
-        backgroundColor: 'var(--bg-card)',
-        borderTopLeftRadius: 'var(--radius-xl)',
-        borderTopRightRadius: 'var(--radius-xl)',
-        maxHeight: '90vh',
-        overflowY: 'auto',
-        padding: '1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom))',
-        border: '1px solid var(--border-card)',
-      }}>
+    <div
+      className="modal-overlay"
+      onMouseDown={(e) => {
+        isBackdropClickRef.current = e.target === e.currentTarget;
+      }}
+      onClick={(e) => {
+        if (isBackdropClickRef.current && e.target === e.currentTarget) {
+          onClose();
+        }
+        isBackdropClickRef.current = false;
+      }}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="purchase-modal-title"
+        className="modal-content"
+        style={{ maxWidth: '540px' }}
+      >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <h3 style={{ fontSize: '1.125rem', fontWeight: 600 }}>
+          <h3 id="purchase-modal-title" style={{ fontSize: '1.125rem', fontWeight: 600 }}>
             {initialData ? 'Ubah Pembelian Emas' : 'Tambah Pembelian Emas'}
           </h3>
           <button
             onClick={onClose}
+            aria-label="Tutup"
+            title="Tutup"
             style={{
               background: 'none',
               border: 'none',
               cursor: 'pointer',
               color: 'var(--text-muted)',
-              padding: '0.25rem',
+              padding: '0.5rem',
+              minHeight: '44px',
+              minWidth: '44px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: 'var(--radius-lg)',
             }}
           >
             <X size={20} />
@@ -141,8 +161,8 @@ export function PurchaseModal({
         {error && (
           <div style={{
             padding: '0.625rem',
-            backgroundColor: '#fee2e2',
-            color: '#b91c1c',
+            backgroundColor: 'var(--color-danger-bg)',
+            color: 'var(--color-danger-text)',
             borderRadius: 'var(--radius-lg)',
             fontSize: '0.8125rem',
             marginBottom: '1rem',
@@ -153,21 +173,17 @@ export function PurchaseModal({
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
           <div>
-            <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}>
+            <label
+              htmlFor="gold-person"
+              style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}
+            >
               Pemilik Emas
             </label>
             <select
+              id="gold-person"
+              className="form-select"
               value={personId}
               onChange={(e) => setPersonId(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '0.625rem',
-                borderRadius: 'var(--radius-lg)',
-                border: '1px solid var(--border-card)',
-                backgroundColor: 'transparent',
-                color: 'var(--text-main)',
-                fontSize: '0.875rem',
-              }}
             >
               {people.map((p) => (
                 <option key={p.id} value={p.id} style={{ color: '#000' }}>
@@ -179,10 +195,14 @@ export function PurchaseModal({
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}>
+              <label
+                htmlFor="gold-date"
+                style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}
+              >
                 Tanggal Beli
               </label>
               <input
+                id="gold-date"
                 type="date"
                 required
                 value={purchaseDate}
@@ -199,21 +219,17 @@ export function PurchaseModal({
               />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}>
+              <label
+                htmlFor="gold-brand"
+                style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}
+              >
                 Merk / Brand
               </label>
               <select
+                id="gold-brand"
+                className="form-select"
                 value={brand}
                 onChange={(e) => setBrand(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '0.625rem',
-                  borderRadius: 'var(--radius-lg)',
-                  border: '1px solid var(--border-card)',
-                  backgroundColor: 'transparent',
-                  color: 'var(--text-main)',
-                  fontSize: '0.875rem',
-                }}
               >
                 <option value="ANTAM" style={{ color: '#000' }}>ANTAM</option>
                 <option value="UBS" style={{ color: '#000' }}>UBS</option>
@@ -225,15 +241,18 @@ export function PurchaseModal({
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}>
+              <label
+                htmlFor="gold-weight"
+                style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}
+              >
                 Gramasi (gr)
               </label>
-              <input
-                type="number"
-                step="0.01"
+              <NumberInput
+                id="gold-weight"
+                allowDecimal
                 placeholder="1"
                 value={weightGram}
-                onChange={(e) => setWeightGram(e.target.value === '' ? '' : Number(e.target.value))}
+                onChange={setWeightGram}
                 style={{
                   width: '100%',
                   padding: '0.625rem',
@@ -246,14 +265,17 @@ export function PurchaseModal({
               />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}>
+              <label
+                htmlFor="gold-pieces"
+                style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}
+              >
                 Jumlah Keping (pcs)
               </label>
-              <input
-                type="number"
+              <NumberInput
+                id="gold-pieces"
                 placeholder="1"
                 value={pieceCount}
-                onChange={(e) => setPieceCount(e.target.value === '' ? '' : Number(e.target.value))}
+                onChange={setPieceCount}
                 style={{
                   width: '100%',
                   padding: '0.625rem',
@@ -268,14 +290,17 @@ export function PurchaseModal({
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}>
+            <label
+              htmlFor="gold-price"
+              style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}
+            >
               Harga Beli per Keping (Rp)
             </label>
-            <input
-              type="number"
+            <NumberInput
+              id="gold-price"
               placeholder="1450000"
               value={pricePerPiece}
-              onChange={(e) => setPricePerPiece(e.target.value === '' ? '' : Number(e.target.value))}
+              onChange={setPricePerPiece}
               style={{
                 width: '100%',
                 padding: '0.625rem',
@@ -289,23 +314,19 @@ export function PurchaseModal({
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}>
+            <label
+              htmlFor="gold-notes"
+              style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}
+            >
               Catatan (Opsional)
             </label>
             <textarea
+              id="gold-notes"
+              className="form-textarea"
               rows={2}
               placeholder="Beli di Butik LM Pulo Gadung, nomor seri..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '0.625rem',
-                borderRadius: 'var(--radius-lg)',
-                border: '1px solid var(--border-card)',
-                backgroundColor: 'transparent',
-                color: 'var(--text-main)',
-                fontSize: '0.875rem',
-              }}
             />
           </div>
 
