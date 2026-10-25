@@ -6,6 +6,7 @@
 | Tanggal | 25-10-2026 |
 | Pemilik | Andrian (pengguna tunggal) |
 | Stack | Next.js (App Router) + Supabase (Postgres, Auth) + PWA + Vercel |
+| Lisensi | MIT License |
 | Sumber | `docs/app_requirement.txt`, `docs/req_catat_zakat_mal.png`, sesi brainstorming 25-10-2026 |
 
 Penanda: **[keputusan builder/AI]** = ditetapkan saat diskusi tanpa konfirmasi eksplisit, boleh dikoreksi.

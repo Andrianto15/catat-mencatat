@@ -51,3 +51,9 @@ Implementasi native MVP aplikasi PWA pribadi **Catat-Mencatat** sesuai `PRD.md` 
    - Persistensi state pilihan tema di `localStorage` (`catat_theme`).
    - Integrasi tombol toggle tema dengan tap target 44px di header dashboard (`/`), Servis Motor (`/motor`), Emas Fisik (`/emas`), dan Zakat Mal (`/zakat`).
    - Unit test Jest lengkap di `tests/theme.test.ts` (7 test cases).
+
+8. **Open-Source License**:
+   - Lisensi MIT resmi ditambahkan di file `LICENSE` (Copyright 2026 Andrianto Nur Iskandar).
+   - Penambahan atribut `"license": "MIT"` pada `package.json`.
+   - Dokumentasi lisensi diperbarui pada `PRD.md`.
+   - Unit test verifikasi lisensi di `tests/license.test.ts` (2 test cases passing).
