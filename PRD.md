@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Implementation Complete (v0.4.1) |
+| Status | Implementation Complete (v0.4.2) |
 | Tanggal | 25-10-2026 |
 | Pemilik | Andrian (pengguna tunggal) |
 | Stack | Next.js (App Router) + Supabase (Postgres, Auth) + PWA + Vercel |
@@ -71,7 +71,12 @@ As pengguna, I want halaman utama hanya berisi ikon modul, so that tampilan bers
 **F0.3 Input cepat**
 As pengguna, I want form yang cepat diisi berulang, so that memasukkan data lama tidak melelahkan.
 - Acceptance:
-  - Form tambah memakai modal (bottom sheet di HP).
+  - Form tambah memakai modal responsif:
+    - Mobile (< 640px): bottom sheet (`border-radius` atas, safe-area-inset bottom).
+    - Desktop (≥ 640px): dialog rata tengah vertikal & horizontal (`align-items: center`), full rounded corners (`var(--radius-xl)`), elevasi bayangan halus.
+  - Dropdown select (`.form-select`) memiliki panah custom chevron dengan jarak proporsional dari tepi kanan (`right: 1rem`) dan padding teks aman (`padding-right: 2.5rem`), warna stroke otomatis menyesuaikan tema.
+  - Textarea input (`.form-textarea`) dibatasi resize hanya vertikal dengan batas minimum 60px dan maksimum 160px agar tidak melebihi container modal.
+  - Interaksi backdrop overlay dilengkapi guard `onMouseDown`: pelepasan drag kursor atau resize handle di luar modal tidak akan menutup modal secara tidak sengaja.
   - Tombol "Simpan" dan "Simpan & tambah lagi" (modal tetap terbuka, field direset kecuali field "sticky").
   - Field sticky (motor, tempat, pemilik, brand) default ke nilai input terakhir.
   - Tanggal boleh diisi mundur tanpa batas, tidak boleh di masa depan.

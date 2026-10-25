@@ -82,3 +82,27 @@ Implementasi native MVP aplikasi PWA pribadi **Catat-Mencatat** sesuai `PRD.md` 
    - Badge status semantik: Mengganti warna hardcoded badge 'Terjual' pada `GoldCard` dengan token `--color-danger-bg` dan `--color-danger-text`.
    - Kontras footer: Menghapus reduksi opacity teks hak cipta pada footer agar kontras teks tetap tajam pada mode gelap.
    - Unit tests: Menambahkan `tests/polish.test.tsx` (3 test cases). Total 19 test suites passing (49 tests passing).
+
+12. **Desktop Modal Centering & Dropdown Arrow Spacing**:
+   - Tata letak modal responsif:
+     - Mobile (< 640px): Tetap menggunakan ergonomi bottom-sheet dengan rounded corner atas dan padding safe area bawah (`env(safe-area-inset-bottom)`).
+     - Desktop (≥ 640px): Modal diposisikan tepat di tengah layar vertikal dan horizontal (`align-items: center`), dilengkapi rounded corner menyeluruh (`var(--radius-xl)`) dan elevasi bayangan halus.
+     - Terapkan `.modal-overlay` dan `.modal-content` pada semua modal aplikasi: `PurchaseModal`, `SellModal`, `ServiceModal`, dan `YearModal`.
+   - Dropdown arrow styling (`.form-select`):
+     - Mengganti panah native OS yang mepet tepi kanan dengan panah SVG chevron custom.
+     - Memberikan jarak aman dari tepi kanan (`background-position: right 1rem center`) dan padding kanan teks yang lega (`padding-right: 2.5rem`) agar isi teks tidak menabrak ikon panah.
+     - Stroke panah otomatis menyesuaikan dengan tema terang dan tema gelap.
+     - Diterapkan pada elemen `<select>` di `PurchaseModal` (`gold-person`, `gold-brand`) dan `ServiceModal` (`service-motor`).
+   - Pengujian: Memperbarui `tests/modal-a11y.test.tsx` dengan pengujian kelas modal responsif, styling dropdown arrow, dan desktop media query rules (52 unit tests passing).
+
+13. **Textarea Resize Bounds & Backdrop Click Drag Guard**:
+   - Batasan resize textarea (`.form-textarea`):
+     - Membatasi arah resize hanya vertikal (`resize: vertical`), mencegah pelebaran tak sengaja secara horizontal.
+     - Menetapkan `min-height: 60px` dan `max-height: 160px` agar textarea tidak bisa ditarik melebihi tinggi container modal dialog.
+     - Diterapkan pada `PurchaseModal` (`gold-notes`) dan `ServiceModal` (`service-notes`).
+   - Backdrop click drag guard:
+     - Menggunakan referensi `isBackdropClickRef` yang hanya bernilai `true` jika event `onMouseDown` berawal langsung di `.modal-overlay`.
+     - Mencegah penutupan modal otomatis ketika user menyeleksi teks atau menarik resize handle textarea lalu melepaskan klik mouse (`mouseUp`) di atas area backdrop overlay.
+     - Diimplementasikan di semua modal: `PurchaseModal`, `SellModal`, `ServiceModal`, dan `YearModal`.
+   - Unit tests: Menambahkan verifikasi `.form-textarea`, batasan resize `max-height: 160px`, dan `resize: vertical` di `tests/modal-a11y.test.tsx` (52 unit tests passing).
+

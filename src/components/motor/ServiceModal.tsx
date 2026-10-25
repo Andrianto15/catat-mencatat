@@ -27,6 +27,7 @@ export function ServiceModal({
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const isBackdropClickRef = React.useRef(false);
 
   useEffect(() => {
     if (initialData) {
@@ -104,34 +105,23 @@ export function ServiceModal({
 
   return (
     <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        zIndex: 50,
-        display: 'flex',
-        alignItems: 'flex-end',
-        justifyContent: 'center',
+      className="modal-overlay"
+      onMouseDown={(e) => {
+        isBackdropClickRef.current = e.target === e.currentTarget;
       }}
       onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
+        if (isBackdropClickRef.current && e.target === e.currentTarget) {
+          onClose();
+        }
+        isBackdropClickRef.current = false;
       }}
     >
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="service-modal-title"
-        style={{
-          width: '100%',
-          maxWidth: '540px',
-          backgroundColor: 'var(--bg-card)',
-          borderTopLeftRadius: 'var(--radius-xl)',
-          borderTopRightRadius: 'var(--radius-xl)',
-          maxHeight: '90vh',
-          overflowY: 'auto',
-          padding: '1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom))',
-          border: '1px solid var(--border-card)',
-        }}
+        className="modal-content"
+        style={{ maxWidth: '540px' }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
           <h3 id="service-modal-title" style={{ fontSize: '1.125rem', fontWeight: 600 }}>
@@ -182,17 +172,9 @@ export function ServiceModal({
             </label>
             <select
               id="service-motor"
+              className="form-select"
               value={motorId}
               onChange={(e) => setMotorId(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '0.625rem',
-                borderRadius: 'var(--radius-lg)',
-                border: '1px solid var(--border-card)',
-                backgroundColor: 'transparent',
-                color: 'var(--text-main)',
-                fontSize: '0.875rem',
-              }}
             >
               {motors.map((m) => (
                 <option key={m.id} value={m.id} style={{ color: '#000' }}>
@@ -312,19 +294,11 @@ export function ServiceModal({
             </label>
             <textarea
               id="service-notes"
+              className="form-textarea"
               rows={2}
               placeholder="Ganti oli mesin, cek kampas rem..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '0.625rem',
-                borderRadius: 'var(--radius-lg)',
-                border: '1px solid var(--border-card)',
-                backgroundColor: 'transparent',
-                color: 'var(--text-main)',
-                fontSize: '0.875rem',
-              }}
             />
           </div>
 

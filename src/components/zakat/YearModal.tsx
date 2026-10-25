@@ -54,6 +54,7 @@ export function YearModal({
   const [balances, setBalances] = useState<Record<string, number>>({});
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const isBackdropClickRef = React.useRef(false);
 
   useEffect(() => {
     if (initialData) {
@@ -145,34 +146,23 @@ export function YearModal({
 
   return (
     <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        zIndex: 50,
-        display: 'flex',
-        alignItems: 'flex-end',
-        justifyContent: 'center',
+      className="modal-overlay"
+      onMouseDown={(e) => {
+        isBackdropClickRef.current = e.target === e.currentTarget;
       }}
       onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
+        if (isBackdropClickRef.current && e.target === e.currentTarget) {
+          onClose();
+        }
+        isBackdropClickRef.current = false;
       }}
     >
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="year-modal-title"
-        style={{
-          width: '100%',
-          maxWidth: '560px',
-          backgroundColor: 'var(--bg-card)',
-          borderTopLeftRadius: 'var(--radius-xl)',
-          borderTopRightRadius: 'var(--radius-xl)',
-          maxHeight: '92vh',
-          overflowY: 'auto',
-          padding: '1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom))',
-          border: '1px solid var(--border-card)',
-        }}
+        className="modal-content"
+        style={{ maxWidth: '560px', maxHeight: '92vh' }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
           <div>
