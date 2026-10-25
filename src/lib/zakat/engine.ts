@@ -1,5 +1,6 @@
 export interface CashBalanceItem {
   account_id: string;
+  account_name?: string;
   balance: number;
 }
 
@@ -83,5 +84,102 @@ export function getRoundingChips(zakatDue: number): RoundingChips {
     round10k: Math.ceil(zakatDue / 10000) * 10000,
     round50k: Math.ceil(zakatDue / 50000) * 50000,
     round100k: Math.ceil(zakatDue / 100000) * 100000,
+  };
+}
+
+export interface ZakatYearData {
+  hijri_year: number;
+  masehi_year: number;
+  gold_price_per_gram: number;
+  nisab_nominal: number;
+  total_assets: number;
+  zakat_due: number;
+  balances?: Array<{
+    account_id: string;
+    account_name?: string;
+    balance: number;
+  }>;
+}
+
+export interface AccountDiff {
+  account_id: string;
+  account_name: string;
+  balancePrevious: number;
+  balanceCurrent: number;
+  deltaNominal: number;
+  deltaPct: number;
+}
+
+export interface YearComparisonResult {
+  totalAssetsDelta: number;
+  totalAssetsDeltaPct: number;
+  zakatDueDelta: number;
+  zakatDueDeltaPct: number;
+  accountDiffs: AccountDiff[];
+}
+
+export function compareTwoZakatYears(
+  prevYear: ZakatYearData,
+  currYear: ZakatYearData
+): YearComparisonResult {
+  const totalAssetsDelta = currYear.total_assets - prevYear.total_assets;
+  const totalAssetsDeltaPct =
+    prevYear.total_assets > 0
+      ? Math.round(((totalAssetsDelta / prevYear.total_assets) * 100) * 100) / 100
+      : 0;
+
+  const zakatDueDelta = currYear.zakat_due - prevYear.zakat_due;
+  const zakatDueDeltaPct =
+    prevYear.zakat_due > 0
+      ? Math.round(((zakatDueDelta / prevYear.zakat_due) * 100) * 100) / 100
+      : 0;
+
+  const prevMap = new Map<string, { name: string; balance: number }>();
+  (prevYear.balances || []).forEach((b) => {
+    prevMap.set(b.account_id, {
+      name: b.account_name || 'Rekening',
+      balance: Number(b.balance || 0),
+    });
+  });
+
+  const currMap = new Map<string, { name: string; balance: number }>();
+  (currYear.balances || []).forEach((b) => {
+    currMap.set(b.account_id, {
+      name: b.account_name || 'Rekening',
+      balance: Number(b.balance || 0),
+    });
+  });
+
+  // Unique list of all account IDs
+  const allAccountIds = Array.from(
+    new Set([...Array.from(prevMap.keys()), ...Array.from(currMap.keys())])
+  );
+
+  const accountDiffs: AccountDiff[] = allAccountIds.map((accId) => {
+    const prev = prevMap.get(accId) || { name: '', balance: 0 };
+    const curr = currMap.get(accId) || { name: '', balance: 0 };
+    const account_name = curr.name || prev.name || 'Rekening';
+    const deltaNominal = curr.balance - prev.balance;
+    const deltaPct =
+      prev.balance > 0
+        ? Math.round(((deltaNominal / prev.balance) * 100) * 100) / 100
+        : 0;
+
+    return {
+      account_id: accId,
+      account_name,
+      balancePrevious: prev.balance,
+      balanceCurrent: curr.balance,
+      deltaNominal,
+      deltaPct,
+    };
+  });
+
+  return {
+    totalAssetsDelta,
+    totalAssetsDeltaPct,
+    zakatDueDelta,
+    zakatDueDeltaPct,
+    accountDiffs,
   };
 }
