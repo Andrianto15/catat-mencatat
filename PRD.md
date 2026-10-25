@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Implementation Complete (v0.4.3) |
+| Status | Implementation Complete (v0.4.4) |
 | Tanggal | 25-10-2026 |
 | Pemilik | Andrian (pengguna tunggal) |
 | Stack | Next.js (App Router) + Supabase (Postgres, Auth) + PWA + Vercel |
@@ -116,7 +116,7 @@ As pengguna, I want melihat footer informatif di semua halaman termasuk login, s
 - Acceptance:
   - Footer terpasang di seluruh halaman aplikasi (`/login`, `/`, `/motor`, `/emas`, `/zakat`, dan halaman pengaturan).
   - Menggunakan tag semantik `<footer>`.
-  - Memuat nama aplikasi "Catat-Mencatat", deskripsi ringkas "Aplikasi Pencatatan Pribadi (Motor, Emas, Zakat Mal)", tahun berjalan dinamis, serta status lisensi MIT.
+  - Memuat nama aplikasi "Catat-Mencatat", badge versi dinamis dari `package.json` (`v{version}`), deskripsi ringkas "Aplikasi Pencatatan Pribadi", tahun berjalan dinamis, serta status lisensi MIT.
   - Desain *mobile-first* bersih tanpa slop visual, mematuhi padding safe area bawah layar (`calc(1.25rem + env(safe-area-inset-bottom))`) agar ramah layar sentuh HP.
   - Tata letak sticky bottom flex flow sehingga footer tetap berada di bagian bawah tampilan pada halaman pendek maupun panjang.
 

@@ -121,3 +121,7 @@ Implementasi native MVP aplikasi PWA pribadi **Catat-Mencatat** sesuai `PRD.md` 
       - **Harga Emas Harian**: Field Harga Jual dan Buyback manual di `src/app/emas/prices/page.tsx`.
     - Unit tests: Menambahkan `tests/number-input.test.tsx` yang menguji formatting ribuan, desimal koma, parsing angka, dan atribut mobile keypad `inputMode` (total 20 test suites, 58 tests passing).
 
+15. **Penampilan Versi Aplikasi pada Footer (v0.4.4)**:
+    - Menampilkan badge dinamis versi aplikasi (`v{version}`) bersumber langsung dari `package.json` di komponen `Footer` (`src/components/Footer.tsx`).
+    - Desain mobile-first dengan pill badge berukuran kompak, padding `0.075rem 0.4rem`, font size `0.6875rem`, dan warna variabel CSS tema (`var(--bg-input)`, `var(--border-card)`, `var(--text-muted)`).
+    - Unit tests: Menambahkan test case pada `tests/footer.test.tsx` untuk memastikan render string versi aplikasi dari `package.json` selalu hadir di markup footer (total 20 test suites, 59 tests passing).

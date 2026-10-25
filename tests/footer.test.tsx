@@ -22,4 +22,10 @@ describe('Footer Component', () => {
     expect(html).toContain('Andrianto Nur Iskandar');
     expect(html).toContain('MIT');
   });
+
+  it('displays application version from package.json', () => {
+    const packageJson = require('../package.json');
+    const html = renderToStaticMarkup(<Footer />);
+    expect(html).toContain(`v${packageJson.version}`);
+  });
 });
