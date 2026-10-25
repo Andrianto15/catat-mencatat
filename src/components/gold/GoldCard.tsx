@@ -79,8 +79,8 @@ export function GoldCard({
               <span style={{
                 fontSize: '0.75rem',
                 fontWeight: 700,
-                color: '#ef4444',
-                backgroundColor: '#fee2e2',
+                color: 'var(--color-danger-text)',
+                backgroundColor: 'var(--color-danger-bg)',
                 padding: '0.2rem 0.5rem',
                 borderRadius: '0.375rem',
               }}>
@@ -107,12 +107,12 @@ export function GoldCard({
                 background: 'rgba(16, 185, 129, 0.1)',
                 border: '1px solid rgba(16, 185, 129, 0.3)',
                 borderRadius: 'var(--radius-lg)',
-                padding: '0.25rem 0.625rem',
+                padding: '0.5rem 0.75rem',
                 cursor: 'pointer',
                 color: '#10b981',
                 fontSize: '0.75rem',
                 fontWeight: 600,
-                minHeight: '36px',
+                minHeight: '44px',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.25rem',
@@ -129,9 +129,15 @@ export function GoldCard({
               style={{
                 background: 'none',
                 border: 'none',
-                padding: '0.375rem',
+                padding: '0.5rem',
                 cursor: 'pointer',
                 color: 'var(--text-muted)',
+                minHeight: '44px',
+                minWidth: '44px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 'var(--radius-lg)',
               }}
               aria-label="Edit"
             >
@@ -144,9 +150,15 @@ export function GoldCard({
               style={{
                 background: 'none',
                 border: 'none',
-                padding: '0.375rem',
+                padding: '0.5rem',
                 cursor: 'pointer',
                 color: '#ef4444',
+                minHeight: '44px',
+                minWidth: '44px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 'var(--radius-lg)',
               }}
               aria-label="Hapus"
             >

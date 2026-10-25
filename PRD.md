@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Implementation Complete (v0.1.0) |
+| Status | Implementation Complete (v0.4.1) |
 | Tanggal | 25-10-2026 |
 | Pemilik | Andrian (pengguna tunggal) |
 | Stack | Next.js (App Router) + Supabase (Postgres, Auth) + PWA + Vercel |
@@ -107,6 +107,16 @@ As pengguna, I want melihat footer informatif di semua halaman termasuk login, s
   - Memuat nama aplikasi "Catat-Mencatat", deskripsi ringkas "Aplikasi Pencatatan Pribadi (Motor, Emas, Zakat Mal)", tahun berjalan dinamis, serta status lisensi MIT.
   - Desain *mobile-first* bersih tanpa slop visual, mematuhi padding safe area bawah layar (`calc(1.25rem + env(safe-area-inset-bottom))`) agar ramah layar sentuh HP.
   - Tata letak sticky bottom flex flow sehingga footer tetap berada di bagian bawah tampilan pada halaman pendek maupun panjang.
+
+**F0.8 Standar Aksesibilitas, Modal & Ergonomi Mobile (Audit Impeccable)**
+As pengguna, I want aplikasi mematuhi standar aksesibilitas WCAG dan kenyamanan sentuhan mobile, so that navigasi dan input data selalu mulus dan inklusif.
+- Acceptance:
+  - Viewport tidak mengunci zoom pengguna (`userScalable: false` / `maximumScale: 1` ditiadakan untuk WCAG 1.4.4 Resize Text).
+  - Seluruh modal dialog mengimplementasikan WAI-ARIA (`role="dialog"`, `aria-modal="true"`, `aria-labelledby`), tombol tutup 44x44px dengan `aria-label="Tutup"`, serta penutupan via tombol `Escape` dan klik luar modal.
+  - Semua label formulir terhubung eksplisit dengan input ID (`<label htmlFor="...">` dan `<input id="...">`).
+  - Target sentuhan interaktif (termasuk filter pills, tombol penutup modal, dan kontrol header) memenuhi standar minimal 44x44px.
+  - Desain token semantik status (`--color-danger-bg`, `--color-danger-text`, `--color-success-bg`, `--color-success-text`) terdefinisi untuk mode terang dan gelap.
+  - Kartu statistik ringkasan servis motor mengadopsi grid auto-fit responsif agar angka tidak terpotong pada layar HP sempit (<360px).
 
 ### 5.1 Modul Servis Motor
 

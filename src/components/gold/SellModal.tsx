@@ -22,6 +22,17 @@ export function SellModal({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen || !purchase) return null;
 
   const count = purchase.piece_count || 1;
@@ -61,34 +72,52 @@ export function SellModal({
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      inset: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      zIndex: 50,
-      display: 'flex',
-      alignItems: 'flex-end',
-      justifyContent: 'center',
-    }}>
-      <div style={{
-        width: '100%',
-        maxWidth: '480px',
-        backgroundColor: 'var(--bg-card)',
-        borderTopLeftRadius: 'var(--radius-xl)',
-        borderTopRightRadius: 'var(--radius-xl)',
-        padding: '1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom))',
-        border: '1px solid var(--border-card)',
-      }}>
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        zIndex: 50,
+        display: 'flex',
+        alignItems: 'flex-end',
+        justifyContent: 'center',
+      }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="sell-modal-title"
+        style={{
+          width: '100%',
+          maxWidth: '480px',
+          backgroundColor: 'var(--bg-card)',
+          borderTopLeftRadius: 'var(--radius-xl)',
+          borderTopRightRadius: 'var(--radius-xl)',
+          padding: '1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom))',
+          border: '1px solid var(--border-card)',
+        }}
+      >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <h3 style={{ fontSize: '1.125rem', fontWeight: 600 }}>Catat Penjualan Emas</h3>
+          <h3 id="sell-modal-title" style={{ fontSize: '1.125rem', fontWeight: 600 }}>Catat Penjualan Emas</h3>
           <button
             onClick={onClose}
+            aria-label="Tutup"
+            title="Tutup"
             style={{
               background: 'none',
               border: 'none',
               cursor: 'pointer',
               color: 'var(--text-muted)',
-              padding: '0.25rem',
+              padding: '0.5rem',
+              minHeight: '44px',
+              minWidth: '44px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: 'var(--radius-lg)',
             }}
           >
             <X size={20} />
@@ -117,8 +146,8 @@ export function SellModal({
         {error && (
           <div style={{
             padding: '0.625rem',
-            backgroundColor: '#fee2e2',
-            color: '#b91c1c',
+            backgroundColor: 'var(--color-danger-bg)',
+            color: 'var(--color-danger-text)',
             borderRadius: 'var(--radius-lg)',
             fontSize: '0.8125rem',
             marginBottom: '1rem',
@@ -129,10 +158,14 @@ export function SellModal({
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
           <div>
-            <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}>
+            <label
+              htmlFor="sell-date"
+              style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}
+            >
               Tanggal Penjualan
             </label>
             <input
+              id="sell-date"
               type="date"
               required
               value={soldAt}
@@ -150,10 +183,14 @@ export function SellModal({
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}>
+            <label
+              htmlFor="sell-price"
+              style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}
+            >
               Harga Jual per Keping (Rp)
             </label>
             <input
+              id="sell-price"
               type="number"
               required
               placeholder="1500000"
@@ -170,6 +207,8 @@ export function SellModal({
               }}
             />
           </div>
+
+
 
           {realized && (
             <div style={{

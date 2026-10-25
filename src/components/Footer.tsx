@@ -30,7 +30,7 @@ export default function Footer() {
           Catat-Mencatat
         </p>
         <p>Aplikasi Pencatatan Pribadi</p>
-        <p style={{ fontSize: '0.75rem', opacity: 0.85 }}>
+        <p style={{ fontSize: '0.75rem' }}>
           © {currentYear} Andrianto Nur Iskandar. Lisensi MIT.
         </p>
       </div>

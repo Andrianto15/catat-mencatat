@@ -274,7 +274,7 @@ export default function ZakatPage() {
                 key={p.id}
                 onClick={() => setSelectedPersonId(p.id)}
                 style={{
-                  padding: '0.4rem 1rem',
+                  padding: '0.5rem 1rem',
                   borderRadius: '9999px',
                   fontSize: '0.8125rem',
                   fontWeight: 600,
@@ -284,7 +284,10 @@ export default function ZakatPage() {
                   backgroundColor: selectedPersonId === p.id ? 'var(--color-primary)' : 'transparent',
                   color: selectedPersonId === p.id ? '#ffffff' : 'var(--text-main)',
                   cursor: 'pointer',
-                  minHeight: '38px',
+                  minHeight: '44px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
               >
                 {p.name}

@@ -61,8 +61,8 @@ export default function LoginPage() {
           <div style={{
             padding: '0.75rem',
             marginBottom: '1rem',
-            backgroundColor: '#fee2e2',
-            color: '#b91c1c',
+            backgroundColor: 'var(--color-danger-bg)',
+            color: 'var(--color-danger-text)',
             borderRadius: 'var(--radius-lg)',
             fontSize: '0.875rem',
           }}>
@@ -72,10 +72,14 @@ export default function LoginPage() {
 
         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div>
-            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.375rem' }}>
+            <label
+              htmlFor="login-email"
+              style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.375rem' }}
+            >
               Email
             </label>
             <input
+              id="login-email"
               type="email"
               required
               value={email}
@@ -90,15 +94,22 @@ export default function LoginPage() {
                 color: 'var(--text-main)',
                 fontSize: '1rem',
                 outline: 'none',
+                boxShadow: 'none',
               }}
+              onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--color-primary)')}
+              onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--border-card)')}
             />
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.375rem' }}>
+            <label
+              htmlFor="login-password"
+              style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.375rem' }}
+            >
               Kata Sandi
             </label>
             <input
+              id="login-password"
               type="password"
               required
               value={password}
@@ -113,7 +124,10 @@ export default function LoginPage() {
                 color: 'var(--text-main)',
                 fontSize: '1rem',
                 outline: 'none',
+                boxShadow: 'none',
               }}
+              onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--color-primary)')}
+              onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--border-card)')}
             />
           </div>
 

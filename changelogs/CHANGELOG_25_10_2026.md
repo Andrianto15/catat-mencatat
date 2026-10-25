@@ -1,6 +1,6 @@
 # CHANGELOG - 25-10-2026
 
-## Ringkasan Perubahan (Catat-Mencatat MVP v0.1.0)
+## Ringkasan Perubahan (Catat-Mencatat v0.4.1)
 
 Implementasi native MVP aplikasi PWA pribadi **Catat-Mencatat** sesuai `PRD.md` dan `DESIGN.md`.
 
@@ -65,3 +65,20 @@ Implementasi native MVP aplikasi PWA pribadi **Catat-Mencatat** sesuai `PRD.md` 
    - Integrasi sticky bottom flex layout di `src/app/layout.tsx` dan `src/app/globals.css`.
    - Penyesuaian tata letak kontainer halaman login (`/login`), home (`/`), motor, emas, zakat, dan offline ke `flex: 1` agar footer konsisten berada di dasar layar.
    - Unit test Jest lengkap di `tests/footer.test.tsx` (3 test cases passing).
+
+10. **Impeccable Audit & Aksesibilitas (WCAG / Mobile Ergonomics)**:
+   - Viewport zoom: Menghapus pembatasan `userScalable: false` dan `maximumScale: 1` di `src/app/layout.tsx` demi kepatuhan WCAG 1.4.4 Resize Text.
+   - WAI-ARIA modal dialog: Seluruh modal bottom-sheet (`ServiceModal`, `PurchaseModal`, `SellModal`, `YearModal`) kini dilengkapi `role="dialog"`, `aria-modal="true"`, `aria-labelledby`, listener tombol `Escape`, dan penutup luar modal.
+   - Target sentuhan (Touch Targets): Tombol penutup modal dan pill tab pemilih pemilik zakat ditingkatkan ke target minimal 44x44px dengan `aria-label="Tutup"`.
+   - Form accessibility: Semua field input/select/textarea di formulir login dan modal dihubungkan secara eksplisit dengan `<label htmlFor="...">` dan `id="..."`, serta mempertahankan visual focus indicator.
+   - Desain token semantik status: Menambahkan variabel warna status `--color-danger-bg`, `--color-danger-text`, `--color-success-bg`, dan `--color-success-text` di `src/app/globals.css` dengan varian adaptif mode terang dan gelap.
+   - Grid responsif: Kartu ringkasan statistik servis motor diubah ke `repeat(auto-fit, minmax(100px, 1fr))` agar angka tidak terpotong pada layar HP sempit (<360px).
+   - Sinkronisasi `DESIGN.md`: Memperbarui dokumentasi desain system agar mencerminkan aplikasi Catat-Mencatat.
+   - Unit tests: Menambahkan 5 test suite baru (`a11y-layout.test.ts`, `theme-tokens.test.ts`, `modal-a11y.test.tsx`, `responsive-targets.test.ts`, `design-doc.test.ts`). Total test suite kini 18 passing (46 unit tests passing).
+
+11. **Impeccable Polish (Focus Rings & Card Ergonomics)**:
+   - Outline fokus global: Menambahkan `:focus-visible` dengan outline 2px steel blue di `globals.css` agar navigasi keyboard konsisten di semua halaman.
+   - Target sentuhan aksi card: Mengoptimalkan tombol Edit, Hapus, dan Jual pada `ServiceCard` dan `GoldCard` menjadi minimal 44x44px.
+   - Badge status semantik: Mengganti warna hardcoded badge 'Terjual' pada `GoldCard` dengan token `--color-danger-bg` dan `--color-danger-text`.
+   - Kontras footer: Menghapus reduksi opacity teks hak cipta pada footer agar kontras teks tetap tajam pada mode gelap.
+   - Unit tests: Menambahkan `tests/polish.test.tsx` (3 test cases). Total 19 test suites passing (49 tests passing).

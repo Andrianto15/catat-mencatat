@@ -8,6 +8,10 @@
   --border-card: #e2e8f0;
   --text-main: #0f172a;
   --text-muted: #64748b;
+  --color-danger-bg: #fee2e2;
+  --color-danger-text: #b91c1c;
+  --color-success-bg: #dcfce7;
+  --color-success-text: #15803d;
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
 }
@@ -18,6 +22,10 @@
   --border-card: #e2e8f0;
   --text-main: #0f172a;
   --text-muted: #64748b;
+  --color-danger-bg: #fee2e2;
+  --color-danger-text: #b91c1c;
+  --color-success-bg: #dcfce7;
+  --color-success-text: #15803d;
 }
 
 [data-theme="dark"] {
@@ -26,6 +34,10 @@
   --border-card: #1e293b;
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
+  --color-danger-bg: rgba(239, 68, 68, 0.2);
+  --color-danger-text: #fca5a5;
+  --color-success-bg: rgba(16, 185, 129, 0.2);
+  --color-success-text: #6ee7b7;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -35,6 +47,10 @@
     --border-card: #1e293b;
     --text-main: #f8fafc;
     --text-muted: #94a3b8;
+    --color-danger-bg: rgba(239, 68, 68, 0.2);
+    --color-danger-text: #fca5a5;
+    --color-success-bg: rgba(16, 185, 129, 0.2);
+    --color-success-text: #6ee7b7;
   }
 }
 
@@ -57,6 +73,11 @@ body {
 a {
   color: inherit;
   text-decoration: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 .app-layout {

@@ -76,6 +76,17 @@ export function YearModal({
     }
   }, [initialData, latestGoldPrice1g]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const handleHijriChange = (year: number) => {
@@ -133,29 +144,39 @@ export function YearModal({
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      inset: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      zIndex: 50,
-      display: 'flex',
-      alignItems: 'flex-end',
-      justifyContent: 'center',
-    }}>
-      <div style={{
-        width: '100%',
-        maxWidth: '560px',
-        backgroundColor: 'var(--bg-card)',
-        borderTopLeftRadius: 'var(--radius-xl)',
-        borderTopRightRadius: 'var(--radius-xl)',
-        maxHeight: '92vh',
-        overflowY: 'auto',
-        padding: '1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom))',
-        border: '1px solid var(--border-card)',
-      }}>
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        zIndex: 50,
+        display: 'flex',
+        alignItems: 'flex-end',
+        justifyContent: 'center',
+      }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="year-modal-title"
+        style={{
+          width: '100%',
+          maxWidth: '560px',
+          backgroundColor: 'var(--bg-card)',
+          borderTopLeftRadius: 'var(--radius-xl)',
+          borderTopRightRadius: 'var(--radius-xl)',
+          maxHeight: '92vh',
+          overflowY: 'auto',
+          padding: '1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom))',
+          border: '1px solid var(--border-card)',
+        }}
+      >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
           <div>
-            <h3 style={{ fontSize: '1.125rem', fontWeight: 600 }}>
+            <h3 id="year-modal-title" style={{ fontSize: '1.125rem', fontWeight: 600 }}>
               {initialData ? `Edit Saldo Zakat ${hijriYear} H` : `Input Zakat Tahun ${hijriYear} H`}
             </h3>
             <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
@@ -164,12 +185,20 @@ export function YearModal({
           </div>
           <button
             onClick={onClose}
+            aria-label="Tutup"
+            title="Tutup"
             style={{
               background: 'none',
               border: 'none',
               cursor: 'pointer',
               color: 'var(--text-muted)',
-              padding: '0.25rem',
+              padding: '0.5rem',
+              minHeight: '44px',
+              minWidth: '44px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: 'var(--radius-lg)',
             }}
           >
             <X size={20} />
@@ -179,8 +208,8 @@ export function YearModal({
         {error && (
           <div style={{
             padding: '0.625rem',
-            backgroundColor: '#fee2e2',
-            color: '#b91c1c',
+            backgroundColor: 'var(--color-danger-bg)',
+            color: 'var(--color-danger-text)',
             borderRadius: 'var(--radius-lg)',
             fontSize: '0.8125rem',
             marginBottom: '1rem',
@@ -193,10 +222,14 @@ export function YearModal({
           {/* Header Params */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}>
+              <label
+                htmlFor="zakat-hijri-year"
+                style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}
+              >
                 Tahun Hijriah
               </label>
               <input
+                id="zakat-hijri-year"
                 type="number"
                 required
                 value={hijriYear}
@@ -213,10 +246,14 @@ export function YearModal({
               />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}>
+              <label
+                htmlFor="zakat-ref-date"
+                style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}
+              >
                 Ref: 1 Ramadhan
               </label>
               <input
+                id="zakat-ref-date"
                 type="date"
                 required
                 value={referenceDate}
@@ -235,10 +272,14 @@ export function YearModal({
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}>
+            <label
+              htmlFor="zakat-gold-price"
+              style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}
+            >
               Harga Emas Acuan (Rp / gram)
             </label>
             <input
+              id="zakat-gold-price"
               type="number"
               required
               value={goldPrice}
@@ -296,6 +337,8 @@ export function YearModal({
                     </div>
                     <div style={{ width: '160px' }}>
                       <input
+                        id={`zakat-acc-${acc.id}`}
+                        aria-label={`Saldo ${acc.account_name}`}
                         type="number"
                         placeholder="0"
                         value={balances[acc.id] ?? ''}
