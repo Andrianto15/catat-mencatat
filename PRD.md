@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Draft v0.1 (menunggu persetujuan) |
+| Status | Implementation Complete (v0.1.0) |
 | Tanggal | 25-10-2026 |
 | Pemilik | Andrian (pengguna tunggal) |
 | Stack | Next.js (App Router) + Supabase (Postgres, Auth) + PWA + Vercel |
