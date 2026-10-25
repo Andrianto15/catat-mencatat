@@ -125,3 +125,20 @@ Implementasi native MVP aplikasi PWA pribadi **Catat-Mencatat** sesuai `PRD.md` 
     - Menampilkan badge dinamis versi aplikasi (`v{version}`) bersumber langsung dari `package.json` di komponen `Footer` (`src/components/Footer.tsx`).
     - Desain mobile-first dengan pill badge berukuran kompak, padding `0.075rem 0.4rem`, font size `0.6875rem`, dan warna variabel CSS tema (`var(--bg-input)`, `var(--border-card)`, `var(--text-muted)`).
     - Unit tests: Menambahkan test case pada `tests/footer.test.tsx` untuk memastikan render string versi aplikasi dari `package.json` selalu hadir di markup footer (total 20 test suites, 59 tests passing).
+
+16. **Logo Aplikasi, Favicon, dan Icon Mobile PWA (v0.4.5)**:
+    - **Desain Logo Sederhana & Representatif**:
+      - Mengusung metafora pencatatan/jurnal: buku catatan spiral berlatar Steel Blue (`#4682b4`), baris checklist aktif dengan checkmark hijau (`#10b981`), dan pensil aksen emas (`#f59e0b`) yang merepresentasikan aksi mencatat.
+      - Master vektor tersedia di `public/logo.svg` dan `public/favicon.svg`.
+      - Komponen React `Logo` (`src/components/Logo.tsx`) mandiri, scalable, dan memiliki atribut aksesibilitas semantik (`role="img"`, `aria-label="Logo Catat-Mencatat"`).
+    - **Integrasi Halaman Login**:
+      - Menyematkan `Logo` di bagian atas card form masuk pada `src/app/login/page.tsx` dengan tata letak centering responsif mobile (`size={60}`).
+    - **Favicon & Apple Touch Icon**:
+      - Menyediakan `public/favicon.ico` (32x32 MS ICO) dan `public/favicon.svg` (vektor modern).
+      - Menyediakan `public/apple-touch-icon.png` (180x180 RGBA) untuk iOS home screen.
+      - Mendaftarkan icon di `<head>` dan Next.js `metadata.icons` pada `src/app/layout.tsx`.
+    - **PWA Mobile Home Screen**:
+      - Memperbarui aset icon PWA resolusi tinggi: `public/icons/icon-192x192.png` dan `public/icons/icon-512x512.png`.
+      - Menambahkan atribut `"purpose": "any maskable"` di `public/manifest.json`.
+    - **Unit Tests**:
+      - Menambahkan `tests/logo.test.tsx` yang memverifikasi render komponen `Logo`, custom size, ketersediaan seluruh file aset icon, dan integrasi di `LoginPage` (total 21 test suites, 63 tests passing).

@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Implementation Complete (v0.4.4) |
+| Status | Implementation Complete (v0.4.5) |
 | Tanggal | 25-10-2026 |
 | Pemilik | Andrian (pengguna tunggal) |
 | Stack | Next.js (App Router) + Supabase (Postgres, Auth) + PWA + Vercel |
@@ -129,6 +129,15 @@ As pengguna, I want aplikasi mematuhi standar aksesibilitas WCAG dan kenyamanan 
   - Target sentuhan interaktif (termasuk filter pills, tombol penutup modal, dan kontrol header) memenuhi standar minimal 44x44px.
   - Desain token semantik status (`--color-danger-bg`, `--color-danger-text`, `--color-success-bg`, `--color-success-text`) terdefinisi untuk mode terang dan gelap.
   - Kartu statistik ringkasan servis motor mengadopsi grid auto-fit responsif agar angka tidak terpotong pada layar HP sempit (<360px).
+
+**F0.9 Identitas Visual, Logo & Favicon**
+As pengguna, I want aplikasi memiliki logo representatif, favicon, dan icon home screen mobile yang konsisten, so that aplikasi mudah dikenali saat dibuka di browser maupun diinstall di smartphone.
+- Acceptance:
+  - Komponen Logo SVG (`Logo.tsx`) mandiri, scalable, tanpa dependensi eksternal, dengan aksesibilitas `role="img"` dan `aria-label="Logo Catat-Mencatat"`.
+  - Desain logo merepresentasikan esensi "catat-mencatat": notepad spiral minimalis berlatar Steel Blue (`#4682b4`), item checklist aktif dengan checkmark hijau (`#10b981`), dan pensil aksen emas (`#f59e0b`) pada sudut 45 derajat.
+  - Logo terpasang di atas judul pada halaman Login (`/login`) dengan centering rapi dan ukuran proporsional mobile (60x60px).
+  - Favicon multi-format tersedia di `public/favicon.ico` (32x32 ICO) dan `public/favicon.svg` (vektor modern), terdaftar di `<head>` dan `metadata.icons` pada [layout.tsx](file:///Users/andriantonuriskandar/Documents/Playground/catat-mencatat/src/app/layout.tsx).
+  - PWA home screen icon tersedia di `public/icons/icon-192x192.png`, `public/icons/icon-512x512.png`, dan `public/apple-touch-icon.png`, terkonfigurasi dengan `purpose: "any maskable"` pada `manifest.json`.
 
 ### 5.1 Modul Servis Motor
 
