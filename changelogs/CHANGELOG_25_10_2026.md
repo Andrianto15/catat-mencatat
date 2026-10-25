@@ -106,3 +106,18 @@ Implementasi native MVP aplikasi PWA pribadi **Catat-Mencatat** sesuai `PRD.md` 
      - Diimplementasikan di semua modal: `PurchaseModal`, `SellModal`, `ServiceModal`, dan `YearModal`.
    - Unit tests: Menambahkan verifikasi `.form-textarea`, batasan resize `max-height: 160px`, dan `resize: vertical` di `tests/modal-a11y.test.tsx` (52 unit tests passing).
 
+14. **Pemisah Ribuan pada Seluruh Form Angka (Thousand Separator)**:
+    - Helper formatting & parsing (`src/lib/number.ts`):
+      - Fungsi `formatThousand()` untuk memformat angka dengan pemisah titik ribuan (`1.500.000`) dan pemisah desimal koma (`0,5`).
+      - Fungsi `parseThousand()` untuk mengembalikan string terformat ke tipe `number` murni untuk state dan database.
+    - Komponen `NumberInput` (`src/components/NumberInput.tsx`):
+      - Menggantikan elemen `<input type="number">` yang secara native memblokir titik separator.
+      - Menggunakan `type="text"` dipadukan `inputMode="numeric"` (atau `inputMode="decimal"`) agar keyboard numerik pada smartphone tetap muncul otomatis saat field disentuh.
+      - Placeholder angka otomatis disesuaikan dengan format ribuan.
+    - Integrasi form:
+      - **Modul Motor**: Field Kilometer (`service-km`) dan Biaya Servis (`service-cost`) di `ServiceModal.tsx`.
+      - **Modul Zakat**: Field Harga Emas Acuan (`zakat-gold-price`) dan Saldo Setiap Rekening (`zakat-acc-{id}`) di `YearModal.tsx`.
+      - **Modul Emas**: Field Gramasi Emas (`gold-weight`), Jumlah Keping (`gold-pieces`), dan Harga Beli (`gold-price`) di `PurchaseModal.tsx`, serta Harga Jual (`sell-price`) di `SellModal.tsx`.
+      - **Harga Emas Harian**: Field Harga Jual dan Buyback manual di `src/app/emas/prices/page.tsx`.
+    - Unit tests: Menambahkan `tests/number-input.test.tsx` yang menguji formatting ribuan, desimal koma, parsing angka, dan atribut mobile keypad `inputMode` (total 20 test suites, 58 tests passing).
+

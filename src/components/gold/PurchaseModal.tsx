@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Person, GoldPurchase } from '@/lib/gold/actions';
+import { NumberInput } from '@/components/NumberInput';
 
 interface PurchaseModalProps {
   isOpen: boolean;
@@ -246,13 +247,12 @@ export function PurchaseModal({
               >
                 Gramasi (gr)
               </label>
-              <input
+              <NumberInput
                 id="gold-weight"
-                type="number"
-                step="0.01"
+                allowDecimal
                 placeholder="1"
                 value={weightGram}
-                onChange={(e) => setWeightGram(e.target.value === '' ? '' : Number(e.target.value))}
+                onChange={setWeightGram}
                 style={{
                   width: '100%',
                   padding: '0.625rem',
@@ -271,12 +271,11 @@ export function PurchaseModal({
               >
                 Jumlah Keping (pcs)
               </label>
-              <input
+              <NumberInput
                 id="gold-pieces"
-                type="number"
                 placeholder="1"
                 value={pieceCount}
-                onChange={(e) => setPieceCount(e.target.value === '' ? '' : Number(e.target.value))}
+                onChange={setPieceCount}
                 style={{
                   width: '100%',
                   padding: '0.625rem',
@@ -297,12 +296,11 @@ export function PurchaseModal({
             >
               Harga Beli per Keping (Rp)
             </label>
-            <input
+            <NumberInput
               id="gold-price"
-              type="number"
               placeholder="1450000"
               value={pricePerPiece}
-              onChange={(e) => setPricePerPiece(e.target.value === '' ? '' : Number(e.target.value))}
+              onChange={setPricePerPiece}
               style={{
                 width: '100%',
                 padding: '0.625rem',

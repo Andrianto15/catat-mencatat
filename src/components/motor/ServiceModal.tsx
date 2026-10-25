@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Motor, MotorServiceItem } from '@/lib/motor/actions';
+import { NumberInput } from '@/components/NumberInput';
 
 interface ServiceModalProps {
   isOpen: boolean;
@@ -216,12 +217,11 @@ export function ServiceModal({
               >
                 Kilometer (km)
               </label>
-              <input
+              <NumberInput
                 id="service-km"
-                type="number"
                 placeholder="12000"
                 value={currentKm}
-                onChange={(e) => setCurrentKm(e.target.value === '' ? '' : Number(e.target.value))}
+                onChange={setCurrentKm}
                 style={{
                   width: '100%',
                   padding: '0.625rem',
@@ -242,12 +242,11 @@ export function ServiceModal({
             >
               Biaya Servis (Rp)
             </label>
-            <input
+            <NumberInput
               id="service-cost"
-              type="number"
               placeholder="150000"
               value={cost}
-              onChange={(e) => setCost(e.target.value === '' ? '' : Number(e.target.value))}
+              onChange={setCost}
               style={{
                 width: '100%',
                 padding: '0.625rem',

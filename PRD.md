@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Implementation Complete (v0.4.2) |
+| Status | Implementation Complete (v0.4.3) |
 | Tanggal | 25-10-2026 |
 | Pemilik | Andrian (pengguna tunggal) |
 | Stack | Next.js (App Router) + Supabase (Postgres, Auth) + PWA + Vercel |
@@ -82,8 +82,15 @@ As pengguna, I want form yang cepat diisi berulang, so that memasukkan data lama
   - Tanggal boleh diisi mundur tanpa batas, tidak boleh di masa depan.
   - Setiap catatan bisa diedit dan dihapus (hapus dengan konfirmasi).
 
-**F0.4 Format angka**
-- Rupiah ditampilkan format `id-ID` (`Rp 1.234.567`); input angka mendukung pemisah ribuan.
+**F0.4 Format angka & Pemisah Ribuan (Thousand Separator)**
+- Rupiah dan kuantitas besar ditampilkan dalam format `id-ID` (`Rp 1.234.567` atau `12.000 km`).
+- Seluruh input angka pada formulir menggunakan komponen `NumberInput` dengan pemisah ribuan otomatis (`.`):
+  - Modul Motor: Kilometer (`current_km`) dan Biaya Servis (`cost`).
+  - Modul Zakat: Harga Emas Acuan (`gold_price_per_gram`) dan Saldo Tiap Rekening (`balances[acc.id]`).
+  - Modul Emas: Jumlah Keping (`piece_count`), Harga Beli per Keping (`price_per_piece`), Harga Jual per Keping (`sold_price_per_piece`), serta Harga Jual/Buyback Manual (`prices/page.tsx`).
+  - Gramasi Emas (`weight_gram`) mendukung desimal (`allowDecimal`) dengan pemisah koma `,`.
+- Input menggunakan `type="text"` dipadukan `inputMode="numeric"` (atau `inputMode="decimal"`) agar keyboard angka pada perangkat mobile tetap aktif dan mencegah browser memblokir separator titik/koma.
+- Parsing angka dilakukan secara otomatis ke format `number` murni untuk state dan database.
 - Kolom "No" pada riwayat = nomor urut tampilan, tidak disimpan di database.
 
 **F0.5 Dukungan PWA (Progressive Web App)**

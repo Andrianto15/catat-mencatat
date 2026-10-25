@@ -59,7 +59,7 @@ describe('Modal Accessibility, Responsive Layout, and Select Styling', () => {
       <PurchaseModal
         isOpen={true}
         onClose={() => {}}
-        people={[{ id: 'p1', name: 'Andrian' }]}
+        people={[{ id: 'p1', name: 'Andrian', is_active: true }]}
         onSave={async () => {}}
       />
     );
@@ -88,7 +88,6 @@ describe('Modal Accessibility, Responsive Layout, and Select Styling', () => {
           price_per_piece: 5000000,
           notes: null,
           created_at: '2026-01-01',
-          updated_at: '2026-01-01',
           sold_at: null,
           sold_price_per_piece: null,
         }}

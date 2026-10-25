@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { X, DollarSign, TrendingUp, TrendingDown } from 'lucide-react';
 import { GoldPurchase, validateSellInput, calculateRealizedProfit } from '@/lib/gold/actions';
+import { NumberInput } from '@/components/NumberInput';
 
 interface SellModalProps {
   isOpen: boolean;
@@ -181,13 +182,12 @@ export function SellModal({
             >
               Harga Jual per Keping (Rp)
             </label>
-            <input
+            <NumberInput
               id="sell-price"
-              type="number"
               required
               placeholder="1500000"
               value={soldPricePerPiece}
-              onChange={(e) => setSoldPricePerPiece(e.target.value === '' ? '' : Number(e.target.value))}
+              onChange={setSoldPricePerPiece}
               style={{
                 width: '100%',
                 padding: '0.625rem',

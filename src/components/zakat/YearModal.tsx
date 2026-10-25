@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Lock, Check, Sparkles } from 'lucide-react';
 import { getHijriRamadhanDate } from '@/lib/zakat/hijri';
 import { calculateZakat, getRoundingChips } from '@/lib/zakat/engine';
+import { NumberInput } from '@/components/NumberInput';
 
 export interface ZakatAccount {
   id: string;
@@ -268,12 +269,11 @@ export function YearModal({
             >
               Harga Emas Acuan (Rp / gram)
             </label>
-            <input
+            <NumberInput
               id="zakat-gold-price"
-              type="number"
               required
               value={goldPrice}
-              onChange={(e) => setGoldPrice(Number(e.target.value))}
+              onChange={(val) => setGoldPrice(val === '' ? 0 : val)}
               style={{
                 width: '100%',
                 padding: '0.625rem',
@@ -326,15 +326,13 @@ export function YearModal({
                       )}
                     </div>
                     <div style={{ width: '160px' }}>
-                      <input
+                      <NumberInput
                         id={`zakat-acc-${acc.id}`}
                         aria-label={`Saldo ${acc.account_name}`}
-                        type="number"
                         placeholder="0"
                         value={balances[acc.id] ?? ''}
-                        onChange={(e) => {
-                          const val = e.target.value === '' ? 0 : Number(e.target.value);
-                          setBalances((prev) => ({ ...prev, [acc.id]: val }));
+                        onChange={(val) => {
+                          setBalances((prev) => ({ ...prev, [acc.id]: val === '' ? 0 : val }));
                         }}
                         style={{
                           width: '100%',
