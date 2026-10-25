@@ -88,6 +88,16 @@ As pengguna, I want menginstall aplikasi ke home screen HP layaknya native app, 
   - Service worker caching untuk app shell, static assets (CSS, JS, fonts).
   - Halaman offline fallback jika koneksi internet terputus saat mengakses halaman baru.
 
+**F0.6 Switch Theme (Dark / Light / System)**
+As pengguna, I want mengubah tema aplikasi antara Terang (Light), Gelap (Dark), dan Otomatis Sistem (System), so that mata nyaman saat menggunakan aplikasi dalam berbagai kondisi pencahayaan.
+- Acceptance:
+  - Tombol ikon toggle tema tersedia di header halaman utama dan header modul-modul (`/motor`, `/emas`, `/zakat`).
+  - Siklus pergantian saat tombol diklik: Terang (`light`) -> Gelap (`dark`) -> Sistem (`system`) -> Terang.
+  - Pilihan tersimpan di `localStorage` (`catat_theme`).
+  - Script anti-flicker (anti-FOUC) disematkan di `<head>` agar tema langsung aktif sebelum render pertama tanpa flicker putih/hitam.
+  - Mode sistem sinkron otomatis dengan perubahan `prefers-color-scheme` pada perangkat pengguna.
+  - Aksesibilitas tap target minimal 44x44px untuk kenyamanan sentuhan mobile.
+
 ### 5.1 Modul Servis Motor
 
 **F1.1 Riwayat servis**

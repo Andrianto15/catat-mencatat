@@ -42,3 +42,12 @@ Implementasi native MVP aplikasi PWA pribadi **Catat-Mencatat** sesuai `PRD.md` 
    - PWA app icons (192x192 dan 512x512).
    - Service worker offline cache (`/public/sw.js`) dan halaman fallback offline (`/offline`).
    - Safe-area insets dan minimum touch target 44px di seluruh interaksi.
+
+7. **Theme Switcher (Dark / Light / System Mode)**:
+   - Komponen `ThemeToggle` (`src/components/ThemeToggle.tsx`) dengan dukungan 3 mode: Terang (`light`), Gelap (`dark`), dan Sistem (`system`).
+   - Penambahan CSS rules `[data-theme="light"]` dan `[data-theme="dark"]` di `src/app/globals.css` dengan fallback preferensi sistem.
+   - Script anti-flicker (anti-FOUC) pada `<head>` di `src/app/layout.tsx` untuk rendering instan tanpa kedipan warna.
+   - Sinkronisasi event `matchMedia` otomatis saat berada pada mode Sistem.
+   - Persistensi state pilihan tema di `localStorage` (`catat_theme`).
+   - Integrasi tombol toggle tema dengan tap target 44px di header dashboard (`/`), Servis Motor (`/motor`), Emas Fisik (`/emas`), dan Zakat Mal (`/zakat`).
+   - Unit test Jest lengkap di `tests/theme.test.ts` (7 test cases).

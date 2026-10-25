@@ -9,6 +9,7 @@ import { calculateGoldAssetSummary } from '@/lib/gold/profit';
 import { GoldCard } from '@/components/gold/GoldCard';
 import { PurchaseModal } from '@/components/gold/PurchaseModal';
 import { SellModal } from '@/components/gold/SellModal';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function GoldPage() {
   const [people, setPeople] = useState<Person[]>([]);
@@ -176,6 +177,7 @@ export default function GoldPage() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+          <ThemeToggle />
           <Link
             href="/emas/prices"
             style={{

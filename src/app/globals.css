@@ -12,8 +12,24 @@
   --radius-xl: 1rem;
 }
 
+[data-theme="light"] {
+  --bg-main: #f8fafc;
+  --bg-card: #ffffff;
+  --border-card: #e2e8f0;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+}
+
+[data-theme="dark"] {
+  --bg-main: #090d16;
+  --bg-card: #0f172a;
+  --border-card: #1e293b;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+}
+
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg-main: #090d16;
     --bg-card: #0f172a;
     --border-card: #1e293b;

@@ -10,6 +10,7 @@ import { CompareTwoYears } from '@/components/zakat/CompareTwoYears';
 import { ZakatSpreadsheetTable } from '@/components/zakat/ZakatSpreadsheetTable';
 import { ZakatTrendChart } from '@/components/zakat/ZakatTrendChart';
 import { resolveZakatGoldHoldings } from '@/lib/zakat/engine';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function ZakatPage() {
   const [people, setPeople] = useState<Person[]>([]);
@@ -235,22 +236,25 @@ export default function ZakatPage() {
           </div>
         </div>
 
-        <Link
-          href="/zakat/settings"
-          style={{
-            padding: '0.375rem',
-            display: 'flex',
-            alignItems: 'center',
-            color: 'var(--text-muted)',
-            borderRadius: 'var(--radius-lg)',
-            minHeight: '44px',
-            minWidth: '44px',
-            justifyContent: 'center',
-          }}
-          title="Pengaturan Rekening"
-        >
-          <Settings size={20} />
-        </Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+          <ThemeToggle />
+          <Link
+            href="/zakat/settings"
+            style={{
+              padding: '0.375rem',
+              display: 'flex',
+              alignItems: 'center',
+              color: 'var(--text-muted)',
+              borderRadius: 'var(--radius-lg)',
+              minHeight: '44px',
+              minWidth: '44px',
+              justifyContent: 'center',
+            }}
+            title="Pengaturan Rekening"
+          >
+            <Settings size={20} />
+          </Link>
+        </div>
       </header>
 
       <main style={{ maxWidth: '800px', margin: '0 auto', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>

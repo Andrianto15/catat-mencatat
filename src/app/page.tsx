@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Bike, Coins, Scale, LogOut } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default async function HomePage() {
   const supabase = createClient();
@@ -60,27 +61,30 @@ export default async function HomePage() {
             {user?.email || 'Dashboard Pribadi'}
           </p>
         </div>
-        <form action={handleLogout}>
-          <button
-            type="submit"
-            title="Keluar"
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'var(--text-muted)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              padding: '0.5rem',
-              borderRadius: 'var(--radius-lg)',
-              minHeight: '44px',
-              minWidth: '44px',
-              justifyContent: 'center',
-            }}
-          >
-            <LogOut size={20} />
-          </button>
-        </form>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+          <ThemeToggle />
+          <form action={handleLogout}>
+            <button
+              type="submit"
+              title="Keluar"
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--text-muted)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                padding: '0.5rem',
+                borderRadius: 'var(--radius-lg)',
+                minHeight: '44px',
+                minWidth: '44px',
+                justifyContent: 'center',
+              }}
+            >
+              <LogOut size={20} />
+            </button>
+          </form>
+        </div>
       </header>
 
       {/* Main Clean 3-Module Launcher */}

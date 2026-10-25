@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import Script from 'next/script';
+import { getThemeScript } from '@/lib/theme';
 
 export const metadata: Metadata = {
   title: 'Catat-Mencatat',
@@ -28,9 +29,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="id">
+    <html lang="id" suppressHydrationWarning>
       <head>
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        <script dangerouslySetInnerHTML={{ __html: getThemeScript() }} />
       </head>
       <body>
         <main className="app-container">{children}</main>
