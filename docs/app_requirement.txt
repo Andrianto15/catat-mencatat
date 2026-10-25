@@ -1,0 +1,36 @@
+Saya mau bikin aplikasi sederhana CRUD untuk mencatat beberapa jenis hal. Rencana itu di halaman utama app ada tombol-tombol atau icon untuk mengakses halaman-halaman berikut. Jadi ketika di klik baru menampilkan halaman-halaman berikut.
+
+1. Catat Servis Motor
+    - No
+    - Tanggal servis
+    - Jenis motor (NMax / Beat / dll)
+    - KM saat servis
+    - Harga
+    - Tempat
+    - Catatan servis
+    
+    Tambahan:
+    - Ada halaman utama (history) dan tombol input (pakai modal)
+    - Ada filter berdasarkan jenis motor dan tanggal
+    
+2. Catat Beli Emas
+    - No
+    - Tanggal beli
+    - Jenis emas (antam / koin / dll)
+    - Berat (gram)
+    - Harga Jual (harga saat beli)
+    - Harga Beli (harga buyback saat beli)
+    - Tempat
+    - Profit (Rp) : Rumus = (Harga buyback saat ini - Harga Jual) * gram
+    - Profit (%) : Rumus = (Harga buyback saat ini - Harga Jual) / Harga Jual * 100
+    - Pemilik Emas
+
+    Tambahan:
+    - Ada halaman utama (history) dan tombol input (pakai modal)
+    - Ada filter berdasarkan jenis emas dan tanggal, dan pemilik emas
+    - Ada card summary total aset (berapa gram dan berapa rupiah) per pemilik emas
+    - Kalau bisa untuk data harga emas saat ini / harga buyback saat ini ambil dari API public
+    
+3. Catat Zakat Mal
+    - Tampilan refer ke image req_catat_zakat_mal.png
+    - Ada grouping per pelaku / orang nya
