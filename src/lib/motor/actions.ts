@@ -1,0 +1,93 @@
+export interface Motor {
+  id: string;
+  user_id?: string;
+  name: string;
+  plate_number?: string | null;
+  is_active: boolean;
+  created_at?: string;
+}
+
+export interface MotorServiceItem {
+  id: string;
+  user_id?: string;
+  motor_id: string;
+  service_date: string;
+  current_km: number;
+  cost: number;
+  workshop_name?: string | null;
+  notes?: string | null;
+  created_at?: string;
+  motors?: Motor;
+}
+
+export interface ServiceFilterOptions {
+  motor_id?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
+export function filterMotorServices(
+  services: MotorServiceItem[],
+  options: ServiceFilterOptions
+): MotorServiceItem[] {
+  return services.filter((s) => {
+    if (options.motor_id && s.motor_id !== options.motor_id) {
+      return false;
+    }
+    if (options.startDate && s.service_date < options.startDate) {
+      return false;
+    }
+    if (options.endDate && s.service_date > options.endDate) {
+      return false;
+    }
+    return true;
+  });
+}
+
+export function calculateMotorStats(services: MotorServiceItem[]) {
+  const totalServices = services.length;
+  const totalCost = services.reduce((acc, s) => acc + Number(s.cost || 0), 0);
+
+  let latestKm = 0;
+  let latestDate: string | null = null;
+
+  if (services.length > 0) {
+    const sorted = [...services].sort((a, b) => {
+      if (b.service_date !== a.service_date) {
+        return b.service_date.localeCompare(a.service_date);
+      }
+      return b.current_km - a.current_km;
+    });
+    latestKm = sorted[0].current_km;
+    latestDate = sorted[0].service_date;
+  }
+
+  return {
+    totalServices,
+    totalCost,
+    latestKm,
+    latestDate,
+  };
+}
+
+export function validateServiceInput(input: Partial<MotorServiceItem>) {
+  const errors: string[] = [];
+
+  if (!input.motor_id) {
+    errors.push('Pilih motor terlebih dahulu.');
+  }
+  if (!input.service_date) {
+    errors.push('Tanggal servis wajib diisi.');
+  }
+  if (input.current_km === undefined || input.current_km < 0) {
+    errors.push('Kilometer servis tidak boleh negatif.');
+  }
+  if (input.cost === undefined || input.cost < 0) {
+    errors.push('Biaya servis tidak boleh negatif.');
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors,
+  };
+}
