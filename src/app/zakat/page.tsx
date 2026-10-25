@@ -199,7 +199,7 @@ export default function ZakatPage() {
   const prevYear = years.length > 1 ? years[1] : null;
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-main)', paddingBottom: '5rem' }}>
+    <div style={{ flex: 1, backgroundColor: 'var(--bg-main)', paddingBottom: '5rem' }}>
       {/* Header */}
       <header style={{
         position: 'sticky',

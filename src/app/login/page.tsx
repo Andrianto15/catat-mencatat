@@ -33,11 +33,11 @@ export default function LoginPage() {
 
   return (
     <div style={{
-      minHeight: '100vh',
+      flex: 1,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '1rem',
+      padding: '2rem 1rem',
       backgroundColor: 'var(--bg-main)',
     }}>
       <div style={{

@@ -32,3 +32,6 @@ next-env.d.ts
 
 # AI
 AGENTS.md
+
+# TypeScript
+*.tsbuildinfo

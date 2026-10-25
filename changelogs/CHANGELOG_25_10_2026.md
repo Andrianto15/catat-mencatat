@@ -57,3 +57,11 @@ Implementasi native MVP aplikasi PWA pribadi **Catat-Mencatat** sesuai `PRD.md` 
    - Penambahan atribut `"license": "MIT"` pada `package.json`.
    - Dokumentasi lisensi diperbarui pada `PRD.md`.
    - Unit test verifikasi lisensi di `tests/license.test.ts` (2 test cases passing).
+
+9. **Footer Aplikasi (Semua Halaman)**:
+   - Komponen `Footer` (`src/components/Footer.tsx`) dengan semantik `<footer>` dan styling *mobile-first*.
+   - Menampilkan nama aplikasi "Catat-Mencatat", deskripsi fungsi, tahun berjalan dinamis, dan rujukan lisensi MIT.
+   - Mengadopsi padding safe area bawah (`calc(1.25rem + env(safe-area-inset-bottom))`) untuk perangkat mobile/PWA.
+   - Integrasi sticky bottom flex layout di `src/app/layout.tsx` dan `src/app/globals.css`.
+   - Penyesuaian tata letak kontainer halaman login (`/login`), home (`/`), motor, emas, zakat, dan offline ke `flex: 1` agar footer konsisten berada di dasar layar.
+   - Unit test Jest lengkap di `tests/footer.test.tsx` (3 test cases passing).

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import Script from 'next/script';
 import { getThemeScript } from '@/lib/theme';
+import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
   title: 'Catat-Mencatat',
@@ -35,7 +36,10 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: getThemeScript() }} />
       </head>
       <body>
-        <main className="app-container">{children}</main>
+        <div className="app-layout">
+          <main className="app-content">{children}</main>
+          <Footer />
+        </div>
         <Script id="register-sw" strategy="afterInteractive">
           {`
             if ('serviceWorker' in navigator) {

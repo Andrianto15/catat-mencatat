@@ -99,6 +99,15 @@ As pengguna, I want mengubah tema aplikasi antara Terang (Light), Gelap (Dark), 
   - Mode sistem sinkron otomatis dengan perubahan `prefers-color-scheme` pada perangkat pengguna.
   - Aksesibilitas tap target minimal 44x44px untuk kenyamanan sentuhan mobile.
 
+**F0.7 Footer Aplikasi**
+As pengguna, I want melihat footer informatif di semua halaman termasuk login, so that terdapat informasi identitas aplikasi dan lisensi yang konsisten.
+- Acceptance:
+  - Footer terpasang di seluruh halaman aplikasi (`/login`, `/`, `/motor`, `/emas`, `/zakat`, dan halaman pengaturan).
+  - Menggunakan tag semantik `<footer>`.
+  - Memuat nama aplikasi "Catat-Mencatat", deskripsi ringkas "Aplikasi Pencatatan Pribadi (Motor, Emas, Zakat Mal)", tahun berjalan dinamis, serta status lisensi MIT.
+  - Desain *mobile-first* bersih tanpa slop visual, mematuhi padding safe area bawah layar (`calc(1.25rem + env(safe-area-inset-bottom))`) agar ramah layar sentuh HP.
+  - Tata letak sticky bottom flex flow sehingga footer tetap berada di bagian bawah tampilan pada halaman pendek maupun panjang.
+
 ### 5.1 Modul Servis Motor
 
 **F1.1 Riwayat servis**
