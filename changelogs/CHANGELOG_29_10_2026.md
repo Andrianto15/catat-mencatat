@@ -33,3 +33,28 @@ Mengubah field Kilometer (km) pada formulir modal tambah/ubah catatan servis mot
 6. **Dokumentasi PRD (`PRD.md`)**:
    - Memperbarui F1.3 dan F0.4 terkait status opsional kolom Kilometer.
 
+---
+
+## Ringkasan Perubahan (Catat-Mencatat v0.4.7): Perbaikan Load CSS, Reset Form Controls & Design Tokens
+
+Memperbaiki issue stylesheet CSS yang gagal ter-load pada lingkungan Next.js, menghapus tag `<head>` manual duplikat di root layout, serta melengkapi deklarasi `color-scheme`, reset form typography inheritance, token `--bg-input`, dan kelas standar `.form-input`.
+
+### Detail Perubahan:
+1. **Root Layout (`src/app/layout.tsx`)**:
+   - Menghapus tag `<head>` manual duplikat (`<link rel="icon">` dan `<link rel="apple-touch-icon">`) yang berpotensi konflik dengan Metadata API bawaan Next.js App Router.
+   - Mempertahankan inline script tema anti-flicker secara aman.
+
+2. **Penguatan Styling Global (`src/app/globals.css`)**:
+   - Menambahkan deklarasi `color-scheme: light;` pada `:root` dan `[data-theme="light"]`, serta `color-scheme: dark;` pada `[data-theme="dark"]` dan query prefers-color-scheme.
+   - Menambahkan reset `font-family: inherit` dan `font-size: inherit` untuk elemen `input`, `button`, `select`, dan `textarea`.
+   - Mendefinisikan token semantic `--bg-input` untuk tema terang dan gelap.
+   - Menambahkan kelas form helper `.form-input` dengan visual border, radius, background transparan, dan state `:focus-visible` seragam.
+
+3. **Pengujian Unit Test (`tests/css-tokens.test.ts`)**:
+   - Menambahkan unit test Jest untuk memvalidasi keberadaan `color-scheme` light & dark, token `--bg-input`, inheritance typography form control, dan kelas `.form-input`.
+   - Memastikan seluruh 23 test suites (70 test cases) lulus 100%.
+
+4. **Dokumentasi PRD (`PRD.md`)**:
+   - Memperbarui poin 9 Design & UX Requirements terkait token & CSS form resets.
+
+

@@ -328,7 +328,7 @@ F0.1–F0.5, F1.1–F1.4, F2.1–F2.8, F3.1–F3.6.
 
 ## 9. Design & UX Requirements
 
-- Mengikuti `DESIGN.md` (token warna steel blue `#4682b4`, Public Sans, light/dark mode via CSS variables, card radius 1rem, hairline border, elevasi hanya saat interaksi). Nama brand di `DESIGN.md` diganti "Catat-Mencatat"; token dipakai apa adanya.
+- Mengikuti `DESIGN.md` (token warna steel blue `#4682b4`, Public Sans, light/dark mode via CSS variables & `color-scheme`, token `--bg-input`, form inheritance `font-family: inherit`, kelas `.form-input`/`.form-select`/`.form-textarea`, card radius 1rem, hairline border, elevasi hanya saat interaksi). Nama brand di `DESIGN.md` diganti "Catat-Mencatat"; token dipakai apa adanya.
 - **Mobile-first**: desain HP dulu, lalu desktop.
   - HP < 640px: list card, modal sebagai bottom sheet, tombol tambah sebagai FAB, target sentuh ≥ 44px, safe-area inset.
   - Desktop > 1024px: tabel untuk riwayat; tambahan tabel & grafik di zakat.
