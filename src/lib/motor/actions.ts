@@ -12,7 +12,7 @@ export interface MotorServiceItem {
   user_id?: string;
   motor_id: string;
   service_date: string;
-  current_km: number;
+  current_km: number | null;
   cost: number;
   workshop_name?: string | null;
   notes?: string | null;
@@ -56,10 +56,11 @@ export function calculateMotorStats(services: MotorServiceItem[]) {
       if (b.service_date !== a.service_date) {
         return b.service_date.localeCompare(a.service_date);
       }
-      return b.current_km - a.current_km;
+      return (b.current_km ?? 0) - (a.current_km ?? 0);
     });
-    latestKm = sorted[0].current_km;
     latestDate = sorted[0].service_date;
+    const serviceWithKm = sorted.find((s) => s.current_km != null && s.current_km > 0);
+    latestKm = serviceWithKm?.current_km ?? 0;
   }
 
   return {
@@ -79,7 +80,7 @@ export function validateServiceInput(input: Partial<MotorServiceItem>) {
   if (!input.service_date) {
     errors.push('Tanggal servis wajib diisi.');
   }
-  if (input.current_km === undefined || input.current_km < 0) {
+  if (input.current_km !== undefined && input.current_km !== null && input.current_km < 0) {
     errors.push('Kilometer servis tidak boleh negatif.');
   }
   if (input.cost === undefined || input.cost < 0) {

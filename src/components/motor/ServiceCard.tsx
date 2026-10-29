@@ -98,7 +98,7 @@ export function ServiceCard({ service, motorName, onEdit, onDelete }: ServiceCar
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
           <Gauge size={14} />
-          <span>{service.current_km.toLocaleString('id-ID')} km</span>
+          <span>{service.current_km != null ? `${service.current_km.toLocaleString('id-ID')} km` : '-'}</span>
         </div>
         {service.workshop_name && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', gridColumn: 'span 2' }}>

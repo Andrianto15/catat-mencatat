@@ -34,7 +34,7 @@ export function ServiceModal({
     if (initialData) {
       setMotorId(initialData.motor_id);
       setServiceDate(initialData.service_date);
-      setCurrentKm(initialData.current_km);
+      setCurrentKm(initialData.current_km ?? '');
       setCost(initialData.cost);
       setWorkshopName(initialData.workshop_name || '');
       setNotes(initialData.notes || '');
@@ -67,8 +67,8 @@ export function ServiceModal({
       setError('Tanggal servis wajib diisi.');
       return;
     }
-    if (currentKm === '' || Number(currentKm) < 0) {
-      setError('Kilometer harus valid.');
+    if (currentKm !== '' && Number(currentKm) < 0) {
+      setError('Kilometer tidak boleh negatif.');
       return;
     }
     if (cost === '' || Number(cost) < 0) {
@@ -83,7 +83,7 @@ export function ServiceModal({
         {
           motor_id: motorId,
           service_date: serviceDate,
-          current_km: Number(currentKm),
+          current_km: currentKm === '' ? null : Number(currentKm),
           cost: Number(cost),
           workshop_name: workshopName.trim() || null,
           notes: notes.trim() || null,
@@ -215,11 +215,11 @@ export function ServiceModal({
                 htmlFor="service-km"
                 style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}
               >
-                Kilometer (km)
+                Kilometer (km) (Opsional)
               </label>
               <NumberInput
                 id="service-km"
-                placeholder="12000"
+                placeholder="12000 (opsional)"
                 value={currentKm}
                 onChange={setCurrentKm}
                 style={{

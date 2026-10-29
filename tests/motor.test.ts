@@ -63,6 +63,21 @@ describe('Motor Service Logic', () => {
     });
     expect(valid.isValid).toBe(true);
 
+    const validWithoutKm = validateServiceInput({
+      motor_id: 'm1',
+      service_date: '2026-04-01',
+      cost: 100000,
+    });
+    expect(validWithoutKm.isValid).toBe(true);
+
+    const validWithNullKm = validateServiceInput({
+      motor_id: 'm1',
+      service_date: '2026-04-01',
+      current_km: null,
+      cost: 100000,
+    });
+    expect(validWithNullKm.isValid).toBe(true);
+
     const invalid = validateServiceInput({
       motor_id: '',
       service_date: '',
@@ -71,5 +86,30 @@ describe('Motor Service Logic', () => {
     });
     expect(invalid.isValid).toBe(false);
     expect(invalid.errors.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('should calculate stats correctly when some services have null or missing current_km', () => {
+    const servicesWithEmptyKm = [
+      {
+        id: '1',
+        motor_id: 'm1',
+        service_date: '2026-01-10',
+        current_km: 12000,
+        cost: 150000,
+      },
+      {
+        id: '2',
+        motor_id: 'm1',
+        service_date: '2026-03-15',
+        current_km: null,
+        cost: 350000,
+      },
+    ];
+
+    const stats = calculateMotorStats(servicesWithEmptyKm);
+    expect(stats.totalCost).toBe(500000);
+    expect(stats.totalServices).toBe(2);
+    expect(stats.latestKm).toBe(12000);
+    expect(stats.latestDate).toBe('2026-03-15');
   });
 });

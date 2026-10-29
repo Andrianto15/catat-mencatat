@@ -85,7 +85,7 @@ As pengguna, I want form yang cepat diisi berulang, so that memasukkan data lama
 **F0.4 Format angka & Pemisah Ribuan (Thousand Separator)**
 - Rupiah dan kuantitas besar ditampilkan dalam format `id-ID` (`Rp 1.234.567` atau `12.000 km`).
 - Seluruh input angka pada formulir menggunakan komponen `NumberInput` dengan pemisah ribuan otomatis (`.`):
-  - Modul Motor: Kilometer (`current_km`) dan Biaya Servis (`cost`).
+  - Modul Motor: Kilometer (`current_km`, opsional) dan Biaya Servis (`cost`).
   - Modul Zakat: Harga Emas Acuan (`gold_price_per_gram`) dan Saldo Tiap Rekening (`balances[acc.id]`).
   - Modul Emas: Jumlah Keping (`piece_count`), Harga Beli per Keping (`price_per_piece`), Harga Jual per Keping (`sold_price_per_piece`), serta Harga Jual/Buyback Manual (`prices/page.tsx`).
   - Gramasi Emas (`weight_gram`) mendukung desimal (`allowDecimal`) dengan pemisah koma `,`.
@@ -152,8 +152,8 @@ As pengguna, I want melihat riwayat servis, so that saya tahu kapan dan berapa b
 - Filter motor (multi) dan rentang tanggal. Filter bisa direset.
 
 **F1.3 Tambah/edit servis (modal)**
-- Field wajib: tanggal, motor, KM (integer ≥ 0), harga (≥ 0).
-- Field opsional: tempat, catatan (teks bebas, maks 1000 karakter).
+- Field wajib: tanggal, motor, harga (≥ 0).
+- Field opsional: KM (integer ≥ 0; jika dikosongkan pada riwayat ditampilkan `-`), tempat, catatan (teks bebas, maks 1000 karakter).
 
 **F1.4 Pengaturan modul: daftar motor**
 - CRUD daftar motor (nama, misal "NMax", "Beat").
