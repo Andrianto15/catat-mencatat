@@ -115,3 +115,26 @@ export function paginateMotorServices<T>(
     hasMore: items.length < services.length,
   };
 }
+
+export function getUniqueWorkshops(services: MotorServiceItem[]): string[] {
+  const map = new Map<string, string>();
+  for (const s of services) {
+    const raw = s.workshop_name;
+    if (typeof raw === 'string') {
+      const trimmed = raw.trim();
+      if (trimmed.length > 0) {
+        const lower = trimmed.toLowerCase();
+        if (!map.has(lower)) {
+          map.set(lower, trimmed);
+        }
+      }
+    }
+  }
+  return Array.from(map.values()).sort((a, b) => a.localeCompare(b));
+}
+
+export function filterWorkshopSuggestions(workshops: string[], query: string): string[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return workshops;
+  return workshops.filter((w) => w.toLowerCase().includes(q));
+}

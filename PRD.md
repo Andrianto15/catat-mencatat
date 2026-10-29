@@ -154,7 +154,7 @@ As pengguna, I want melihat riwayat servis, so that saya tahu kapan dan berapa b
 
 **F1.3 Tambah/edit servis (modal)**
 - Field wajib: tanggal, motor, harga (≥ 0).
-- Field opsional: KM (integer ≥ 0; jika dikosongkan pada riwayat ditampilkan `-`), tempat, catatan (teks bebas, maks 1000 karakter).
+- Field opsional: KM (integer ≥ 0; jika dikosongkan pada riwayat ditampilkan `-`), tempat / nama bengkel (dropdown autocomplete berbasis riwayat bengkel sebelumnya dengan opsi tambah baru jika belum ada di pilihan, navigasi keyboard lengkap, dan tap target mobile min 44px) **[keputusan builder/AI]**, catatan (teks bebas, maks 1000 karakter).
 
 **F1.4 Pengaturan modul: daftar motor**
 - CRUD daftar motor (nama, misal "NMax", "Beat").

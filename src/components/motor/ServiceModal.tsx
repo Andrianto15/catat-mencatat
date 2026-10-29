@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Motor, MotorServiceItem } from '@/lib/motor/actions';
 import { NumberInput } from '@/components/NumberInput';
+import { WorkshopAutocomplete } from '@/components/motor/WorkshopAutocomplete';
 
 interface ServiceModalProps {
   isOpen: boolean;
@@ -11,6 +12,7 @@ interface ServiceModalProps {
   motors: Motor[];
   initialData?: MotorServiceItem | null;
   onSave: (data: Omit<MotorServiceItem, 'id'>, keepOpen?: boolean) => Promise<void>;
+  existingWorkshops?: string[];
 }
 
 export function ServiceModal({
@@ -19,6 +21,7 @@ export function ServiceModal({
   motors,
   initialData,
   onSave,
+  existingWorkshops = [],
 }: ServiceModalProps) {
   const [motorId, setMotorId] = useState('');
   const [serviceDate, setServiceDate] = useState(new Date().toISOString().split('T')[0]);
@@ -266,21 +269,12 @@ export function ServiceModal({
             >
               Nama Bengkel (Opsional)
             </label>
-            <input
+            <WorkshopAutocomplete
               id="service-workshop"
-              type="text"
-              placeholder="Bengkel Resmi / Ahass"
+              placeholder="Pilih atau ketik bengkel baru"
               value={workshopName}
-              onChange={(e) => setWorkshopName(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '0.625rem',
-                borderRadius: 'var(--radius-lg)',
-                border: '1px solid var(--border-card)',
-                backgroundColor: 'transparent',
-                color: 'var(--text-main)',
-                fontSize: '0.875rem',
-              }}
+              onChange={setWorkshopName}
+              workshops={existingWorkshops}
             />
           </div>
 

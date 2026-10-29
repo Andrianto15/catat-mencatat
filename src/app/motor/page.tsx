@@ -11,6 +11,7 @@ import {
   calculateMotorStats,
   DEFAULT_MOTOR_PAGE_SIZE,
   paginateMotorServices,
+  getUniqueWorkshops,
 } from '@/lib/motor/actions';
 import { ServiceCard } from '@/components/motor/ServiceCard';
 import { ServiceFilter } from '@/components/motor/ServiceFilter';
@@ -116,6 +117,8 @@ export default function MotorPage() {
       await fetchData();
     }
   };
+
+  const existingWorkshops = React.useMemo(() => getUniqueWorkshops(services), [services]);
 
   return (
     <div style={{ flex: 1, backgroundColor: 'var(--bg-main)', paddingBottom: '5rem' }}>
@@ -346,6 +349,7 @@ export default function MotorPage() {
         motors={motors}
         initialData={editingService}
         onSave={handleSaveService}
+        existingWorkshops={existingWorkshops}
       />
     </div>
   );
