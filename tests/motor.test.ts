@@ -1,4 +1,10 @@
-import { filterMotorServices, calculateMotorStats, validateServiceInput } from '../src/lib/motor/actions';
+import {
+  filterMotorServices,
+  calculateMotorStats,
+  validateServiceInput,
+  DEFAULT_MOTOR_PAGE_SIZE,
+  paginateMotorServices,
+} from '../src/lib/motor/actions';
 
 describe('Motor Service Logic', () => {
   const sampleServices = [
@@ -111,5 +117,62 @@ describe('Motor Service Logic', () => {
     expect(stats.totalServices).toBe(2);
     expect(stats.latestKm).toBe(12000);
     expect(stats.latestDate).toBe('2026-03-15');
+  });
+
+  describe('Pagination Logic', () => {
+    const generateServices = (count: number) =>
+      Array.from({ length: count }, (_, i) => ({
+        id: `s-${i + 1}`,
+        motor_id: 'm1',
+        service_date: `2026-01-${String(i + 1).padStart(2, '0')}`,
+        cost: 100000,
+        current_km: 1000 * (i + 1),
+      }));
+
+    it('has DEFAULT_MOTOR_PAGE_SIZE equal to 5', () => {
+      expect(DEFAULT_MOTOR_PAGE_SIZE).toBe(5);
+    });
+
+    it('slices default 5 latest services when limit is 5', () => {
+      const allServices = generateServices(12);
+      const result = paginateMotorServices(allServices, DEFAULT_MOTOR_PAGE_SIZE);
+
+      expect(result.items.length).toBe(5);
+      expect(result.items[0].id).toBe('s-1');
+      expect(result.items[4].id).toBe('s-5');
+      expect(result.total).toBe(12);
+      expect(result.hasMore).toBe(true);
+      expect(result.displayedCount).toBe(5);
+    });
+
+    it('loads 5 more services when limit increases to 10', () => {
+      const allServices = generateServices(12);
+      const result = paginateMotorServices(allServices, 10);
+
+      expect(result.items.length).toBe(10);
+      expect(result.items[9].id).toBe('s-10');
+      expect(result.total).toBe(12);
+      expect(result.hasMore).toBe(true);
+      expect(result.displayedCount).toBe(10);
+    });
+
+    it('handles reaching end of list when limit exceeds total', () => {
+      const allServices = generateServices(12);
+      const result = paginateMotorServices(allServices, 15);
+
+      expect(result.items.length).toBe(12);
+      expect(result.total).toBe(12);
+      expect(result.hasMore).toBe(false);
+      expect(result.displayedCount).toBe(12);
+    });
+
+    it('handles empty services array gracefully', () => {
+      const result = paginateMotorServices([], 5);
+
+      expect(result.items).toEqual([]);
+      expect(result.total).toBe(0);
+      expect(result.hasMore).toBe(false);
+      expect(result.displayedCount).toBe(0);
+    });
   });
 });

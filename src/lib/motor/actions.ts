@@ -92,3 +92,26 @@ export function validateServiceInput(input: Partial<MotorServiceItem>) {
     errors,
   };
 }
+
+export const DEFAULT_MOTOR_PAGE_SIZE = 5;
+
+export interface PaginatedResult<T> {
+  items: T[];
+  total: number;
+  displayedCount: number;
+  hasMore: boolean;
+}
+
+export function paginateMotorServices<T>(
+  services: T[],
+  limit: number = DEFAULT_MOTOR_PAGE_SIZE
+): PaginatedResult<T> {
+  const safeLimit = Math.max(0, limit);
+  const items = services.slice(0, safeLimit);
+  return {
+    items,
+    total: services.length,
+    displayedCount: items.length,
+    hasMore: items.length < services.length,
+  };
+}

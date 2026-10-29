@@ -147,6 +147,7 @@ As pengguna, I want melihat riwayat servis, so that saya tahu kapan dan berapa b
 - Urut default tanggal terbaru di atas.
 - HP: tampil sebagai list card; desktop: tabel.
 - Ringkasan kecil di atas list: jumlah servis & total biaya sesuai filter aktif. **[keputusan builder/AI]**
+- Progressive pagination: Default menampilkan 5 catatan servis terakhir (`DEFAULT_MOTOR_PAGE_SIZE = 5`). Tersedia tombol "Tampilkan 5 Lainnya" dengan tap target mobile min 44px untuk membuka 5 data berikutnya secara bertahap hingga seluruh data tampil, dilengkapi informasi counter ("Menampilkan X dari Y catatan") dan reset otomatis ke 5 saat filter aktif berubah. **[keputusan builder/AI]**
 
 **F1.2 Filter**
 - Filter motor (multi) dan rentang tanggal. Filter bisa direset.

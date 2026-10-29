@@ -2,13 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Settings, Plus, Bike } from 'lucide-react';
+import { ArrowLeft, Settings, Plus, Bike, ChevronDown } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import {
   Motor,
   MotorServiceItem,
   filterMotorServices,
   calculateMotorStats,
+  DEFAULT_MOTOR_PAGE_SIZE,
+  paginateMotorServices,
 } from '@/lib/motor/actions';
 import { ServiceCard } from '@/components/motor/ServiceCard';
 import { ServiceFilter } from '@/components/motor/ServiceFilter';
@@ -24,6 +26,9 @@ export default function MotorPage() {
   const [selectedMotorId, setSelectedMotorId] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+
+  // Pagination
+  const [visibleCount, setVisibleCount] = useState(DEFAULT_MOTOR_PAGE_SIZE);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -63,6 +68,12 @@ export default function MotorPage() {
     startDate,
     endDate,
   });
+
+  useEffect(() => {
+    setVisibleCount(DEFAULT_MOTOR_PAGE_SIZE);
+  }, [selectedMotorId, startDate, endDate]);
+
+  const paginatedData = paginateMotorServices(filteredServices, visibleCount);
 
   const stats = calculateMotorStats(filteredServices);
 
@@ -239,7 +250,7 @@ export default function MotorPage() {
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {filteredServices.map((service) => {
+            {paginatedData.items.map((service) => {
               const motor = motors.find((m) => m.id === service.motor_id);
               return (
                 <ServiceCard
@@ -254,6 +265,45 @@ export default function MotorPage() {
                 />
               );
             })}
+
+            {/* Pagination Controls */}
+            {paginatedData.hasMore && (
+              <div style={{ marginTop: '0.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setVisibleCount((prev) => prev + DEFAULT_MOTOR_PAGE_SIZE)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    width: '100%',
+                    minHeight: '44px',
+                    padding: '0.75rem 1rem',
+                    backgroundColor: 'var(--bg-card)',
+                    color: 'var(--color-primary)',
+                    border: '1px solid var(--border-card)',
+                    borderRadius: 'var(--radius-lg)',
+                    fontSize: '0.875rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'background-color 0.15s ease, border-color 0.15s ease',
+                  }}
+                  aria-label="Tampilkan 5 catatan servis lainnya"
+                >
+                  <span>Tampilkan 5 Lainnya</span>
+                  <ChevronDown size={18} />
+                </button>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                  Menampilkan {paginatedData.displayedCount} dari {paginatedData.total} catatan servis
+                </span>
+              </div>
+            )}
+            {!paginatedData.hasMore && filteredServices.length > DEFAULT_MOTOR_PAGE_SIZE && (
+              <div style={{ textAlign: 'center', padding: '0.5rem 0', color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+                Semua catatan servis telah ditampilkan ({paginatedData.total})
+              </div>
+            )}
           </div>
         )}
       </main>
