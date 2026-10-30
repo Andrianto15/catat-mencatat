@@ -26,6 +26,7 @@ export function PurchaseModal({
   const [weightGram, setWeightGram] = useState<number | ''>(1);
   const [pieceCount, setPieceCount] = useState<number | ''>(1);
   const [pricePerPiece, setPricePerPiece] = useState<number | ''>('');
+  const [buybackPricePerPiece, setBuybackPricePerPiece] = useState<number | ''>('');
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -39,8 +40,14 @@ export function PurchaseModal({
       setWeightGram(initialData.weight_gram);
       setPieceCount(initialData.piece_count);
       setPricePerPiece(initialData.price_per_piece);
+      setBuybackPricePerPiece(
+        initialData.buyback_price_per_piece !== null && initialData.buyback_price_per_piece !== undefined
+          ? initialData.buyback_price_per_piece
+          : ''
+      );
       setNotes(initialData.notes || '');
     } else {
+      setBuybackPricePerPiece('');
       if (people.length > 0 && !personId) {
         setPersonId(people[0].id);
       }
@@ -81,6 +88,10 @@ export function PurchaseModal({
       setError('Harga per keping harus lebih dari 0.');
       return;
     }
+    if (buybackPricePerPiece !== '' && Number(buybackPricePerPiece) < 0) {
+      setError('Harga buyback tidak boleh negatif.');
+      return;
+    }
 
     try {
       setSubmitting(true);
@@ -93,6 +104,7 @@ export function PurchaseModal({
           weight_gram: Number(weightGram),
           piece_count: Number(pieceCount),
           price_per_piece: Number(pricePerPiece),
+          buyback_price_per_piece: buybackPricePerPiece !== '' ? Number(buybackPricePerPiece) : null,
           notes: notes.trim() || null,
         },
         keepOpen
@@ -101,6 +113,7 @@ export function PurchaseModal({
       if (keepOpen) {
         // Sticky fields: keep personId, purchaseDate, brand. Clear specific price/weight.
         setPricePerPiece('');
+        setBuybackPricePerPiece('');
         setNotes('');
       } else {
         onClose();
@@ -301,6 +314,30 @@ export function PurchaseModal({
               placeholder="1450000"
               value={pricePerPiece}
               onChange={setPricePerPiece}
+              style={{
+                width: '100%',
+                padding: '0.625rem',
+                borderRadius: 'var(--radius-lg)',
+                border: '1px solid var(--border-card)',
+                backgroundColor: 'transparent',
+                color: 'var(--text-main)',
+                fontSize: '0.875rem',
+              }}
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="gold-buyback-price"
+              style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}
+            >
+              Harga Jual / Buyback saat Beli per Keping (Rp) (Opsional)
+            </label>
+            <NumberInput
+              id="gold-buyback-price"
+              placeholder="1320000"
+              value={buybackPricePerPiece}
+              onChange={setBuybackPricePerPiece}
               style={{
                 width: '100%',
                 padding: '0.625rem',

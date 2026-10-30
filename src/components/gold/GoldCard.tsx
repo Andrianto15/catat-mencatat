@@ -45,6 +45,15 @@ export function GoldCard({
     maximumFractionDigits: 0,
   }).format(purchase.price_per_piece);
 
+  const formattedBuybackAtPurchase =
+    purchase.buyback_price_per_piece !== null && purchase.buyback_price_per_piece !== undefined
+      ? new Intl.NumberFormat('id-ID', {
+          style: 'currency',
+          currency: 'IDR',
+          maximumFractionDigits: 0,
+        }).format(purchase.buyback_price_per_piece)
+      : '-';
+
   return (
     <div style={{
       backgroundColor: 'var(--bg-card)',
@@ -95,6 +104,10 @@ export function GoldCard({
                 (@ {formattedPerPiece})
               </span>
             )}
+          </div>
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.125rem' }}>
+            Buyback saat beli: {formattedBuybackAtPurchase}
+            {count > 1 && formattedBuybackAtPurchase !== '-' && ' / keping'}
           </div>
         </div>
 

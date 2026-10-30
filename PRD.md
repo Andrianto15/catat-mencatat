@@ -181,16 +181,15 @@ As pengguna, I want melihat dan mengedit harga hasil scraping, so that saya bisa
   - Bisa menambah baris manual untuk tanggal/brand/berat yang tidak ada (misal tanggal lampau untuk data lama).
 
 **F2.3 Riwayat pembelian emas**
-- Kolom: No, Tanggal beli, Brand, Berat (gram), Harga beli (per keping), Buyback saat beli (per keping), Tempat, Pemilik, Profit (Rp), Profit (%), Aksi (Edit, Hapus, Jual).
-- Satu baris = satu keping. Beli 3 keping = 3 baris (dibantu "Simpan & tambah lagi"). **[keputusan builder/AI]**
+- Kolom: No, Tanggal beli, Brand, Berat (gram), Harga beli (per keping), Buyback saat beli (per keping; tampil nominal Rp jika ada atau `-` jika `null`), Tempat / Catatan, Pemilik, Profit (Rp), Profit (%), Aksi (Edit, Hapus, Jual).
+- Satu baris = satu keping (atau multi-keping dengan `piece_count`). Beli beberapa jenis keping dibantu tombol "Simpan & tambah lagi". **[keputusan builder/AI]**
 - Filter: brand, rentang tanggal, pemilik.
 - Tampilan default: hanya menampilkan keping aktif (belum dijual). Keping yang sudah dijual disembunyikan dari layar utama (soft delete).
-- HP: list card dengan profit menonjol (warna naik/turun + teks, bukan warna saja); desktop: tabel.
+- HP: list card dengan profit menonjol (warna naik/turun + teks, bukan warna saja) dan informasi historis `Buyback saat beli` (tampil `-` bila kosong); desktop: tabel/card.
 
 **F2.4 Tambah/edit pembelian (modal)**
-- Field wajib: tanggal, brand (pilihan dari brand di `gold_prices`, default "Galeri24"), berat gram (> 0, desimal), harga beli per keping, pemilik.
-- "Buyback saat beli" otomatis terisi dari `gold_prices` (tanggal beli, brand, berat yang sama); tetap bisa diubah; boleh kosong bila data tidak ada.
-- Field opsional: tempat.
+- Field wajib: tanggal, brand (pilihan brand emas, default "ANTAM"), berat gram (> 0, desimal), jumlah keping (`piece_count` >= 1), harga beli per keping, pemilik.
+- Field opsional: "Harga Jual / Buyback saat Beli per Keping (Rp)" (`buyback_price_per_piece`, input manual sebagai catatan historis, boleh kosong/`null`), catatan/tempat (`notes`).
 
 **F2.5 Perhitungan profit**
 Definisi:
@@ -302,7 +301,7 @@ F0.1–F0.5, F1.1–F1.4, F2.1–F2.8, F3.1–F3.6.
 | `motors` | id, user_id, name, is_active | |
 | `motor_services` | id, user_id, motor_id, service_date, km int, price numeric, place, notes | |
 | `gold_prices` | id, price_date, brand, weight_gram numeric, sell_price numeric null, buyback_price numeric null, status (`berhasil`/`gagal`/`manual`), updated_at | unique(price_date, brand, weight_gram); data global (bukan per user) |
-| `gold_purchases` | id, user_id, owner_id→people, purchase_date, brand, weight_gram, price_per_piece, buyback_at_purchase_per_piece null, place, sold_at date null, sold_price_per_piece numeric null | 1 baris = 1 keping; sold_at terisi berarti terjual (soft delete) |
+| `gold_purchases` | id, user_id, person_id→people, purchase_date, brand, weight_gram, piece_count, price_per_piece, buyback_price_per_piece null, notes, sold_at date null, sold_price_per_piece numeric null | sold_at terisi berarti terjual (soft delete); buyback_price_per_piece menyimpan harga buyback historis saat beli |
 | `zakat_accounts` | id, user_id, person_id, name, sort_order, is_active | |
 | `zakat_years` | id, user_id, person_id, hijri_year int, reference_date, gold_value_snapshot, gold_grams_snapshot, gold_price_per_gram_nisab, paid_amount null, notes | unique(person_id, hijri_year) |
 | `zakat_balances` | id, zakat_year_id, account_id, balance numeric(15,2) | unique(zakat_year_id, account_id) |

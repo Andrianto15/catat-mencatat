@@ -70,6 +70,7 @@ CREATE TABLE IF NOT EXISTS public.gold_purchases (
     weight_gram NUMERIC(10, 4) NOT NULL,
     piece_count INTEGER NOT NULL DEFAULT 1,
     price_per_piece NUMERIC(15, 2) NOT NULL,
+    buyback_price_per_piece NUMERIC(15, 2) DEFAULT NULL,
     sold_at DATE,
     sold_price_per_piece NUMERIC(15, 2),
     notes TEXT,

@@ -15,6 +15,7 @@ export interface GoldPurchase {
   weight_gram: number;
   piece_count: number;
   price_per_piece: number;
+  buyback_price_per_piece?: number | null;
   sold_at?: string | null;
   sold_price_per_piece?: number | null;
   notes?: string | null;

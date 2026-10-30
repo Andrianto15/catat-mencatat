@@ -109,6 +109,32 @@ Memperbaiki layout form inline edit harga emas harian (`/emas/prices`) agar labe
 3. **Dokumentasi PRD (`PRD.md`)**:
    - Memperbarui spesifikasi F2.2 untuk mencatat spasi vertikal proporsional antara label dan field input pada form inline edit harga emas.
 
+---
+
+## Ringkasan Perubahan (Catat-Mencatat v0.5.2): Informasi Harga Jual (Buyback) Historis saat Pembelian Emas
+
+Menambahkan field opsional Harga Jual / Buyback pada saat pembelian (`buyback_price_per_piece`, bisa `null`) di Form Tambah/Ubah Pembelian Emas serta menampilkan informasinya pada kartu riwayat pembelian emas di halaman list (`/emas`).
+
+### Detail Perubahan:
+1. **Skema Database (`supabase/migrations/20261025000000_init_schema.sql`, `supabase/migrations/20261030000000_add_buyback_price_to_gold_purchases.sql`)**:
+   - Menambahkan kolom `buyback_price_per_piece NUMERIC(15, 2) DEFAULT NULL` pada tabel `public.gold_purchases`.
+
+2. **Tipe Data & Form Modal (`src/lib/gold/actions.ts`, `src/components/gold/PurchaseModal.tsx`)**:
+   - Menambahkan properti `buyback_price_per_piece?: number | null` pada interface `GoldPurchase`.
+   - Menambahkan field input opsional `NumberInput` dengan label `"Harga Jual / Buyback saat Beli per Keping (Rp) (Opsional)"` (`id="gold-buyback-price"`) pada `PurchaseModal`.
+   - Mereset nilai input buyback bersama harga beli dan catatan saat menggunakan tombol `"Simpan & Tambah Lagi"`.
+
+3. **Tampilan Kartu di Halaman List (`src/components/gold/GoldCard.tsx`)**:
+   - Menampilkan baris informasi historis `Buyback saat beli: Rp X.XXX.XXX` (dilengkapi keterangan `/ keping` bila `piece_count > 1`) atau `Buyback saat beli: -` apabila nilai `buyback_price_per_piece` adalah `null`/kosong.
+
+4. **Pengujian Unit (`tests/gold-buyback-history.test.tsx`, `tests/schema.test.ts`)**:
+   - Menambahkan pengujian unit untuk memverifikasi keberadaan input opsional di `PurchaseModal`, format mata uang Rp saat nilai tersedia di `GoldCard`, fallback `-` saat nilai `null`, serta keberadaan kolom di skema SQL.
+   - Seluruh 27 test suites (90 test cases) lulus 100%.
+
+5. **Dokumentasi PRD (`PRD.md`)**:
+   - Memperbarui spesifikasi F2.3, F2.4, dan tabel model data `gold_purchases`.
+
+
 
 
 
