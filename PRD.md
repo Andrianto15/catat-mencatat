@@ -232,7 +232,7 @@ Referensi tampilan lama: `docs/req_catat_zakat_mal.png` (baris = rekening/aset, 
 As pengguna, I want membuat tahun baru dan tinggal mengisi saldo, so that pengisian tahunan cepat.
 - Acceptance:
   - "Tambah tahun" mengusulkan tahun Hijriah berikutnya; daftar rekening aktif disalin dari tahun sebelumnya dengan saldo kosong.
-  - Saldo mendukung desimal 2 digit (contoh data lama `6.951.418,61`).
+  - Saldo mendukung desimal 2 digit (contoh data `6.951.418,61`). UI memisahkan text box nominal ribuan utama (`NumberInput` murni digit dengan format titik otomatis) dan text box terpisah untuk 2 digit desimal di belakang koma (default `00`, `maxLength=2`, `inputMode="numeric"`, dipisahkan tanda `,`), sehingga pengetikan angka ribuan berlangsung lancar dan langsung tanpa perlu mengetik titik secara manual. **[keputusan builder/AI]**
   - **Tanggal acuan** = 1 Ramadhan tahun tersebut, dikonversi otomatis ke Masehi (kalender Umm al-Qura), bisa diubah manual (beda tanggal Kemenag ±1 hari). **[keputusan builder/AI]**
   - Rekening yang nonaktif tidak disalin, tapi saldo lamanya tetap tersimpan di tahun lama.
   - Tahun lama bisa dibuat (untuk input data 1444–1446 H).
@@ -244,7 +244,7 @@ As pengguna, I want membuat tahun baru dan tinggal mengisi saldo, so that pengis
 - Saat tahun disimpan, nilai emas (dan total gram) **dikunci sebagai snapshot**. Tombol "Hitung ulang emas" untuk memperbarui snapshot secara sadar. **[keputusan builder/AI]**
 
 **F3.4 Perhitungan**
-- `Total = Σ saldo rekening + nilai emas`
+- `Total = Σ saldo rekening + nilai emas` (dijaga presisi 2 digit desimal untuk menghindari artefak floating-point).
 - `Nisab = 85 × harga emas per gram pada tanggal acuan`. Harga per gram diambil dari harga **jual** Galeri24 keping 1 gram brand "Galeri24" pada tanggal acuan (fallback ke harga terakhir sebelumnya); bisa diubah manual dan ikut tersimpan sebagai snapshot. **[keputusan builder/AI]**
 - `Wajib zakat = Total ≥ Nisab`
 - `Zakat 2,5% = 0,025 × Total` bila wajib; bila tidak, tampil label "Belum mencapai nisab" dan zakat 0.

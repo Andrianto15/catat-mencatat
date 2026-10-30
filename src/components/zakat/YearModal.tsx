@@ -52,8 +52,36 @@ export function YearModal({
   const [hijriYear, setHijriYear] = useState<number>(1447);
   const [referenceDate, setReferenceDate] = useState<string>('2026-02-18');
   const [goldPrice, setGoldPrice] = useState<number>(latestGoldPrice1g);
-  const [isLocked, setIsLocked] = useState<boolean>(false);
-  const [balances, setBalances] = useState<Record<string, number>>({});
+  const [isLocked, setIsLocked] = useState<boolean>(() => !!initialData?.is_locked);
+  const [balances, setBalances] = useState<Record<string, number>>(() => {
+    if (!initialData) return {};
+    const bMap: Record<string, number> = {};
+    (initialData.balances || []).forEach((b: any) => {
+      bMap[b.account_id] = Number(b.balance || 0);
+    });
+    return bMap;
+  });
+  const [intBalances, setIntBalances] = useState<Record<string, number | ''>>(() => {
+    if (!initialData) return {};
+    const intMap: Record<string, number | ''> = {};
+    (initialData.balances || []).forEach((b: any) => {
+      const total = Number(b.balance || 0);
+      const intPart = Math.floor(total);
+      intMap[b.account_id] = intPart > 0 ? intPart : (total === 0 ? '' : intPart);
+    });
+    return intMap;
+  });
+  const [decimalInputs, setDecimalInputs] = useState<Record<string, string>>(() => {
+    if (!initialData) return {};
+    const decMap: Record<string, string> = {};
+    (initialData.balances || []).forEach((b: any) => {
+      const total = Number(b.balance || 0);
+      const intPart = Math.floor(total);
+      const frac = Math.round((total - intPart) * 100);
+      decMap[b.account_id] = frac === 0 ? '00' : String(frac).padStart(2, '0');
+    });
+    return decMap;
+  });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const isBackdropClickRef = React.useRef(false);
@@ -65,10 +93,23 @@ export function YearModal({
       setGoldPrice(initialData.gold_price_per_gram);
       setIsLocked(initialData.is_locked);
       const bMap: Record<string, number> = {};
+      const intMap: Record<string, number | ''> = {};
+      const decMap: Record<string, string> = {};
+
       (initialData.balances || []).forEach((b: any) => {
-        bMap[b.account_id] = Number(b.balance || 0);
+        const total = Number(b.balance || 0);
+        bMap[b.account_id] = total;
+
+        const intPart = Math.floor(total);
+        intMap[b.account_id] = intPart > 0 ? intPart : (total === 0 ? '' : intPart);
+
+        const frac = Math.round((total - intPart) * 100);
+        decMap[b.account_id] = frac === 0 ? '00' : String(frac).padStart(2, '0');
       });
+
       setBalances(bMap);
+      setIntBalances(intMap);
+      setDecimalInputs(decMap);
     } else {
       const defaultHijri = 1447;
       setHijriYear(defaultHijri);
@@ -76,6 +117,8 @@ export function YearModal({
       setGoldPrice(latestGoldPrice1g);
       setIsLocked(false);
       setBalances({});
+      setIntBalances({});
+      setDecimalInputs({});
     }
   }, [initialData, latestGoldPrice1g]);
 
@@ -95,6 +138,33 @@ export function YearModal({
   const handleHijriChange = (year: number) => {
     setHijriYear(year);
     setReferenceDate(getHijriRamadhanDate(year));
+  };
+
+  const handleIntChange = (accountId: string, intVal: number | '') => {
+    setIntBalances((prev) => ({ ...prev, [accountId]: intVal }));
+    const intNum = intVal === '' ? 0 : Number(intVal);
+    const decStr = decimalInputs[accountId] || '00';
+    const decFrac = decStr ? Number(decStr) / Math.pow(10, decStr.length) : 0;
+    const total = Math.round((intNum + decFrac) * 100) / 100;
+    setBalances((prev) => ({ ...prev, [accountId]: total }));
+  };
+
+  const handleDecChange = (accountId: string, decVal: string) => {
+    setDecimalInputs((prev) => ({ ...prev, [accountId]: decVal }));
+    const currentInt = intBalances[accountId];
+    const intNum = currentInt === '' || currentInt === undefined ? 0 : Number(currentInt);
+    const decFrac = decVal ? Number(decVal) / Math.pow(10, decVal.length) : 0;
+    const total = Math.round((intNum + decFrac) * 100) / 100;
+    setBalances((prev) => ({ ...prev, [accountId]: total }));
+  };
+
+  const handleDecBlur = (accountId: string) => {
+    const currentDec = decimalInputs[accountId];
+    if (!currentDec || currentDec === '') {
+      setDecimalInputs((prev) => ({ ...prev, [accountId]: '00' }));
+    } else if (currentDec.length === 1) {
+      setDecimalInputs((prev) => ({ ...prev, [accountId]: currentDec.padEnd(2, '0') }));
+    }
   };
 
   const cashList = accounts.map((acc) => ({
@@ -312,36 +382,63 @@ export function YearModal({
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
-                      gap: '0.75rem',
+                      gap: '0.5rem',
                       padding: '0.5rem 0.75rem',
                       borderRadius: 'var(--radius-lg)',
                       backgroundColor: 'var(--bg-main)',
                     }}
                   >
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: '0.8125rem', fontWeight: 600 }}>{acc.account_name}</div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: '0.8125rem', fontWeight: 600, wordBreak: 'break-word' }}>{acc.account_name}</div>
                       <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>
                         {formatZakatAccountMeta(acc)}
                       </div>
                     </div>
-                    <div style={{ width: '160px' }}>
-                      <NumberInput
-                        id={`zakat-acc-${acc.id}`}
-                        aria-label={`Saldo ${acc.account_name}`}
-                        placeholder="0"
-                        value={balances[acc.id] ?? ''}
-                        onChange={(val) => {
-                          setBalances((prev) => ({ ...prev, [acc.id]: val === '' ? 0 : val }));
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', flexShrink: 0 }}>
+                      <div style={{ width: '135px' }}>
+                        <NumberInput
+                          id={`zakat-acc-${acc.id}`}
+                          aria-label={`Saldo ${acc.account_name}`}
+                          placeholder="0"
+                          value={intBalances[acc.id] ?? ''}
+                          onChange={(val) => handleIntChange(acc.id, val)}
+                          style={{
+                            width: '100%',
+                            padding: '0.4rem 0.5rem',
+                            borderRadius: 'var(--radius-lg)',
+                            border: '1px solid var(--border-card)',
+                            backgroundColor: 'var(--bg-card)',
+                            color: 'var(--text-main)',
+                            fontSize: '0.8125rem',
+                            textAlign: 'right',
+                            minHeight: '44px',
+                          }}
+                        />
+                      </div>
+                      <span style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--text-muted)', lineHeight: 1 }}>,</span>
+                      <input
+                        id={`zakat-acc-dec-${acc.id}`}
+                        aria-label={`Desimal sen ${acc.account_name}`}
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={2}
+                        placeholder="00"
+                        value={decimalInputs[acc.id] ?? '00'}
+                        onChange={(e) => {
+                          const sanitized = e.target.value.replace(/\D/g, '').slice(0, 2);
+                          handleDecChange(acc.id, sanitized);
                         }}
+                        onBlur={() => handleDecBlur(acc.id)}
                         style={{
-                          width: '100%',
-                          padding: '0.4rem 0.5rem',
+                          width: '44px',
+                          minHeight: '44px',
+                          padding: '0.4rem 0.25rem',
                           borderRadius: 'var(--radius-lg)',
                           border: '1px solid var(--border-card)',
                           backgroundColor: 'var(--bg-card)',
                           color: 'var(--text-main)',
                           fontSize: '0.8125rem',
-                          textAlign: 'right',
+                          textAlign: 'center',
                         }}
                       />
                     </div>

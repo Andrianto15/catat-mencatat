@@ -58,12 +58,13 @@ export interface ZakatCalculationResult {
 
 export function calculateZakat(params: ZakatCalculationParams): ZakatCalculationResult {
   const nisabNominal = Math.round(Number(params.goldPricePerGram || 0) * 85);
-  const totalCash = (params.cashBalances || []).reduce(
+  const rawCash = (params.cashBalances || []).reduce(
     (acc, b) => acc + Number(b.balance || 0),
     0
   );
-  const goldTotalValue = Number(params.goldTotalValue || 0);
-  const totalAssets = totalCash + goldTotalValue;
+  const totalCash = Math.round(rawCash * 100) / 100;
+  const goldTotalValue = Math.round(Number(params.goldTotalValue || 0) * 100) / 100;
+  const totalAssets = Math.round((totalCash + goldTotalValue) * 100) / 100;
   const isWajib = totalAssets >= nisabNominal && nisabNominal > 0;
   const zakatDue = isWajib ? Math.round(totalAssets * 0.025) : 0;
 
@@ -159,13 +160,13 @@ export function compareTwoZakatYears(
   prevYear: ZakatYearData,
   currYear: ZakatYearData
 ): YearComparisonResult {
-  const totalAssetsDelta = currYear.total_assets - prevYear.total_assets;
+  const totalAssetsDelta = Math.round((currYear.total_assets - prevYear.total_assets) * 100) / 100;
   const totalAssetsDeltaPct =
     prevYear.total_assets > 0
       ? Math.round(((totalAssetsDelta / prevYear.total_assets) * 100) * 100) / 100
       : 0;
 
-  const zakatDueDelta = currYear.zakat_due - prevYear.zakat_due;
+  const zakatDueDelta = Math.round((currYear.zakat_due - prevYear.zakat_due) * 100) / 100;
   const zakatDueDeltaPct =
     prevYear.zakat_due > 0
       ? Math.round(((zakatDueDelta / prevYear.zakat_due) * 100) * 100) / 100
@@ -196,7 +197,7 @@ export function compareTwoZakatYears(
     const prev = prevMap.get(accId) || { name: '', balance: 0 };
     const curr = currMap.get(accId) || { name: '', balance: 0 };
     const account_name = curr.name || prev.name || 'Rekening';
-    const deltaNominal = curr.balance - prev.balance;
+    const deltaNominal = Math.round((curr.balance - prev.balance) * 100) / 100;
     const deltaPct =
       prev.balance > 0
         ? Math.round(((deltaNominal / prev.balance) * 100) * 100) / 100

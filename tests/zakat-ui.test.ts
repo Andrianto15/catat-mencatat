@@ -59,4 +59,74 @@ describe('Zakat Year Comparison Logic', () => {
     expect(newAcc?.balanceCurrent).toBe(20000000);
     expect(newAcc?.deltaNominal).toBe(20000000);
   });
+
+  it('should calculate deltas with 2 decimal digits precision without floating-point artifacts', () => {
+    const yearA = {
+      hijri_year: 1446,
+      masehi_year: 2025,
+      gold_price_per_gram: 1400000,
+      nisab_nominal: 119000000,
+      total_assets: 5000000,
+      zakat_due: 0,
+      balances: [
+        { account_id: 'acc1', account_name: 'BCA', balance: 5000000.00 },
+      ],
+    };
+
+    const yearB = {
+      hijri_year: 1447,
+      masehi_year: 2026,
+      gold_price_per_gram: 1500000,
+      nisab_nominal: 127500000,
+      total_assets: 6951418.61,
+      zakat_due: 0,
+      balances: [
+        { account_id: 'acc1', account_name: 'BCA', balance: 6951418.61 },
+      ],
+    };
+
+    const diff = compareTwoZakatYears(yearA, yearB);
+    const bcaDiff = diff.accountDiffs.find((a) => a.account_id === 'acc1');
+    expect(bcaDiff?.deltaNominal).toBe(1951418.61);
+    expect(diff.totalAssetsDelta).toBe(1951418.61);
+  });
+
+  it('verifies YearModal configures separate decimal text input with default 00', () => {
+    const fs = require('fs');
+    const modalSrc = fs.readFileSync('src/components/zakat/YearModal.tsx', 'utf8');
+    expect(modalSrc).toContain('zakat-acc-dec-');
+    expect(modalSrc).toContain('maxLength={2}');
+    expect(modalSrc).toContain('placeholder="00"');
+    expect(modalSrc).toContain("minHeight: '44px'");
+  });
+
+  it('renders YearModal with split integer and decimal inputs', () => {
+    const React = require('react');
+    const { renderToStaticMarkup } = require('react-dom/server');
+    const { YearModal } = require('../src/components/zakat/YearModal');
+
+    const html = renderToStaticMarkup(
+      React.createElement(YearModal, {
+        isOpen: true,
+        onClose: () => {},
+        personId: 'p1',
+        personName: 'Budi',
+        accounts: [{ id: 'acc1', account_name: 'BCA Utama' }],
+        initialData: {
+          hijri_year: 1447,
+          reference_date: '2026-02-18',
+          gold_price_per_gram: 1450000,
+          is_locked: false,
+          balances: [{ account_id: 'acc1', balance: 6951418.61 }],
+        },
+        onSave: async () => {},
+      })
+    );
+
+    expect(html).toContain('id="zakat-acc-acc1"');
+    expect(html).toContain('value="6.951.418"');
+    expect(html).toContain('id="zakat-acc-dec-acc1"');
+    expect(html).toContain('value="61"');
+    expect(html).toContain('maxLength="2"');
+  });
 });

@@ -230,3 +230,28 @@ Menambahkan dropdown jenis rekening (`Bank`, `e-Wallet`, `Reksadana / Investasi`
 
 5. **Dokumentasi PRD (`PRD.md`)**:
    - Memperbarui spesifikasi F3.1, F3.6, dan tabel model data `zakat_accounts`.
+
+---
+
+## Ringkasan Perubahan (Catat-Mencatat v0.5.7): Text Box Terpisah untuk 2 Digit Desimal Saldo Zakat (`YearModal`)
+
+Menyediakan input terpisah untuk 2 digit di belakang koma (default `00`) pada input saldo rekening zakat (`YearModal`), berdampingan dengan input utama ribuan murni (`NumberInput`). Dengan pemisahan ini, pengguna dapat mengetik angka nominal ribuan langsung tanpa repot atau terganggu pengetikan titik manual, sementara bagian sen/desimal dapat diisi hingga 2 digit secara spesifik.
+
+### Detail Perubahan:
+1. **Antarmuka Pengguna Input Saldo (`src/components/zakat/YearModal.tsx`)**:
+   - Memisahkan input saldo rekening menjadi 2 field horizontal:
+     - Field utama ribuan (`NumberInput`): format otomatis titik tanpa desimal, sehingga pengetikan angka langsung berjalan natural.
+     - Label pemisah koma (`,`).
+     - Field desimal (`<input>`): `type="text"`, `inputMode="numeric"`, `maxLength={2}`, `placeholder="00"`, `value` default `'00'`, lebar `44px`, tinggi minimal `44px` (mematuhi standar touch target mobile).
+   - Menambahkan event handler `handleIntChange`, `handleDecChange`, dan `handleDecBlur` (auto-pad 2 digit atau reset ke `'00'` saat blur) yang secara reaktif menggabungkan integer dan desimal menjadi angka presisi 2 desimal.
+   - Menggunakan lazy state initialization dari `initialData` untuk mencegah flash input kosong.
+2. **Utilitas Format & Parse Angka (`src/lib/number.ts`, `src/components/NumberInput.tsx`)**:
+   - Memperbarui fungsi `formatThousand` dan `parseThousand` untuk mendeteksi pemisah desimal dan ribuan secara cerdas serta mendukung parameter pemotongan `maxDecimals`.
+3. **Mesin Kalkulasi Zakat (`src/lib/zakat/engine.ts`)**:
+   - Menambahkan pembulatan presisi 2 desimal (`Math.round(val * 100) / 100`) pada perhitungan total kas, total aset, dan selisih komparasi antar tahun agar bebas dari artefak floating-point IEEE 754.
+4. **Pengujian Unit & TDD (`tests/number-input.test.tsx`, `tests/zakat-engine.test.ts`, `tests/zakat-ui.test.ts`)**:
+   - Menambahkan pengujian render komponen `YearModal` untuk memverifikasi split integer input dan decimal input (`zakat-acc-dec-*`) dengan default `00` dan batas `maxLength=2`.
+   - Menguji penguraian saldo desimal (`6951418.61` -> integer `6.951.418` dan desimal `61`).
+   - Seluruh 31 test suites (114 test cases) lulus 100%.
+5. **Dokumentasi PRD (`PRD.md`)**:
+   - Memperbarui spesifikasi F3.2 dan F3.4 untuk mencatat pemisahan text box nominal ribuan utama dan text box terpisah 2 digit desimal (default 00).

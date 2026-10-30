@@ -24,6 +24,21 @@ describe('Zakat Mal Calculation Engine', () => {
     expect(result.zakatDue).toBe(3250000); // 2.5% of 130.000.000
   });
 
+  it('should support decimal cash balances with 2 decimal digits precision', () => {
+    const result = calculateZakat({
+      goldPricePerGram: 1450000,
+      cashBalances: [
+        { account_id: 'a1', balance: 6951418.61 },
+        { account_id: 'a2', balance: 120000000.39 },
+      ],
+      goldTotalValue: 0,
+    });
+
+    // 6951418.61 + 120000000.39 = 126951419.00
+    expect(result.totalCash).toBe(126951419);
+    expect(result.totalAssets).toBe(126951419);
+  });
+
   it('should mark as not wajib if total assets is below nisab', () => {
     const result = calculateZakat({
       goldPricePerGram: 1400000, // nisab 119.000.000
