@@ -2,14 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Settings, Plus, Scale, Lock, Edit2, Calendar } from 'lucide-react';
+import { ArrowLeft, Settings, Plus, Scale, Lock, Edit2, Calendar, ChevronDown } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { Person, GoldPurchase } from '@/lib/gold/actions';
 import { ZakatAccount, YearModal, YearModalSaveData } from '@/components/zakat/YearModal';
 import { CompareTwoYears } from '@/components/zakat/CompareTwoYears';
 import { ZakatSpreadsheetTable } from '@/components/zakat/ZakatSpreadsheetTable';
 import { ZakatTrendChart } from '@/components/zakat/ZakatTrendChart';
-import { resolveZakatGoldHoldings } from '@/lib/zakat/engine';
+import { resolveZakatGoldHoldings, DEFAULT_ZAKAT_PAGE_SIZE, paginateZakatYears } from '@/lib/zakat/engine';
 import ThemeToggle from '@/components/ThemeToggle';
 
 export default function ZakatPage() {
@@ -20,6 +20,9 @@ export default function ZakatPage() {
   const [goldPurchases, setGoldPurchases] = useState<GoldPurchase[]>([]);
   const [latestGoldPrice, setLatestGoldPrice] = useState<number>(1450000);
   const [loading, setLoading] = useState(true);
+
+  // Pagination
+  const [visibleCount, setVisibleCount] = useState(DEFAULT_ZAKAT_PAGE_SIZE);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -99,10 +102,13 @@ export default function ZakatPage() {
   };
 
   useEffect(() => {
+    setVisibleCount(DEFAULT_ZAKAT_PAGE_SIZE);
     if (selectedPersonId) {
       fetchPersonData(selectedPersonId);
     }
   }, [selectedPersonId]);
+
+  const paginatedYears = paginateZakatYears(years, visibleCount);
 
   const selectedPerson = people.find((p) => p.id === selectedPersonId);
 
@@ -366,7 +372,7 @@ export default function ZakatPage() {
               <h4 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-muted)' }}>
                 Riwayat Rekap Tahunan
               </h4>
-              {years.map((y) => (
+              {paginatedYears.items.map((y) => (
                 <div
                   key={y.id}
                   style={{
@@ -410,6 +416,45 @@ export default function ZakatPage() {
                   </button>
                 </div>
               ))}
+
+              {/* Pagination Controls */}
+              {paginatedYears.hasMore && (
+                <div style={{ marginTop: '0.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+                  <button
+                    type="button"
+                    onClick={() => setVisibleCount((prev) => prev + DEFAULT_ZAKAT_PAGE_SIZE)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.5rem',
+                      width: '100%',
+                      minHeight: '44px',
+                      padding: '0.75rem 1rem',
+                      backgroundColor: 'var(--bg-card)',
+                      color: 'var(--color-primary)',
+                      border: '1px solid var(--border-card)',
+                      borderRadius: 'var(--radius-lg)',
+                      fontSize: '0.875rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      transition: 'background-color 0.15s ease, border-color 0.15s ease',
+                    }}
+                    aria-label="Tampilkan 5 riwayat zakat lainnya"
+                  >
+                    <span>Tampilkan 5 Lainnya</span>
+                    <ChevronDown size={18} />
+                  </button>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                    Menampilkan {paginatedYears.displayedCount} dari {paginatedYears.total} riwayat zakat
+                  </span>
+                </div>
+              )}
+              {!paginatedYears.hasMore && years.length > DEFAULT_ZAKAT_PAGE_SIZE && (
+                <div style={{ textAlign: 'center', padding: '0.5rem 0', color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+                  Semua riwayat zakat telah ditampilkan ({paginatedYears.total})
+                </div>
+              )}
             </div>
           </>
         )}

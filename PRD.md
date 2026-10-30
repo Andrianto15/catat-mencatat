@@ -186,6 +186,7 @@ As pengguna, I want melihat dan mengedit harga hasil scraping, so that saya bisa
 - Filter: brand, rentang tanggal, pemilik.
 - Tampilan default: hanya menampilkan keping aktif (belum dijual). Keping yang sudah dijual disembunyikan dari layar utama (soft delete).
 - HP: list card dengan profit menonjol (warna naik/turun + teks, bukan warna saja) dan informasi historis `Buyback saat beli` (tampil `-` bila kosong); desktop: tabel/card.
+- Progressive pagination: Default menampilkan 5 keping emas terakhir (`DEFAULT_GOLD_PAGE_SIZE = 5`). Tersedia tombol "Tampilkan 5 Lainnya" dengan tap target mobile min 44px untuk membuka 5 data berikutnya secara bertahap hingga seluruh data tampil, dilengkapi informasi counter ("Menampilkan X dari Y keping emas") dan reset otomatis ke 5 saat filter aktif (`selectedPersonId`, `showSold`) berubah. **[keputusan builder/AI]**
 
 **F2.4 Tambah/edit pembelian (modal)**
 - Field wajib: tanggal, brand (pilihan brand emas, default "ANTAM"), berat gram (> 0, desimal), jumlah keping (`piece_count` >= 1), harga beli per keping, pemilik.
@@ -254,6 +255,7 @@ As pengguna, I want membuat tahun baru dan tinggal mengisi saldo, so that pengis
   - Tabel seperti spreadsheet: rekening di kolom kiri (sticky), tahun sebagai kolom, scroll horizontal.
   - Grafik batang tren Total & Yang dibayarkan per tahun.
 - Rekening yang tidak ada di salah satu tahun tampil "–".
+- **Riwayat Rekap Tahunan:** Progressive pagination menampilkan 5 riwayat tahun zakat terakhir (`DEFAULT_ZAKAT_PAGE_SIZE = 5`), dilengkapi tombol "Tampilkan 5 Lainnya" (tap target mobile min 44px), informasi counter ("Menampilkan X dari Y riwayat zakat"), dan reset otomatis ke 5 saat tab pelaku (`selectedPersonId`) berganti. **[keputusan builder/AI]**
 
 **F3.6 Pengaturan modul Zakat**
 - Daftar rekening per orang (CRUD, urutan, aktif/nonaktif).

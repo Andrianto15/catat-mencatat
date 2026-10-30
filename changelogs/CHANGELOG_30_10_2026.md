@@ -134,6 +134,34 @@ Menambahkan field opsional Harga Jual / Buyback pada saat pembelian (`buyback_pr
 5. **Dokumentasi PRD (`PRD.md`)**:
    - Memperbarui spesifikasi F2.3, F2.4, dan tabel model data `gold_purchases`.
 
+---
+
+## Ringkasan Perubahan (Catat-Mencatat v0.5.3): Pagination Progresif (Setiap 5 Data) pada Halaman List Emas & List Zakat
+
+Menambahkan mekanisme pagination progresif / load more setiap 5 data pada halaman List Emas (`/emas`) dan bagian Riwayat Rekap Tahunan pada halaman List Zakat (`/zakat`), seragam dengan pola pagination pada List Motor.
+
+### Detail Perubahan:
+1. **Helper & Logika Pagination (`src/lib/gold/actions.ts`, `src/lib/zakat/engine.ts`)**:
+   - Menambahkan `DEFAULT_GOLD_PAGE_SIZE = 5` dan fungsi `paginateGoldPurchases` yang menggunakan ulang helper paginasi generik.
+   - Menambahkan `DEFAULT_ZAKAT_PAGE_SIZE = 5` dan fungsi `paginateZakatYears`.
+
+2. **Halaman List Emas (`src/app/emas/page.tsx`)**:
+   - Menambahkan state `visibleCount` dengan nilai awal `DEFAULT_GOLD_PAGE_SIZE` (5), serta auto-reset ke 5 saat filter pemilik (`selectedPersonId`) atau status terjual (`showSold`) berubah.
+   - Menampilkan kartu keping emas terpaginasi (`paginatedPurchases.items`), sedangkan kartu ringkasan portofolio (`summary`) tetap menghitung seluruh keping emas aktif.
+   - Menambahkan tombol mobile-first "Tampilkan 5 Lainnya" (`minHeight: '44px'`, ikon `ChevronDown`), informasi counter "Menampilkan X dari Y keping emas", dan keterangan saat seluruh data telah ditampilkan.
+
+3. **Halaman List Zakat (`src/app/zakat/page.tsx`)**:
+   - Menambahkan state `visibleCount` dengan nilai awal `DEFAULT_ZAKAT_PAGE_SIZE` (5), serta auto-reset ke 5 saat tab pemilik/pelaku (`selectedPersonId`) berganti.
+   - Menerapkan paginasi pada daftar kartu "Riwayat Rekap Tahunan" (`paginatedYears.items`), sementara komponen perbandingan tahun, tabel spreadsheet, dan grafik tren tetap menerima keseluruhan data tahun.
+   - Menambahkan tombol mobile-first "Tampilkan 5 Lainnya" (`minHeight: '44px'`, ikon `ChevronDown`), informasi counter "Menampilkan X dari Y riwayat zakat", dan keterangan saat seluruh riwayat telah ditampilkan.
+
+4. **Pengujian Unit (`tests/gold-pagination.test.tsx`, `tests/zakat-pagination.test.tsx`)**:
+   - Menambahkan unit test untuk logika dan rendering komponen paginasi pada List Emas dan List Zakat (kondisi > 5 item dan <= 5 item).
+
+5. **Dokumentasi PRD (`PRD.md`)**:
+   - Memperbarui spesifikasi F2.3 (Riwayat pembelian emas) dan F3.5 (Riwayat Rekap Tahunan Zakat).
+
+
 
 
 

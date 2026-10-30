@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Settings, Plus, TrendingUp, TrendingDown, Coins, LineChart } from 'lucide-react';
+import { ArrowLeft, Settings, Plus, TrendingUp, TrendingDown, Coins, LineChart, ChevronDown } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
-import { Person, GoldPurchase } from '@/lib/gold/actions';
+import { Person, GoldPurchase, DEFAULT_GOLD_PAGE_SIZE, paginateGoldPurchases } from '@/lib/gold/actions';
 import { calculateGoldAssetSummary } from '@/lib/gold/profit';
 import { GoldCard } from '@/components/gold/GoldCard';
 import { PurchaseModal } from '@/components/gold/PurchaseModal';
@@ -20,6 +20,9 @@ export default function GoldPage() {
   // Filter
   const [selectedPersonId, setSelectedPersonId] = useState('');
   const [showSold, setShowSold] = useState(false);
+
+  // Pagination
+  const [visibleCount, setVisibleCount] = useState(DEFAULT_GOLD_PAGE_SIZE);
 
   // Modals
   const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
@@ -77,6 +80,12 @@ export default function GoldPage() {
     if (!showSold && p.sold_at) return false;
     return true;
   });
+
+  useEffect(() => {
+    setVisibleCount(DEFAULT_GOLD_PAGE_SIZE);
+  }, [selectedPersonId, showSold]);
+
+  const paginatedPurchases = paginateGoldPurchases(filteredPurchases, visibleCount);
 
   const activePurchases = purchases.filter((p) => {
     if (selectedPersonId && p.person_id !== selectedPersonId) return false;
@@ -351,7 +360,7 @@ export default function GoldPage() {
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {filteredPurchases.map((purchase) => {
+            {paginatedPurchases.items.map((purchase) => {
               const key = `${purchase.brand.toUpperCase()}-${purchase.weight_gram}`;
               const currentBuyback = priceMap[key] ?? null;
 
@@ -372,6 +381,45 @@ export default function GoldPage() {
                 />
               );
             })}
+
+            {/* Pagination Controls */}
+            {paginatedPurchases.hasMore && (
+              <div style={{ marginTop: '0.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setVisibleCount((prev) => prev + DEFAULT_GOLD_PAGE_SIZE)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    width: '100%',
+                    minHeight: '44px',
+                    padding: '0.75rem 1rem',
+                    backgroundColor: 'var(--bg-card)',
+                    color: 'var(--color-primary)',
+                    border: '1px solid var(--border-card)',
+                    borderRadius: 'var(--radius-lg)',
+                    fontSize: '0.875rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'background-color 0.15s ease, border-color 0.15s ease',
+                  }}
+                  aria-label="Tampilkan 5 keping emas lainnya"
+                >
+                  <span>Tampilkan 5 Lainnya</span>
+                  <ChevronDown size={18} />
+                </button>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                  Menampilkan {paginatedPurchases.displayedCount} dari {paginatedPurchases.total} keping emas
+                </span>
+              </div>
+            )}
+            {!paginatedPurchases.hasMore && filteredPurchases.length > DEFAULT_GOLD_PAGE_SIZE && (
+              <div style={{ textAlign: 'center', padding: '0.5rem 0', color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+                Semua keping emas telah ditampilkan ({paginatedPurchases.total})
+              </div>
+            )}
           </div>
         )}
       </main>

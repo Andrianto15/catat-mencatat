@@ -1,3 +1,14 @@
+import { paginateMotorServices, DEFAULT_MOTOR_PAGE_SIZE, PaginatedResult } from '@/lib/motor/actions';
+
+export const DEFAULT_GOLD_PAGE_SIZE = DEFAULT_MOTOR_PAGE_SIZE;
+
+export function paginateGoldPurchases<T>(
+  purchases: T[],
+  limit: number = DEFAULT_GOLD_PAGE_SIZE
+): PaginatedResult<T> {
+  return paginateMotorServices(purchases, limit);
+}
+
 export interface Person {
   id: string;
   user_id?: string;

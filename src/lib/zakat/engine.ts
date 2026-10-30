@@ -1,3 +1,14 @@
+import { paginateMotorServices, DEFAULT_MOTOR_PAGE_SIZE, PaginatedResult } from '@/lib/motor/actions';
+
+export const DEFAULT_ZAKAT_PAGE_SIZE = DEFAULT_MOTOR_PAGE_SIZE;
+
+export function paginateZakatYears<T>(
+  years: T[],
+  limit: number = DEFAULT_ZAKAT_PAGE_SIZE
+): PaginatedResult<T> {
+  return paginateMotorServices(years, limit);
+}
+
 export interface CashBalanceItem {
   account_id: string;
   account_name?: string;

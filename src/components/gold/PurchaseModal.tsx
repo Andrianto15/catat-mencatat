@@ -248,6 +248,7 @@ export function PurchaseModal({
                 <option value="UBS" style={{ color: '#000' }}>UBS</option>
                 <option value="GALERI 24" style={{ color: '#000' }}>GALERI 24</option>
                 <option value="LOTUS ARCHI" style={{ color: '#000' }}>LOTUS ARCHI</option>
+                <option value="ANTAM RETRO" style={{ color: '#000' }}>ANTAM RETRO</option>
               </select>
             </div>
           </div>
