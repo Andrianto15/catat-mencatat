@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| Status | Implementation Complete (v0.4.5) |
-| Tanggal | 25-10-2026 |
+| Status | Implementation Complete (v0.5.0) |
+| Tanggal | 30-10-2026 |
 | Pemilik | Andrian (pengguna tunggal) |
 | Stack | Next.js (App Router) + Supabase (Postgres, Auth) + PWA + Vercel |
 | Lisensi | MIT License |
@@ -286,11 +286,12 @@ F0.1–F0.5, F1.1–F1.4, F2.1–F2.8, F3.1–F3.6.
 ## 8. Technical Considerations
 
 ### Arsitektur
-- Next.js App Router, Server Components + Server Actions untuk CRUD; client components untuk modal, filter, grafik.
-- Supabase: Postgres + Auth (email/password), akses via `@supabase/ssr`. Middleware Next.js untuk proteksi route.
+- Runtime: Node.js 26 LTS (`>=26.0.0`, dikunci via `.nvmrc` dan `package.json#engines`).
+- Next.js 16 (App Router) + React 19, Server Components + Server Actions untuk CRUD; client components untuk modal, filter, grafik.
+- Supabase: Postgres + Auth (email/password), akses via `@supabase/ssr` v0.12+ dan `@supabase/supabase-js` v2.118+ (server client async `await cookies()`). Middleware Next.js untuk proteksi route.
 - PWA: Dukungan Progressive Web App via `@serwist/next` (atau `@ducanh2912/next-pwa`) dengan `manifest.webmanifest`, app icons, dan service worker caching untuk app shell & static assets.
 - Hosting: Vercel (Cron untuk scraping). **[keputusan builder/AI]**
-- Bahasa: TypeScript.
+- Bahasa: TypeScript 5.9 (`~5.9.3`).
 
 ### Model data (usulan)
 

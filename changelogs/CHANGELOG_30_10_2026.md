@@ -60,4 +60,36 @@ Mengubah input Nama Bengkel pada modal Tambah/Edit Catatan Servis Motor (`/motor
 5. **Dokumentasi PRD (`PRD.md`)**:
    - Memperbarui poin F1.3 Tambah/edit servis mencatat kolom Nama Bengkel / Tempat sebagai dropdown autocomplete dengan opsi tambah baru dan tap target mobile min 44px.
 
+---
+
+## Ringkasan Perubahan (Catat-Mencatat v0.5.0): Upgrade Node.js 26 LTS & Dependensi Urgent (Next.js 16, React 19, Supabase, Jest 30)
+
+Melakukan upgrade runtime Node.js ke versi 26 LTS (`v26.13.0`) serta memperbarui seluruh dependensi urgent yang memiliki celah keamanan (*critical* & *high* CVEs) maupun versi yang tertinggal jauh.
+
+### Detail Perubahan:
+1. **Runtime Node.js 26 LTS (`.nvmrc`, `package.json`)**:
+   - Menginstall dan mengaktifkan Node.js `v26.13.0` (LTS: Lithium) sebagai default via `nvm`.
+   - Menambahkan file `.nvmrc` (`26`) dan mengunci `"engines": { "node": ">=26.0.0" }` pada `package.json`.
+   - Memperbarui `@types/node` dari `^20.17.19` ke `^26.6.6`.
+
+2. **Upgrade Dependensi Utama & Security Patch (`package.json`, `package-lock.json`)**:
+   - `next`: `14.2.24` -> `^16.4.3` (menutup 30+ CVE berstatus *Critical* dan *High* pada Next.js & transitive `postcss`).
+   - `react` & `react-dom`: `^18.3.1` -> `^19.3.1` (`@types/react` & `@types/react-dom` -> `^19.3.0`).
+   - `@supabase/ssr`: `^0.5.2` -> `^0.12.7`.
+   - `@supabase/supabase-js`: `^2.49.1` -> `^2.118.0`.
+   - `lucide-react`: `^0.475.0` -> `^1.64.0`.
+   - `jest`: `^29.7.0` -> `^30.5.2`, `@types/jest`: `^29.5.14` -> `^30.0.0`, `ts-jest`: `^29.2.5` -> `^29.4.15`.
+   - `typescript`: di-pin pada `~5.9.3` agar kompatibel dengan batas peer dependency `ts-jest` (`<7.0.0`).
+
+3. **Penyesuaian Breaking Changes Next.js 16 (`src/lib/supabase/server.ts`, `src/app/page.tsx`, `tsconfig.json`)**:
+   - Mengubah `createClient()` pada `src/lib/supabase/server.ts` menjadi fungsi `async` yang melakukan `await cookies()` sesuai perubahan API dinamis Next.js 15/16.
+   - Memperbarui pemanggilan `await createClient()` pada `HomePage` dan server action `handleLogout` di `src/app/page.tsx`.
+   - Penyesuaian otomatis `tsconfig.json` (`jsx: "react-jsx"` dan `.next/dev/types/**/*.ts`) untuk Next.js 16.
+
+4. **Pengujian Unit & Verifikasi Build (`tests/setup.test.ts`, `tests/auth-guard.test.ts`)**:
+   - Menambahkan unit test untuk memverifikasi konfigurasi Node 26 pada `.nvmrc`, `package.json#engines`, dan `@types/node`.
+   - Menambahkan unit test untuk memverifikasi `createClient()` server menggunakan `async` / `await cookies()`.
+   - Seluruh 25 test suites (86 test cases) lulus 100%, `npm run build` sukses tanpa error, dan `npm audit --omit=dev` melaporkan **0 vulnerabilities**.
+
+
 

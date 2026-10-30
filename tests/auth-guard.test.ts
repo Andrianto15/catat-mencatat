@@ -23,4 +23,11 @@ describe('Auth Guard Redirect Logic', () => {
     expect(resolveAuthRedirect('/emas', true)).toBeNull();
     expect(resolveAuthRedirect('/zakat', true)).toBeNull();
   });
+
+  it('should define createClient in server.ts as an async function awaiting cookies()', () => {
+    const fs = require('fs');
+    const serverCode = fs.readFileSync('src/lib/supabase/server.ts', 'utf8');
+    expect(serverCode).toContain('export async function createClient()');
+    expect(serverCode).toContain('await cookies()');
+  });
 });

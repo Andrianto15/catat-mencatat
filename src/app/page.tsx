@@ -5,12 +5,12 @@ import { redirect } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
 
 export default async function HomePage() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   const handleLogout = async () => {
     'use server';
-    const s = createClient();
+    const s = await createClient();
     await s.auth.signOut();
     redirect('/login');
   };
