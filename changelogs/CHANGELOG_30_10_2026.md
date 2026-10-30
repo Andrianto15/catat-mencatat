@@ -91,5 +91,24 @@ Melakukan upgrade runtime Node.js ke versi 26 LTS (`v26.13.0`) serta memperbarui
    - Menambahkan unit test untuk memverifikasi `createClient()` server menggunakan `async` / `await cookies()`.
    - Seluruh 25 test suites (86 test cases) lulus 100%, `npm run build` sukses tanpa error, dan `npm audit --omit=dev` melaporkan **0 vulnerabilities**.
 
+---
+
+## Ringkasan Perubahan (Catat-Mencatat v0.5.1): Perbaikan Jarak (Spacing) Label ke Input Text Box pada Form Edit Harga Emas
+
+Memperbaiki layout form inline edit harga emas harian (`/emas/prices`) agar label "Harga Jual (Rp)" dan "Harga Buyback (Rp)" tidak menempel terlalu dekat dengan text box `NumberInput`.
+
+### Detail Perubahan:
+1. **Antarmuka Pengguna (`src/app/emas/prices/page.tsx`)**:
+   - Menambahkan margin bawah `marginBottom: '0.375rem'` pada elemen `<label>` untuk "Harga Jual (Rp)" dan "Harga Buyback (Rp)".
+   - Memberikan ruang napas visual yang jelas dan ergonomis baik di tampilan mobile maupun desktop sesuai standar `antislop-layoutmobile`.
+
+2. **Pengujian Unit (`tests/gold-price-edit.test.tsx`)**:
+   - Menambahkan unit test TDD untuk memverifikasi style `marginBottom: '0.375rem'` pada label Harga Jual dan Harga Buyback.
+   - Seluruh 26 test suites (87 test cases) lulus 100%.
+
+3. **Dokumentasi PRD (`PRD.md`)**:
+   - Memperbarui spesifikasi F2.2 untuk mencatat spasi vertikal proporsional antara label dan field input pada form inline edit harga emas.
+
+
 
 

@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Implementation Complete (v0.5.0) |
+| Status | Implementation Complete (v0.5.1) |
 | Tanggal | 30-10-2026 |
 | Pemilik | Andrian (pengguna tunggal) |
 | Stack | Next.js (App Router) + Supabase (Postgres, Auth) + PWA + Vercel |
@@ -177,6 +177,7 @@ As pengguna, I want melihat dan mengedit harga hasil scraping, so that saya bisa
 - Acceptance:
   - List per tanggal (terbaru di atas), filter tanggal & brand, penanda jelas untuk baris harga kosong.
   - Edit harga jual/buyback; setelah diedit status menjadi `manual`.
+  - Form inline edit harga jual & harga buyback memiliki jarak vertikal proporsional (`marginBottom: '0.375rem'`) antara teks label dan field input `NumberInput` untuk kenyamanan visual mobile dan desktop.
   - Bisa menambah baris manual untuk tanggal/brand/berat yang tidak ada (misal tanggal lampau untuk data lama).
 
 **F2.3 Riwayat pembelian emas**

@@ -261,7 +261,7 @@ export default function GoldPricesPage() {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.25rem' }}>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
                         <div>
-                          <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>
+                          <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.375rem' }}>
                             Harga Jual (Rp)
                           </label>
                           <NumberInput
@@ -279,7 +279,7 @@ export default function GoldPricesPage() {
                           />
                         </div>
                         <div>
-                          <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>
+                          <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.375rem' }}>
                             Harga Buyback (Rp)
                           </label>
                           <NumberInput
