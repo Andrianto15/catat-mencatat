@@ -161,8 +161,23 @@ Menambahkan mekanisme pagination progresif / load more setiap 5 data pada halama
 5. **Dokumentasi PRD (`PRD.md`)**:
    - Memperbarui spesifikasi F2.3 (Riwayat pembelian emas) dan F3.5 (Riwayat Rekap Tahunan Zakat).
 
+---
 
+## Ringkasan Perubahan (Catat-Mencatat v0.5.4): Perbaikan Parser Harga Emas Galeri24 (`parseGaleri24Html`) & Ekstraksi Nuxt 3 Payload
 
+Memperbaiki logika parser harga emas Galeri 24 agar mampu mengekstrak langsung state data harga live dari payload Nuxt 3 (`<script>`) situs Galeri 24, serta mendukung parsing tabel HTML multi-format (3 kolom dengan heading vendor dan 4 kolom lama).
 
-
-
+### Detail Perubahan:
+1. **Parser Logam Mulia (`src/lib/gold/scraper.ts`)**:
+   - Menambahkan fungsi `parseNuxtPayload` untuk mem-parsing dehydrated state JSON Nuxt 3 (`useAsyncData` / devalue payload) yang memuat data live harga seluruh vendor (Galeri 24, Antam, UBS, Lotus Archi, Dinar, dll.).
+   - Menambahkan helper `cleanBrandName` untuk normalisasi nama brand (Galeri 24, Antam, UBS) dan membersihkan kata umum (Harga, Emas, Batangan, Gold).
+   - Memperbarui `parseGaleri24Html` untuk memprioritaskan ekstraksi Nuxt payload sebelum fallback ke pemindaian tabel HTML.
+   - Memperbarui parser tabel HTML untuk memindai per blok `<table>`, membaca brand dari tag heading terdekat (`<h1>`-`<h6>` atau class vendor/title), dan mem-parsing baris 3 kolom `[Berat, Harga Jual, Harga Buyback]`.
+2. **Penanganan Error Sinkronisasi UI (`src/app/emas/prices/page.tsx`)**:
+   - Memvalidasi respons `!data.success` sehingga menampilkan pesan error yang deskriptif dan tidak menampilkan alert palsu "0 harga diperbarui".
+3. **Fixture & Pengujian Unit (`tests/fixtures/galeri24-3col-sample.html`, `tests/scraper.test.ts`)**:
+   - Menambahkan fixture HTML 3 kolom multi-brand.
+   - Menambahkan unit test untuk de-serialisasi Nuxt 3 payload dan tabel multi-vendor.
+   - Seluruh 29 test suites (98 tests) lolos 100%.
+4. **Dokumentasi PRD (`PRD.md`)**:
+   - Memperbarui catatan teknis pada seksi Scraping Galeri24.

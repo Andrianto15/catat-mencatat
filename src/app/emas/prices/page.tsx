@@ -54,7 +54,7 @@ export default function GoldPricesPage() {
       setSyncing(true);
       const res = await fetch('/api/cron/sync-gold');
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Gagal sinkronisasi');
+      if (!res.ok || !data.success) throw new Error(data.error || data.message || 'Gagal sinkronisasi');
       alert(`Sinkronisasi selesai: ${data.syncedCount || 0} harga diperbarui.`);
       await fetchPrices();
     } catch (err: any) {

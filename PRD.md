@@ -318,8 +318,9 @@ F0.1–F0.5, F1.1–F1.4, F2.1–F2.8, F3.1–F3.6.
 - Teks pengguna dirender sebagai teks (tanpa `dangerouslySetInnerHTML`); query via Supabase client (parameterized).
 
 ### Scraping Galeri24
-- Halaman `galeri24.co.id/harga-emas` dirender server-side; harga jual & buyback per brand per berat ada di HTML (dicek 25-10-2026).
-- Parser dipisah sebagai fungsi murni `parseGaleri24Html(html) → [{brand, weight_gram, sell_price, buyback_price}]` agar bisa dites dengan fixture HTML.
+- Halaman `galeri24.co.id/harga-emas` menyajikan data harga via Nuxt 3 SSR state payload `<script>` dan tabel HTML per brand (diperbarui 30-10-2026).
+- Parser dipisah sebagai fungsi murni `parseGaleri24Html(html) → [{brand, weight_gram, sell_price, buyback_price}]` agar bisa dites dengan fixture HTML/state.
+- Mendukung ekstraksi dehydrated state Nuxt 3 (`parseNuxtPayload`), serta fallback parsing tabel HTML (format 3 kolom dengan heading vendor dan format 4 kolom).
 - Risiko struktur berubah ditangani oleh status `gagal` + isi manual (F2.1–F2.2).
 - Request dengan User-Agent wajar, 1x/hari, timeout ±15 detik.
 
