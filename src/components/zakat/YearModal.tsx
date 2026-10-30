@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, Lock, Check, Sparkles } from 'lucide-react';
+import { X, Lock, RotateCcw } from 'lucide-react';
 import { getHijriRamadhanDate } from '@/lib/zakat/hijri';
 import { calculateZakat, getRoundingChips, formatZakatAccountMeta } from '@/lib/zakat/engine';
 import { NumberInput } from '@/components/NumberInput';
@@ -19,6 +19,7 @@ export interface YearModalSaveData {
   masehi_year: number;
   reference_date: string;
   gold_price_per_gram: number;
+  gold_value_snapshot: number;
   nisab_nominal: number;
   total_assets: number;
   zakat_due: number;
@@ -34,8 +35,30 @@ interface YearModalProps {
   accounts: ZakatAccount[];
   initialData?: any | null;
   goldValueFromHoldings?: number;
+  computeGoldHoldingValue?: (refDate: string, pricePerGram: number) => number;
   latestGoldPrice1g?: number;
   onSave: (data: YearModalSaveData) => Promise<void>;
+}
+
+function resolveInitialGoldValue(
+  initialData: any | null | undefined,
+  goldValueFromHoldings: number,
+  computeGoldHoldingValue?: (refDate: string, pricePerGram: number) => number,
+  defaultRefDate: string = '2026-02-18',
+  defaultGoldPrice: number = 1450000
+): number {
+  if (initialData) {
+    if (initialData.gold_value_snapshot !== undefined && initialData.gold_value_snapshot !== null) {
+      return Number(initialData.gold_value_snapshot);
+    }
+    const cashSum = (initialData.balances || []).reduce((acc: number, b: any) => acc + Number(b.balance || 0), 0);
+    const derived = Math.round((Number(initialData.total_assets || 0) - cashSum) * 100) / 100;
+    return derived >= 0 ? derived : goldValueFromHoldings;
+  }
+  if (computeGoldHoldingValue) {
+    return computeGoldHoldingValue(defaultRefDate, defaultGoldPrice);
+  }
+  return goldValueFromHoldings;
 }
 
 export function YearModal({
@@ -46,12 +69,17 @@ export function YearModal({
   accounts,
   initialData,
   goldValueFromHoldings = 0,
+  computeGoldHoldingValue,
   latestGoldPrice1g = 1450000,
   onSave,
 }: YearModalProps) {
-  const [hijriYear, setHijriYear] = useState<number>(1447);
-  const [referenceDate, setReferenceDate] = useState<string>('2026-02-18');
-  const [goldPrice, setGoldPrice] = useState<number>(latestGoldPrice1g);
+  const [hijriYear, setHijriYear] = useState<number>(() => initialData?.hijri_year ?? 1447);
+  const [referenceDate, setReferenceDate] = useState<string>(() => initialData?.reference_date ?? '2026-02-18');
+  const [goldPrice, setGoldPrice] = useState<number>(() => initialData?.gold_price_per_gram ?? latestGoldPrice1g);
+  const [goldHoldingValue, setGoldHoldingValue] = useState<number>(() =>
+    resolveInitialGoldValue(initialData, goldValueFromHoldings, computeGoldHoldingValue, '2026-02-18', latestGoldPrice1g)
+  );
+  const [isGoldHoldingManual, setIsGoldHoldingManual] = useState<boolean>(() => !!initialData);
   const [isLocked, setIsLocked] = useState<boolean>(() => !!initialData?.is_locked);
   const [balances, setBalances] = useState<Record<string, number>>(() => {
     if (!initialData) return {};
@@ -91,6 +119,16 @@ export function YearModal({
       setHijriYear(initialData.hijri_year);
       setReferenceDate(initialData.reference_date);
       setGoldPrice(initialData.gold_price_per_gram);
+      setGoldHoldingValue(
+        resolveInitialGoldValue(
+          initialData,
+          goldValueFromHoldings,
+          computeGoldHoldingValue,
+          initialData.reference_date,
+          initialData.gold_price_per_gram
+        )
+      );
+      setIsGoldHoldingManual(true);
       setIsLocked(initialData.is_locked);
       const bMap: Record<string, number> = {};
       const intMap: Record<string, number | ''> = {};
@@ -112,15 +150,22 @@ export function YearModal({
       setDecimalInputs(decMap);
     } else {
       const defaultHijri = 1447;
+      const defaultRefDate = getHijriRamadhanDate(defaultHijri);
       setHijriYear(defaultHijri);
-      setReferenceDate(getHijriRamadhanDate(defaultHijri));
+      setReferenceDate(defaultRefDate);
       setGoldPrice(latestGoldPrice1g);
+      setGoldHoldingValue(
+        computeGoldHoldingValue
+          ? computeGoldHoldingValue(defaultRefDate, latestGoldPrice1g)
+          : goldValueFromHoldings
+      );
+      setIsGoldHoldingManual(false);
       setIsLocked(false);
       setBalances({});
       setIntBalances({});
       setDecimalInputs({});
     }
-  }, [initialData, latestGoldPrice1g]);
+  }, [initialData, latestGoldPrice1g, goldValueFromHoldings]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -135,9 +180,54 @@ export function YearModal({
 
   if (!isOpen) return null;
 
+  const autoGoldValue = computeGoldHoldingValue
+    ? computeGoldHoldingValue(referenceDate, goldPrice)
+    : goldValueFromHoldings;
+
   const handleHijriChange = (year: number) => {
+    const newRefDate = getHijriRamadhanDate(year);
     setHijriYear(year);
-    setReferenceDate(getHijriRamadhanDate(year));
+    setReferenceDate(newRefDate);
+    if (!isGoldHoldingManual) {
+      setGoldHoldingValue(
+        computeGoldHoldingValue
+          ? computeGoldHoldingValue(newRefDate, goldPrice)
+          : goldValueFromHoldings
+      );
+    }
+  };
+
+  const handleReferenceDateChange = (newRefDate: string) => {
+    setReferenceDate(newRefDate);
+    if (!isGoldHoldingManual) {
+      setGoldHoldingValue(
+        computeGoldHoldingValue
+          ? computeGoldHoldingValue(newRefDate, goldPrice)
+          : goldValueFromHoldings
+      );
+    }
+  };
+
+  const handleGoldPriceChange = (val: number | '') => {
+    const newPrice = val === '' ? 0 : val;
+    setGoldPrice(newPrice);
+    if (!isGoldHoldingManual) {
+      setGoldHoldingValue(
+        computeGoldHoldingValue
+          ? computeGoldHoldingValue(referenceDate, newPrice)
+          : goldValueFromHoldings
+      );
+    }
+  };
+
+  const handleGoldHoldingChange = (val: number | '') => {
+    setIsGoldHoldingManual(true);
+    setGoldHoldingValue(val === '' ? 0 : val);
+  };
+
+  const handleResetGoldHolding = () => {
+    setIsGoldHoldingManual(false);
+    setGoldHoldingValue(autoGoldValue);
   };
 
   const handleIntChange = (accountId: string, intVal: number | '') => {
@@ -175,7 +265,7 @@ export function YearModal({
   const calc = calculateZakat({
     goldPricePerGram: goldPrice,
     cashBalances: cashList,
-    goldTotalValue: goldValueFromHoldings,
+    goldTotalValue: goldHoldingValue,
   });
 
   const chips = getRoundingChips(calc.zakatDue);
@@ -201,6 +291,7 @@ export function YearModal({
         masehi_year: masehiYear,
         reference_date: referenceDate,
         gold_price_per_gram: goldPrice,
+        gold_value_snapshot: goldHoldingValue,
         nisab_nominal: calc.nisabNominal,
         total_assets: calc.totalAssets,
         zakat_due: calc.zakatDue,
@@ -319,7 +410,7 @@ export function YearModal({
                 type="date"
                 required
                 value={referenceDate}
-                onChange={(e) => setReferenceDate(e.target.value)}
+                onChange={(e) => handleReferenceDateChange(e.target.value)}
                 style={{
                   width: '100%',
                   padding: '0.625rem',
@@ -344,7 +435,7 @@ export function YearModal({
               id="zakat-gold-price"
               required
               value={goldPrice}
-              onChange={(val) => setGoldPrice(val === '' ? 0 : val)}
+              onChange={handleGoldPriceChange}
               style={{
                 width: '100%',
                 padding: '0.625rem',
@@ -448,23 +539,60 @@ export function YearModal({
             )}
           </div>
 
-          {/* Gold Holding preview */}
-          {goldValueFromHoldings > 0 && (
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: '0.625rem 0.75rem',
-              borderRadius: 'var(--radius-lg)',
-              backgroundColor: '#fef3c7',
-              color: '#b45309',
-              fontSize: '0.8125rem',
-              fontWeight: 600,
-            }}>
-              <span>Nilai Emas Fisik Tertahan (1 Ramadhan):</span>
-              <span>Rp {goldValueFromHoldings.toLocaleString('id-ID')}</span>
+          {/* Editable Gold Holding Value from Modul Emas */}
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
+              <label
+                htmlFor="zakat-gold-holdings"
+                style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500 }}
+              >
+                Nilai Emas Fisik Tertahan (1 Ramadhan) (Rp)
+              </label>
+              {isGoldHoldingManual && (
+                <button
+                  type="button"
+                  onClick={handleResetGoldHolding}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--color-primary)',
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.25rem',
+                    padding: '0.25rem 0.5rem',
+                    minHeight: '44px',
+                    borderRadius: 'var(--radius-lg)',
+                  }}
+                  title="Kembalikan ke nilai otomatis dari modul Emas"
+                >
+                  <RotateCcw size={13} />
+                  <span>Ambil dari Modul Emas</span>
+                </button>
+              )}
             </div>
-          )}
+            <NumberInput
+              id="zakat-gold-holdings"
+              placeholder="0"
+              value={goldHoldingValue === 0 ? '' : goldHoldingValue}
+              onChange={handleGoldHoldingChange}
+              style={{
+                width: '100%',
+                padding: '0.625rem',
+                borderRadius: 'var(--radius-lg)',
+                border: '1px solid var(--border-card)',
+                backgroundColor: 'transparent',
+                color: 'var(--text-main)',
+                fontSize: '0.875rem',
+                minHeight: '44px',
+              }}
+            />
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem', display: 'block' }}>
+              Otomatis dari modul Emas (Rp {autoGoldValue.toLocaleString('id-ID')}), bisa diedit untuk data tahun lalu.
+            </span>
+          </div>
 
           {/* Real-time Calculation Summary */}
           <div style={{

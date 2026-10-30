@@ -237,11 +237,12 @@ As pengguna, I want membuat tahun baru dan tinggal mengisi saldo, so that pengis
   - Rekening yang nonaktif tidak disalin, tapi saldo lamanya tetap tersimpan di tahun lama.
   - Tahun lama bisa dibuat (untuk input data 1444–1446 H).
 
-**F3.3 Baris Emas otomatis**
-- Baris "Emas" bukan rekening manual; nilainya dihitung dari modul Emas:
+**F3.3 Baris Emas otomatis & editable**
+- Baris "Emas" bukan rekening manual; nilainya dihitung otomatis dari modul Emas sebagai nilai default:
   `Σ (buyback per keping pada tanggal acuan, per brand+berat) untuk semua keping milik orang itu dengan tanggal beli ≤ tanggal acuan DAN (sold_at IS NULL ATAU sold_at > tanggal acuan)`.
-- Bila harga tanggal acuan kosong, pakai harga non-kosong terakhir sebelum tanggal acuan; bila tidak ada sama sekali, nilai bisa diisi manual.
-- Saat tahun disimpan, nilai emas (dan total gram) **dikunci sebagai snapshot**. Tombol "Hitung ulang emas" untuk memperbarui snapshot secara sadar. **[keputusan builder/AI]**
+- Pada form input/edit tahun zakat (`YearModal`), field `"Nilai Emas Fisik Tertahan (1 Ramadhan) (Rp)"` (`id="zakat-gold-holdings"`, menggunakan `NumberInput` dengan tap target minimal 44px) langsung terisi otomatis dari hasil perhitungan modul Emas, namun bersifat **editable** (bisa diubah manual) untuk kebutuhan input data tahun-tahun lalu.
+- Saat pengguna mengubah nilai emas secara manual, tersedia tombol `"Ambil dari Modul Emas"` untuk mengembalikan nilai ke perhitungan otomatis modul Emas.
+- Saat tahun disimpan, nilai emas dikunci sebagai snapshot (`gold_value_snapshot`) pada tabel `zakat_years`. Saat mengedit tahun yang sudah tersimpan, form menampilkan nilai snapshot yang tersimpan sebelumnya (atau selisih `total_assets - Σ saldo rekening` untuk kompatibilitas data lama). **[keputusan builder/AI]**
 
 **F3.4 Perhitungan**
 - `Total = Σ saldo rekening + nilai emas` (dijaga presisi 2 digit desimal untuk menghindari artefak floating-point).

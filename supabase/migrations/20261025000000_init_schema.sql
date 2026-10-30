@@ -106,6 +106,7 @@ CREATE TABLE IF NOT EXISTS public.zakat_years (
     masehi_year INTEGER NOT NULL,
     reference_date DATE NOT NULL,
     gold_price_per_gram NUMERIC(15, 2) NOT NULL,
+    gold_value_snapshot NUMERIC(15, 2) NOT NULL DEFAULT 0,
     nisab_nominal NUMERIC(15, 2) NOT NULL,
     total_assets NUMERIC(15, 2) NOT NULL DEFAULT 0,
     zakat_due NUMERIC(15, 2) NOT NULL DEFAULT 0,

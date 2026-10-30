@@ -142,6 +142,7 @@ export default function ZakatPage() {
           masehi_year: data.masehi_year,
           reference_date: data.reference_date,
           gold_price_per_gram: data.gold_price_per_gram,
+          gold_value_snapshot: data.gold_value_snapshot,
           nisab_nominal: data.nisab_nominal,
           total_assets: data.total_assets,
           zakat_due: data.zakat_due,
@@ -175,6 +176,7 @@ export default function ZakatPage() {
             masehi_year: data.masehi_year,
             reference_date: data.reference_date,
             gold_price_per_gram: data.gold_price_per_gram,
+            gold_value_snapshot: data.gold_value_snapshot,
             nisab_nominal: data.nisab_nominal,
             total_assets: data.total_assets,
             zakat_due: data.zakat_due,
@@ -501,6 +503,7 @@ export default function ZakatPage() {
         initialData={editingYear}
         latestGoldPrice1g={latestGoldPrice}
         goldValueFromHoldings={computeGoldHoldingValue('2026-02-18', latestGoldPrice)}
+        computeGoldHoldingValue={computeGoldHoldingValue}
         onSave={handleSaveYear}
       />
     </div>

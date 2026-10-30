@@ -255,3 +255,23 @@ Menyediakan input terpisah untuk 2 digit di belakang koma (default `00`) pada in
    - Seluruh 31 test suites (114 test cases) lulus 100%.
 5. **Dokumentasi PRD (`PRD.md`)**:
    - Memperbarui spesifikasi F3.2 dan F3.4 untuk mencatat pemisahan text box nominal ribuan utama dan text box terpisah 2 digit desimal (default 00).
+
+---
+
+## Ringkasan Perubahan (Catat-Mencatat v0.5.8): Input Nilai Emas Editable pada Modal Input Zakat (`YearModal`)
+
+Mengubah informasi nilai emas dari modul Emas pada form input/edit Zakat (`YearModal`) menjadi field input yang **editable** (`NumberInput`). Secara default field langsung terisi otomatis dari perhitungan kepemilikan modul Emas per tanggal acuan 1 Ramadhan, namun dapat diedit secara bebas oleh pengguna untuk kebutuhan pencatatan data zakat tahun-tahun lalu.
+
+### Detail Perubahan:
+1. **Skema & Migrasi Database (`supabase/migrations/20261030000002_add_gold_value_snapshot_to_zakat_years.sql`, `supabase/migrations/20261025000000_init_schema.sql`)**:
+   - Menambahkan kolom `gold_value_snapshot NUMERIC(15, 2) NOT NULL DEFAULT 0` pada tabel `public.zakat_years` untuk menyimpan nilai emas hasil input/snapshot tahun tersebut.
+2. **Antarmuka Pengguna Modal Zakat (`src/components/zakat/YearModal.tsx`, `src/app/zakat/page.tsx`)**:
+   - Mengganti kotak preview statis nilai emas menjadi field `NumberInput` yang editable dengan `id="zakat-gold-holdings"`, label `"Nilai Emas Fisik Tertahan (1 Ramadhan) (Rp)"`, dan tinggi minimal `44px` sesuai standar tap target mobile.
+   - Saat tambah tahun baru, nilai default otomatis mengikuti hasil kalkulasi kepemilikan emas dari modul Emas (`computeGoldHoldingValue` / `goldValueFromHoldings`) dan otomatis ikut menyesuaikan ketika Tahun Hijriah, Tanggal Referensi 1 Ramadhan, atau Harga Emas Acuan diubah selama belum di-override manual.
+   - Menyediakan tombol `"Ambil dari Modul Emas"` (`minHeight: '44px'`) untuk mereset kembali nilai ke perhitungan otomatis modul Emas apabila pengguna telah mengedit manual.
+   - Saat edit tahun zakat yang sudah ada, nilai terisi dari `gold_value_snapshot` yang tersimpan (atau fallback selisih `total_assets - total_cash` untuk data lama).
+   - Menyimpan `gold_value_snapshot` ke tabel `zakat_years` saat insert maupun update.
+3. **Pengujian Unit & TDD (`tests/zakat-ui.test.ts`, `tests/schema.test.ts`)**:
+   - Menambahkan pengujian unit untuk memverifikasi render input editable `#zakat-gold-holdings` dengan nilai default dari `goldValueFromHoldings`, pembacaan `gold_value_snapshot` saat edit tahun, fallback derivasi dari `total_assets`, serta keberadaan kolom `gold_value_snapshot` pada skema SQL.
+4. **Dokumentasi PRD (`PRD.md`)**:
+   - Memperbarui spesifikasi F3.3 untuk mencatat mekanisme auto-fill dari modul Emas yang dapat diedit manual beserta penyimpanan snapshot `gold_value_snapshot`.
