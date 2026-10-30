@@ -215,4 +215,152 @@ describe('Zakat Year Comparison Logic', () => {
     expect(html).toContain('value="5.000.000"');
     expect(html).toContain('Rp 55.000.000');
   });
+
+  it('renders dual nisab inputs (gold and silver) and editable zakat_paid in YearModal', () => {
+    const React = require('react');
+    const { renderToStaticMarkup } = require('react-dom/server');
+    const { YearModal } = require('../src/components/zakat/YearModal');
+
+    const html = renderToStaticMarkup(
+      React.createElement(YearModal, {
+        isOpen: true,
+        onClose: () => {},
+        personId: 'p1',
+        personName: 'Budi',
+        accounts: [{ id: 'acc1', account_name: 'BCA Utama' }],
+        latestGoldPrice1g: 1400000,
+        initialData: {
+          hijri_year: 1447,
+          reference_date: '2026-02-18',
+          gold_price_per_gram: 1400000,
+          silver_price_per_gram: 20000,
+          is_locked: false,
+          balances: [{ account_id: 'acc1', balance: 50250000 }], // 50.250.000: below gold nisab (119m), above silver nisab (11.9m)
+        },
+        onSave: async () => {},
+      })
+    );
+
+    // Gold & silver price inputs
+    expect(html).toContain('id="zakat-gold-price"');
+    expect(html).toContain('value="1.400.000"');
+    expect(html).toContain('id="zakat-silver-price"');
+    expect(html).toContain('value="20.000"');
+
+    // Dual nisab display
+    expect(html).toContain('Nisab Emas (85g)');
+    expect(html).toContain('Belum Wajib (&lt; Nisab)');
+    expect(html).toContain('Nisab Perak (595g)');
+    expect(html).toContain('Wajib Zakat (2.5%)');
+
+    // 2.5% of 50.250.000 = 1.256.250
+    expect(html).toContain('Rp 1.256.250');
+
+    // Editable Yang Dibayarkan input with round-up default (1.260.000)
+    expect(html).toContain('id="zakat-paid-amount"');
+    expect(html).toContain('value="1.260.000"');
+    expect(html).toContain('Pilihan Pembulatan Cepat:');
+  });
+
+  it('renders ZakatSpreadsheetTable with dual nisab rows (Emas & Perak) and Yang Dibayarkan', () => {
+    const React = require('react');
+    const { renderToStaticMarkup } = require('react-dom/server');
+    const { ZakatSpreadsheetTable } = require('../src/components/zakat/ZakatSpreadsheetTable');
+
+    const sampleYears = [
+      {
+        hijri_year: 1446,
+        masehi_year: 2025,
+        gold_price_per_gram: 1300000,
+        silver_price_per_gram: 16000,
+        nisab_nominal: 110500000,
+        nisab_silver_nominal: 9520000,
+        total_assets: 50000000,
+        zakat_due: 0,
+        zakat_silver_due: 1250000,
+        zakat_paid: 1250000,
+        balances: [{ account_id: 'acc1', account_name: 'BCA Utama', balance: 50000000 }],
+      },
+      {
+        hijri_year: 1447,
+        masehi_year: 2026,
+        gold_price_per_gram: 1450000,
+        silver_price_per_gram: 18000,
+        nisab_nominal: 123250000,
+        nisab_silver_nominal: 10710000,
+        total_assets: 150000000,
+        zakat_due: 3750000,
+        zakat_silver_due: 3750000,
+        zakat_paid: 3800000,
+        balances: [{ account_id: 'acc1', account_name: 'BCA Utama', balance: 150000000 }],
+      },
+    ];
+
+    const html = renderToStaticMarkup(
+      React.createElement(ZakatSpreadsheetTable, { years: sampleYears })
+    );
+
+    // Emas rows
+    expect(html).toContain('Nisab (85g Emas)');
+    expect(html).toContain('Zakat Emas (2.5%)');
+    expect(html).toContain('Rp 0 (Belum Wajib)'); // 1446 H
+    expect(html).toContain('Rp 3.750.000'); // 1447 H
+
+    // Perak rows
+    expect(html).toContain('Nisab (595g Perak)');
+    expect(html).toContain('Zakat Perak (2.5%)');
+    expect(html).toContain('Rp 1.250.000'); // 1446 H
+    expect(html).toContain('Rp 3.750.000'); // 1447 H
+
+    // Yang Dibayarkan row
+    expect(html).toContain('Yang Dibayarkan');
+    expect(html).toContain('Rp 1.250.000');
+    expect(html).toContain('Rp 3.800.000');
+  });
+
+  it('renders CompareTwoYears with dual nisab and Yang Dibayarkan comparison', () => {
+    const React = require('react');
+    const { renderToStaticMarkup } = require('react-dom/server');
+    const { CompareTwoYears } = require('../src/components/zakat/CompareTwoYears');
+
+    const prevYear = {
+      hijri_year: 1446,
+      masehi_year: 2025,
+      gold_price_per_gram: 1300000,
+      silver_price_per_gram: 16000,
+      nisab_nominal: 110500000,
+      nisab_silver_nominal: 9520000,
+      total_assets: 50000000,
+      zakat_due: 0,
+      zakat_silver_due: 1250000,
+      zakat_paid: 1250000,
+      balances: [{ account_id: 'acc1', account_name: 'BCA Utama', balance: 50000000 }],
+    };
+
+    const currYear = {
+      hijri_year: 1447,
+      masehi_year: 2026,
+      gold_price_per_gram: 1450000,
+      silver_price_per_gram: 18000,
+      nisab_nominal: 123250000,
+      nisab_silver_nominal: 10710000,
+      total_assets: 150000000,
+      zakat_due: 3750000,
+      zakat_silver_due: 3750000,
+      zakat_paid: 3800000,
+      balances: [{ account_id: 'acc1', account_name: 'BCA Utama', balance: 150000000 }],
+    };
+
+    const html = renderToStaticMarkup(
+      React.createElement(CompareTwoYears, { prevYear, currYear })
+    );
+
+    expect(html).toContain('Komparasi 1446 H vs 1447 H');
+    expect(html).toContain('Total Harta (1447 H)');
+    expect(html).toContain('Rp 150.000.000');
+    expect(html).toContain('Yang Dibayarkan (1447 H)');
+    expect(html).toContain('Rp 3.800.000');
+    expect(html).toContain('Zakat Acuan Emas (85g)');
+    expect(html).toContain('Zakat Acuan Perak (595g)');
+  });
 });

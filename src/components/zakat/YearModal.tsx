@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Lock, RotateCcw } from 'lucide-react';
 import { getHijriRamadhanDate } from '@/lib/zakat/hijri';
-import { calculateZakat, getRoundingChips, formatZakatAccountMeta } from '@/lib/zakat/engine';
+import { calculateZakat, getRoundingChips, formatZakatAccountMeta, DEFAULT_SILVER_PRICE } from '@/lib/zakat/engine';
 import { NumberInput } from '@/components/NumberInput';
 
 export interface ZakatAccount {
@@ -19,10 +19,14 @@ export interface YearModalSaveData {
   masehi_year: number;
   reference_date: string;
   gold_price_per_gram: number;
+  silver_price_per_gram: number;
   gold_value_snapshot: number;
   nisab_nominal: number;
+  nisab_silver_nominal: number;
   total_assets: number;
   zakat_due: number;
+  zakat_silver_due: number;
+  zakat_paid: number;
   is_locked: boolean;
   balances: Array<{ account_id: string; balance: number }>;
 }
@@ -76,10 +80,20 @@ export function YearModal({
   const [hijriYear, setHijriYear] = useState<number>(() => initialData?.hijri_year ?? 1447);
   const [referenceDate, setReferenceDate] = useState<string>(() => initialData?.reference_date ?? '2026-02-18');
   const [goldPrice, setGoldPrice] = useState<number>(() => initialData?.gold_price_per_gram ?? latestGoldPrice1g);
+  const [silverPrice, setSilverPrice] = useState<number>(() => initialData?.silver_price_per_gram ?? DEFAULT_SILVER_PRICE);
   const [goldHoldingValue, setGoldHoldingValue] = useState<number>(() =>
     resolveInitialGoldValue(initialData, goldValueFromHoldings, computeGoldHoldingValue, '2026-02-18', latestGoldPrice1g)
   );
   const [isGoldHoldingManual, setIsGoldHoldingManual] = useState<boolean>(() => !!initialData);
+  const [zakatPaid, setZakatPaid] = useState<number | ''>(() => {
+    if (initialData?.zakat_paid !== undefined && initialData?.zakat_paid !== null) {
+      return Number(initialData.zakat_paid);
+    }
+    return '';
+  });
+  const [isZakatPaidManual, setIsZakatPaidManual] = useState<boolean>(() => {
+    return initialData?.zakat_paid !== undefined && initialData?.zakat_paid !== null;
+  });
   const [isLocked, setIsLocked] = useState<boolean>(() => !!initialData?.is_locked);
   const [balances, setBalances] = useState<Record<string, number>>(() => {
     if (!initialData) return {};
@@ -119,6 +133,7 @@ export function YearModal({
       setHijriYear(initialData.hijri_year);
       setReferenceDate(initialData.reference_date);
       setGoldPrice(initialData.gold_price_per_gram);
+      setSilverPrice(initialData.silver_price_per_gram ?? DEFAULT_SILVER_PRICE);
       setGoldHoldingValue(
         resolveInitialGoldValue(
           initialData,
@@ -129,6 +144,13 @@ export function YearModal({
         )
       );
       setIsGoldHoldingManual(true);
+      if (initialData.zakat_paid !== undefined && initialData.zakat_paid !== null) {
+        setZakatPaid(Number(initialData.zakat_paid));
+        setIsZakatPaidManual(true);
+      } else {
+        setZakatPaid('');
+        setIsZakatPaidManual(false);
+      }
       setIsLocked(initialData.is_locked);
       const bMap: Record<string, number> = {};
       const intMap: Record<string, number | ''> = {};
@@ -154,12 +176,15 @@ export function YearModal({
       setHijriYear(defaultHijri);
       setReferenceDate(defaultRefDate);
       setGoldPrice(latestGoldPrice1g);
+      setSilverPrice(DEFAULT_SILVER_PRICE);
       setGoldHoldingValue(
         computeGoldHoldingValue
           ? computeGoldHoldingValue(defaultRefDate, latestGoldPrice1g)
           : goldValueFromHoldings
       );
       setIsGoldHoldingManual(false);
+      setZakatPaid('');
+      setIsZakatPaidManual(false);
       setIsLocked(false);
       setBalances({});
       setIntBalances({});
@@ -264,11 +289,31 @@ export function YearModal({
 
   const calc = calculateZakat({
     goldPricePerGram: goldPrice,
+    silverPricePerGram: silverPrice,
     cashBalances: cashList,
     goldTotalValue: goldHoldingValue,
   });
 
+  const effectiveZakatPaid = isZakatPaidManual
+    ? zakatPaid
+    : calc.defaultZakatPaid;
+
   const chips = getRoundingChips(calc.zakatDue);
+
+  const handleZakatPaidChange = (val: number | '') => {
+    setIsZakatPaidManual(true);
+    setZakatPaid(val === '' ? '' : Number(val));
+  };
+
+  const handleSelectChip = (amount: number) => {
+    setIsZakatPaidManual(true);
+    setZakatPaid(amount);
+  };
+
+  const handleResetZakatPaid = () => {
+    setIsZakatPaidManual(false);
+    setZakatPaid('');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -285,16 +330,21 @@ export function YearModal({
       setSubmitting(true);
       setError('');
       const masehiYear = new Date(referenceDate).getFullYear() || 2026;
+      const finalPaid = effectiveZakatPaid === '' ? 0 : Number(effectiveZakatPaid);
 
       await onSave({
         hijri_year: Number(hijriYear),
         masehi_year: masehiYear,
         reference_date: referenceDate,
         gold_price_per_gram: goldPrice,
+        silver_price_per_gram: silverPrice,
         gold_value_snapshot: goldHoldingValue,
-        nisab_nominal: calc.nisabNominal,
+        nisab_nominal: calc.nisabGoldNominal,
+        nisab_silver_nominal: calc.nisabSilverNominal,
         total_assets: calc.totalAssets,
-        zakat_due: calc.zakatDue,
+        zakat_due: calc.zakatGoldDue,
+        zakat_silver_due: calc.zakatSilverDue,
+        zakat_paid: finalPaid,
         is_locked: isLocked,
         balances: cashList,
       });
@@ -424,31 +474,60 @@ export function YearModal({
             </div>
           </div>
 
-          <div>
-            <label
-              htmlFor="zakat-gold-price"
-              style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}
-            >
-              Harga Emas Acuan (Rp / gram)
-            </label>
-            <NumberInput
-              id="zakat-gold-price"
-              required
-              value={goldPrice}
-              onChange={handleGoldPriceChange}
-              style={{
-                width: '100%',
-                padding: '0.625rem',
-                borderRadius: 'var(--radius-lg)',
-                border: '1px solid var(--border-card)',
-                backgroundColor: 'transparent',
-                color: 'var(--text-main)',
-                fontSize: '0.875rem',
-              }}
-            />
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem', display: 'block' }}>
-              Nisab (85g) = Rp {calc.nisabNominal.toLocaleString('id-ID')}
-            </span>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+            <div>
+              <label
+                htmlFor="zakat-gold-price"
+                style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}
+              >
+                Harga Emas Acuan (Rp/g)
+              </label>
+              <NumberInput
+                id="zakat-gold-price"
+                required
+                value={goldPrice}
+                onChange={handleGoldPriceChange}
+                style={{
+                  width: '100%',
+                  padding: '0.625rem',
+                  borderRadius: 'var(--radius-lg)',
+                  border: '1px solid var(--border-card)',
+                  backgroundColor: 'transparent',
+                  color: 'var(--text-main)',
+                  fontSize: '0.875rem',
+                }}
+              />
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem', display: 'block' }}>
+                Nisab (85g) = Rp {calc.nisabGoldNominal.toLocaleString('id-ID')}
+              </span>
+            </div>
+
+            <div>
+              <label
+                htmlFor="zakat-silver-price"
+                style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}
+              >
+                Harga Perak Acuan (Rp/g)
+              </label>
+              <NumberInput
+                id="zakat-silver-price"
+                required
+                value={silverPrice}
+                onChange={(val) => setSilverPrice(val === '' ? 0 : Number(val))}
+                style={{
+                  width: '100%',
+                  padding: '0.625rem',
+                  borderRadius: 'var(--radius-lg)',
+                  border: '1px solid var(--border-card)',
+                  backgroundColor: 'transparent',
+                  color: 'var(--text-main)',
+                  fontSize: '0.875rem',
+                }}
+              />
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem', display: 'block' }}>
+                Nisab (595g) = Rp {calc.nisabSilverNominal.toLocaleString('id-ID')}
+              </span>
+            </div>
           </div>
 
           {/* Account Balances Inputs */}
@@ -601,76 +680,221 @@ export function YearModal({
             padding: '0.875rem',
             display: 'flex',
             flexDirection: 'column',
-            gap: '0.5rem',
+            gap: '0.625rem',
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8125rem' }}>
               <span style={{ color: 'var(--text-muted)' }}>Total Harta (Uang + Emas):</span>
               <span style={{ fontWeight: 700 }}>Rp {calc.totalAssets.toLocaleString('id-ID')}</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8125rem' }}>
-              <span style={{ color: 'var(--text-muted)' }}>Status Nisab:</span>
-              <span style={{
-                fontWeight: 700,
-                color: calc.isWajib ? '#10b981' : 'var(--text-muted)',
-              }}>
-                {calc.isWajib ? 'Wajib Zakat (≥ Nisab)' : 'Belum Wajib (< Nisab)'}
-              </span>
-            </div>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              fontSize: '1rem',
-              fontWeight: 700,
-              paddingTop: '0.5rem',
-              borderTop: '1px solid var(--border-card)',
-            }}>
-              <span>Kewajiban Zakat (2.5%):</span>
-              <span style={{ color: 'var(--color-primary)' }}>
-                Rp {calc.zakatDue.toLocaleString('id-ID')}
-              </span>
-            </div>
-          </div>
 
-          {/* Payment Chips */}
-          {calc.isWajib && calc.zakatDue > 0 && (
-            <div>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.375rem' }}>
-                Pilihan Pembulatan Pembayaran:
-              </span>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
-                <div style={{
-                  padding: '0.4rem',
-                  borderRadius: 'var(--radius-lg)',
-                  border: '1px solid var(--border-card)',
-                  textAlign: 'center',
-                  fontSize: '0.75rem',
-                }}>
-                  <span style={{ color: 'var(--text-muted)', display: 'block' }}>+10rb</span>
-                  <b>{chips.round10k.toLocaleString('id-ID')}</b>
+            {/* Dual Nisab Columns */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginTop: '0.25rem' }}>
+              <div style={{
+                padding: '0.625rem',
+                borderRadius: 'var(--radius-lg)',
+                backgroundColor: 'var(--bg-card)',
+                border: '1px solid var(--border-card)',
+              }}>
+                <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>
+                  Nisab Emas (85g)
+                </div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.125rem' }}>
+                  Rp {calc.nisabGoldNominal.toLocaleString('id-ID')}
                 </div>
                 <div style={{
-                  padding: '0.4rem',
-                  borderRadius: 'var(--radius-lg)',
-                  border: '1px solid var(--border-card)',
-                  textAlign: 'center',
-                  fontSize: '0.75rem',
+                  fontSize: '0.6875rem',
+                  fontWeight: 600,
+                  color: calc.isWajibGold ? '#10b981' : 'var(--text-muted)',
+                  marginTop: '0.25rem',
                 }}>
-                  <span style={{ color: 'var(--text-muted)', display: 'block' }}>+50rb</span>
-                  <b>{chips.round50k.toLocaleString('id-ID')}</b>
+                  {calc.isWajibGold ? 'Wajib Zakat (2.5%)' : 'Belum Wajib (< Nisab)'}
+                </div>
+                <div style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-primary)', marginTop: '0.25rem' }}>
+                  Rp {calc.zakatGoldDue.toLocaleString('id-ID')}
+                </div>
+              </div>
+
+              <div style={{
+                padding: '0.625rem',
+                borderRadius: 'var(--radius-lg)',
+                backgroundColor: 'var(--bg-card)',
+                border: '1px solid var(--border-card)',
+              }}>
+                <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>
+                  Nisab Perak (595g)
+                </div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.125rem' }}>
+                  Rp {calc.nisabSilverNominal.toLocaleString('id-ID')}
                 </div>
                 <div style={{
-                  padding: '0.4rem',
-                  borderRadius: 'var(--radius-lg)',
-                  border: '1px solid var(--border-card)',
-                  textAlign: 'center',
-                  fontSize: '0.75rem',
+                  fontSize: '0.6875rem',
+                  fontWeight: 600,
+                  color: calc.isWajibSilver ? '#10b981' : 'var(--text-muted)',
+                  marginTop: '0.25rem',
                 }}>
-                  <span style={{ color: 'var(--text-muted)', display: 'block' }}>+100rb</span>
-                  <b>{chips.round100k.toLocaleString('id-ID')}</b>
+                  {calc.isWajibSilver ? 'Wajib Zakat (2.5%)' : 'Belum Wajib (< Nisab)'}
+                </div>
+                <div style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-primary)', marginTop: '0.25rem' }}>
+                  Rp {calc.zakatSilverDue.toLocaleString('id-ID')}
                 </div>
               </div>
             </div>
-          )}
+          </div>
+
+          {/* Yang Dibayarkan (Editable with Round-up Default) */}
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
+              <label
+                htmlFor="zakat-paid-amount"
+                style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 600 }}
+              >
+                Yang Dibayarkan (Rp)
+              </label>
+              {isZakatPaidManual && (
+                <button
+                  type="button"
+                  onClick={handleResetZakatPaid}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--color-primary)',
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.25rem',
+                    padding: '0.25rem 0.5rem',
+                    minHeight: '44px',
+                    borderRadius: 'var(--radius-lg)',
+                  }}
+                  title="Kembalikan ke pembulatan otomatis"
+                >
+                  <RotateCcw size={13} />
+                  <span>Reset Default</span>
+                </button>
+              )}
+            </div>
+            <NumberInput
+              id="zakat-paid-amount"
+              placeholder="0"
+              value={effectiveZakatPaid === '' ? '' : effectiveZakatPaid}
+              onChange={handleZakatPaidChange}
+              style={{
+                width: '100%',
+                padding: '0.625rem',
+                borderRadius: 'var(--radius-lg)',
+                border: '1px solid var(--border-card)',
+                backgroundColor: 'transparent',
+                color: 'var(--text-main)',
+                fontSize: '0.875rem',
+                fontWeight: 600,
+                minHeight: '44px',
+              }}
+            />
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem', display: 'block' }}>
+              Default pembulatan ke atas dari nilai Zakat 2.5%, dapat diedit sesuai kehendak.
+            </span>
+
+            {/* Quick Rounding Chips */}
+            {calc.zakatDue > 0 && (
+              <div style={{ marginTop: '0.5rem' }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.375rem' }}>
+                  Pilihan Pembulatan Cepat:
+                </span>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.375rem' }}>
+                  <button
+                    type="button"
+                    onClick={() => handleSelectChip(chips.exact)}
+                    style={{
+                      padding: '0.4rem 0.25rem',
+                      borderRadius: 'var(--radius-lg)',
+                      border: '1px solid var(--border-card)',
+                      backgroundColor: effectiveZakatPaid === chips.exact ? 'var(--color-primary)' : 'var(--bg-main)',
+                      color: effectiveZakatPaid === chips.exact ? '#ffffff' : 'var(--text-main)',
+                      textAlign: 'center',
+                      fontSize: '0.6875rem',
+                      cursor: 'pointer',
+                      minHeight: '44px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <span style={{ opacity: 0.8 }}>Pas</span>
+                    <b>{chips.exact.toLocaleString('id-ID')}</b>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSelectChip(chips.round10k)}
+                    style={{
+                      padding: '0.4rem 0.25rem',
+                      borderRadius: 'var(--radius-lg)',
+                      border: '1px solid var(--border-card)',
+                      backgroundColor: effectiveZakatPaid === chips.round10k ? 'var(--color-primary)' : 'var(--bg-main)',
+                      color: effectiveZakatPaid === chips.round10k ? '#ffffff' : 'var(--text-main)',
+                      textAlign: 'center',
+                      fontSize: '0.6875rem',
+                      cursor: 'pointer',
+                      minHeight: '44px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <span style={{ opacity: 0.8 }}>+10rb</span>
+                    <b>{chips.round10k.toLocaleString('id-ID')}</b>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSelectChip(chips.round50k)}
+                    style={{
+                      padding: '0.4rem 0.25rem',
+                      borderRadius: 'var(--radius-lg)',
+                      border: '1px solid var(--border-card)',
+                      backgroundColor: effectiveZakatPaid === chips.round50k ? 'var(--color-primary)' : 'var(--bg-main)',
+                      color: effectiveZakatPaid === chips.round50k ? '#ffffff' : 'var(--text-main)',
+                      textAlign: 'center',
+                      fontSize: '0.6875rem',
+                      cursor: 'pointer',
+                      minHeight: '44px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <span style={{ opacity: 0.8 }}>+50rb</span>
+                    <b>{chips.round50k.toLocaleString('id-ID')}</b>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSelectChip(chips.round100k)}
+                    style={{
+                      padding: '0.4rem 0.25rem',
+                      borderRadius: 'var(--radius-lg)',
+                      border: '1px solid var(--border-card)',
+                      backgroundColor: effectiveZakatPaid === chips.round100k ? 'var(--color-primary)' : 'var(--bg-main)',
+                      color: effectiveZakatPaid === chips.round100k ? '#ffffff' : 'var(--text-main)',
+                      textAlign: 'center',
+                      fontSize: '0.6875rem',
+                      cursor: 'pointer',
+                      minHeight: '44px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <span style={{ opacity: 0.8 }}>+100rb</span>
+                    <b>{chips.round100k.toLocaleString('id-ID')}</b>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Lock Snapshot Checkbox */}
           <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', cursor: 'pointer' }}>

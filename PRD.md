@@ -244,20 +244,29 @@ As pengguna, I want membuat tahun baru dan tinggal mengisi saldo, so that pengis
 - Saat pengguna mengubah nilai emas secara manual, tersedia tombol `"Ambil dari Modul Emas"` untuk mengembalikan nilai ke perhitungan otomatis modul Emas.
 - Saat tahun disimpan, nilai emas dikunci sebagai snapshot (`gold_value_snapshot`) pada tabel `zakat_years`. Saat mengedit tahun yang sudah tersimpan, form menampilkan nilai snapshot yang tersimpan sebelumnya (atau selisih `total_assets - Σ saldo rekening` untuk kompatibilitas data lama). **[keputusan builder/AI]**
 
-**F3.4 Perhitungan**
+**F3.4 Perhitungan & Acuan Zakat (Dual Nisab Emas & Perak)**
 - `Total = Σ saldo rekening + nilai emas` (dijaga presisi 2 digit desimal untuk menghindari artefak floating-point).
-- `Nisab = 85 × harga emas per gram pada tanggal acuan`. Harga per gram diambil dari harga **jual** Galeri24 keping 1 gram brand "Galeri24" pada tanggal acuan (fallback ke harga terakhir sebelumnya); bisa diubah manual dan ikut tersimpan sebagai snapshot. **[keputusan builder/AI]**
-- `Wajib zakat = Total ≥ Nisab`
-- `Zakat 2,5% = 0,025 × Total` bila wajib; bila tidak, tampil label "Belum mencapai nisab" dan zakat 0.
-- **Yang dibayarkan**: diisi pengguna. Ada chip pembulatan ke atas cepat (kelipatan 10rb / 50rb / 100rb) dari nilai zakat 2,5%; angka tetap bisa diketik bebas (termasuk saat belum nisab).
+- **Dual Acuan Nisab (Emas & Perak)**:
+  - `Nisab Emas = 85 × harga emas per gram pada tanggal acuan`. Harga emas per gram diambil dari harga jual emas 1 gram pada tanggal acuan (bisa diedit manual).
+  - `Nisab Perak = 595 × harga perak per gram pada tanggal acuan`. Default harga perak Rp 18.000/gram, dapat diedit manual di form `YearModal`.
+- **Kewajiban & Nilai Zakat 2,5%**:
+  - Masing-masing acuan memiliki kolom/baris zakatnya sendiri: **Zakat Emas (2.5%)** dan **Zakat Perak (2.5%)**.
+  - **Jika emas tidak wajib, tapi kena perak**: Zakat Emas tampil Rp 0 ("Belum Wajib"), sedangkan Zakat Perak muncul `2,5% × Total Harta`.
+  - **Jika dua-duanya wajib**: Nilai zakat emas dan zakat perak sama besar (`2,5% × Total Harta`).
+  - **Jika dua-duanya tidak wajib**: Kedua zakat bernilai 0 ("Belum Wajib").
+- **Kolom "Yang Dibayarkan"**:
+  - Kolom/field editable oleh pengguna.
+  - Nilai default terisi otomatis dari pembulatan ke atas kelipatan 10.000 dari nilai Zakat 2,5% (`Math.ceil(zakatDue / 10000) * 10000`). Bila zakat 0, default bernilai 0.
+  - Dilengkapi tombol reset ke pembulatan default dan quick rounding chips (Pas, +10rb, +50rb, +100rb) untuk kemudahan penyesuaian nominal pembayaran.
+  - Tersimpan permanen di database (`zakat_years.zakat_paid`) dan ikut ditampilkan di tabel spreadsheet, komparasi mobile, overview card, serta riwayat rekap tahunan. **[keputusan builder/AI]**
 
 **F3.5 Perbandingan antar tahun**
-- **HP (tampilan utama):** pilih dua tahun (default: tahun terbaru vs sebelumnya). Per rekening tampil saldo tahun terpilih + perubahan (▲/▼, nominal & %) dibanding tahun pembanding. Baris Total, Zakat 2,5%, dan Yang dibayarkan juga dibandingkan.
+- **HP (tampilan utama):** pilih dua tahun (default: tahun terbaru vs sebelumnya). Per rekening tampil saldo tahun terpilih + perubahan (▲/▼, nominal & %) dibanding tahun pembanding. Baris Total, Zakat Acuan Emas (85g), Zakat Acuan Perak (595g), dan Yang dibayarkan juga dibandingkan.
 - **Desktop (tambahan):**
-  - Tabel seperti spreadsheet: rekening di kolom kiri (sticky), tahun sebagai kolom, scroll horizontal.
+  - Tabel seperti spreadsheet: rekening di kolom kiri (sticky), tahun sebagai kolom, scroll horizontal, memuat baris Total Harta, Nisab Emas, Zakat Emas, Nisab Perak, Zakat Perak, dan Yang Dibayarkan.
   - Grafik batang tren Total & Yang dibayarkan per tahun.
 - Rekening yang tidak ada di salah satu tahun tampil "–".
-- **Riwayat Rekap Tahunan:** Progressive pagination menampilkan 5 riwayat tahun zakat terakhir (`DEFAULT_ZAKAT_PAGE_SIZE = 5`), dilengkapi tombol "Tampilkan 5 Lainnya" (tap target mobile min 44px), informasi counter ("Menampilkan X dari Y riwayat zakat"), dan reset otomatis ke 5 saat tab pelaku (`selectedPersonId`) berganti. **[keputusan builder/AI]**
+- **Riwayat Rekap Tahunan:** Progressive pagination menampilkan 5 riwayat tahun zakat terakhir (`DEFAULT_ZAKAT_PAGE_SIZE = 5`), dilengkapi tombol "Tampilkan 5 Lainnya" (tap target mobile min 44px), informasi counter ("Menampilkan X dari Y riwayat zakat"), rincian zakat emas & perak serta nominal yang dibayarkan, dan reset otomatis ke 5 saat tab pelaku (`selectedPersonId`) berganti. **[keputusan builder/AI]**
 
 **F3.6 Pengaturan modul Zakat**
 - Daftar rekening per orang (CRUD, jenis rekening `Bank`/`e-Wallet`/`Reksadana / Investasi`/`Tunai / Cash`/`Lainnya`, institusi, nomor rekening, urutan, aktif/nonaktif).

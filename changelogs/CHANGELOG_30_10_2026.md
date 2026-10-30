@@ -275,3 +275,36 @@ Mengubah informasi nilai emas dari modul Emas pada form input/edit Zakat (`YearM
    - Menambahkan pengujian unit untuk memverifikasi render input editable `#zakat-gold-holdings` dengan nilai default dari `goldValueFromHoldings`, pembacaan `gold_value_snapshot` saat edit tahun, fallback derivasi dari `total_assets`, serta keberadaan kolom `gold_value_snapshot` pada skema SQL.
 4. **Dokumentasi PRD (`PRD.md`)**:
    - Memperbarui spesifikasi F3.3 untuk mencatat mekanisme auto-fill dari modul Emas yang dapat diedit manual beserta penyimpanan snapshot `gold_value_snapshot`.
+
+---
+
+## Ringkasan Perubahan (Catat-Mencatat v0.5.9): Acuan Zakat Dual Nisab (Emas & Perak) & Kolom "Yang Dibayarkan"
+
+Menambahkan dukungan dua acuan nisab zakat mal (Nisab Emas 85g dan Nisab Perak 595g) dengan kolom zakat masing-masing, serta kolom "Yang Dibayarkan" yang dapat diedit secara bebas dengan nilai default pembulatan ke atas dari zakat 2.5%.
+
+### Detail Perubahan:
+1. **Skema & Migrasi Database (`supabase/migrations/20261030000003_add_silver_and_paid_to_zakat_years.sql`, `supabase/migrations/20261025000000_init_schema.sql`)**:
+   - Menambahkan kolom `silver_price_per_gram NUMERIC(15, 2) NOT NULL DEFAULT 0`, `nisab_silver_nominal NUMERIC(15, 2) NOT NULL DEFAULT 0`, `zakat_silver_due NUMERIC(15, 2) NOT NULL DEFAULT 0`, dan `zakat_paid NUMERIC(15, 2) NOT NULL DEFAULT 0` pada tabel `public.zakat_years`.
+2. **Mesin Kalkulasi Zakat (`src/lib/zakat/engine.ts`)**:
+   - Menambahkan konstanta `GOLD_NISAB_GRAMS = 85`, `SILVER_NISAB_GRAMS = 595`, dan `DEFAULT_SILVER_PRICE = 18000`.
+   - Mengembangkan fungsi `calculateZakat` untuk menghitung:
+     - `nisabGoldNominal` (85g) dan `nisabSilverNominal` (595g).
+     - Status kewajiban terpisah: `isWajibGold` dan `isWajibSilver`.
+     - Nilai zakat masing-masing acuan: `zakatGoldDue` dan `zakatSilverDue`. Jika emas tidak wajib namun perak wajib, zakat perak tampil `2.5% × Total Harta`. Jika kedua acuan wajib, kedua nilai zakat bernilai sama. Jika keduanya tidak wajib, kedua zakat bernilai 0.
+     - `defaultZakatPaid`: pembulatan ke atas dari nilai zakat 2.5% ke kelipatan 10.000 terdekat (`Math.ceil(zakatDue / 10000) * 10000`), atau 0 jika tidak wajib.
+   - Memperbarui `compareTwoZakatYears` untuk menghitung selisih zakat perak (`zakatSilverDueDelta`) dan nominal zakat yang dibayarkan (`zakatPaidDelta` & `zakatPaidDeltaPct`).
+3. **Form Input / Edit Modal Zakat (`src/components/zakat/YearModal.tsx`)**:
+   - Menambahkan field input `Harga Perak Acuan (Rp/g)` berdampingan dengan `Harga Emas Acuan (Rp/g)` dalam grid responsif dengan tap target minimal 44px.
+   - Menampilkan card komparasi dual nisab: Nisab Emas (85g) dan Nisab Perak (595g) beserta status kewajiban dan nominal zakat 2.5% masing-masing acuan secara real-time.
+   - Menambahkan input field editable `"Yang Dibayarkan (Rp)"` (`#zakat-paid-amount`) yang otomatis terisi default pembulatan ke atas dari nilai zakat 2.5%, disertai tombol `"Reset Default"` saat diubah manual.
+   - Menyediakan quick rounding chips interaktif (Pas, +10rb, +50rb, +100rb) untuk mengisi nominal pembayaran dengan satu ketukan.
+   - Menyalurkan `silver_price_per_gram`, `nisab_silver_nominal`, `zakat_silver_due`, dan `zakat_paid` ke payload penyimpanan `onSave`.
+4. **Tampilan Spreadsheet & Komparasi Antar-Tahun (`src/components/zakat/ZakatSpreadsheetTable.tsx`, `src/components/zakat/CompareTwoYears.tsx`, `src/app/zakat/page.tsx`)**:
+   - `ZakatSpreadsheetTable`: Menambahkan baris terpisah untuk `Nisab (85g Emas)`, `Zakat Emas (2.5%)`, `Nisab (595g Perak)`, `Zakat Perak (2.5%)`, dan baris `Yang Dibayarkan`.
+   - `CompareTwoYears`: Menyajikan komparasi kartu mobile-first untuk Total Harta, Yang Dibayarkan, Zakat Acuan Emas (85g), dan Zakat Acuan Perak (595g).
+   - Halaman `/zakat`: Menampilkan rincian kedua acuan nisab dan nominal dibayarkan pada overview card tahun aktif serta riwayat rekap tahunan.
+5. **Pengujian Unit & TDD (`tests/zakat-engine.test.ts`, `tests/zakat-ui.test.ts`, `tests/schema.test.ts`)**:
+   - Menambahkan pengujian kalkulasi dual nisab, kondisi emas tidak wajib tapi kena perak, kondisi keduanya wajib bernilai sama, kondisi keduanya belum wajib, default pembulatan ke atas 10k, perbandingan antar tahun, dan render UI modal, spreadsheet, serta komparasi dua tahun.
+   - Seluruh 31 test suites (124 test cases) lulus 100%.
+6. **Dokumentasi PRD (`PRD.md`)**:
+   - Memperbarui spesifikasi F3.4 dan F3.5 mencakup kalkulasi dual nisab dan field "Yang Dibayarkan".

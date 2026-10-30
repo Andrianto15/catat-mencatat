@@ -35,6 +35,10 @@ export function paginateZakatYears<T>(
   return paginateMotorServices(years, limit);
 }
 
+export const GOLD_NISAB_GRAMS = 85;
+export const SILVER_NISAB_GRAMS = 595;
+export const DEFAULT_SILVER_PRICE = 18000;
+
 export interface CashBalanceItem {
   account_id: string;
   account_name?: string;
@@ -43,21 +47,38 @@ export interface CashBalanceItem {
 
 export interface ZakatCalculationParams {
   goldPricePerGram: number;
+  silverPricePerGram?: number;
   cashBalances: CashBalanceItem[];
   goldTotalValue: number;
 }
 
 export interface ZakatCalculationResult {
   nisabNominal: number;
+  nisabGoldNominal: number;
+  nisabSilverNominal: number;
   totalCash: number;
   goldTotalValue: number;
   totalAssets: number;
   isWajib: boolean;
+  isWajibGold: boolean;
+  isWajibSilver: boolean;
   zakatDue: number;
+  zakatGoldDue: number;
+  zakatSilverDue: number;
+  defaultZakatPaid: number;
 }
 
 export function calculateZakat(params: ZakatCalculationParams): ZakatCalculationResult {
-  const nisabNominal = Math.round(Number(params.goldPricePerGram || 0) * 85);
+  const goldPrice = Number(params.goldPricePerGram || 0);
+  const silverPrice =
+    params.silverPricePerGram !== undefined && params.silverPricePerGram !== null
+      ? Number(params.silverPricePerGram)
+      : DEFAULT_SILVER_PRICE;
+
+  const nisabGoldNominal = Math.round(goldPrice * GOLD_NISAB_GRAMS);
+  const nisabSilverNominal = Math.round(silverPrice * SILVER_NISAB_GRAMS);
+  const nisabNominal = nisabGoldNominal;
+
   const rawCash = (params.cashBalances || []).reduce(
     (acc, b) => acc + Number(b.balance || 0),
     0
@@ -65,16 +86,31 @@ export function calculateZakat(params: ZakatCalculationParams): ZakatCalculation
   const totalCash = Math.round(rawCash * 100) / 100;
   const goldTotalValue = Math.round(Number(params.goldTotalValue || 0) * 100) / 100;
   const totalAssets = Math.round((totalCash + goldTotalValue) * 100) / 100;
-  const isWajib = totalAssets >= nisabNominal && nisabNominal > 0;
+
+  const isWajibGold = totalAssets >= nisabGoldNominal && nisabGoldNominal > 0;
+  const isWajibSilver = totalAssets >= nisabSilverNominal && nisabSilverNominal > 0;
+  const isWajib = isWajibGold || isWajibSilver;
+
+  const zakatGoldDue = isWajibGold ? Math.round(totalAssets * 0.025) : 0;
+  const zakatSilverDue = isWajibSilver ? Math.round(totalAssets * 0.025) : 0;
   const zakatDue = isWajib ? Math.round(totalAssets * 0.025) : 0;
+
+  const defaultZakatPaid = zakatDue > 0 ? Math.ceil(zakatDue / 10000) * 10000 : 0;
 
   return {
     nisabNominal,
+    nisabGoldNominal,
+    nisabSilverNominal,
     totalCash,
     goldTotalValue,
     totalAssets,
     isWajib,
+    isWajibGold,
+    isWajibSilver,
     zakatDue,
+    zakatGoldDue,
+    zakatSilverDue,
+    defaultZakatPaid,
   };
 }
 
@@ -126,12 +162,19 @@ export function getRoundingChips(zakatDue: number): RoundingChips {
 }
 
 export interface ZakatYearData {
+  id?: string;
   hijri_year: number;
   masehi_year: number;
   gold_price_per_gram: number;
+  silver_price_per_gram?: number;
+  gold_value_snapshot?: number;
   nisab_nominal: number;
+  nisab_silver_nominal?: number;
   total_assets: number;
   zakat_due: number;
+  zakat_silver_due?: number;
+  zakat_paid?: number;
+  is_locked?: boolean;
   balances?: Array<{
     account_id: string;
     account_name?: string;
@@ -153,6 +196,9 @@ export interface YearComparisonResult {
   totalAssetsDeltaPct: number;
   zakatDueDelta: number;
   zakatDueDeltaPct: number;
+  zakatSilverDueDelta: number;
+  zakatPaidDelta: number;
+  zakatPaidDeltaPct: number;
   accountDiffs: AccountDiff[];
 }
 
@@ -170,6 +216,18 @@ export function compareTwoZakatYears(
   const zakatDueDeltaPct =
     prevYear.zakat_due > 0
       ? Math.round(((zakatDueDelta / prevYear.zakat_due) * 100) * 100) / 100
+      : 0;
+
+  const prevSilver = Number(prevYear.zakat_silver_due || 0);
+  const currSilver = Number(currYear.zakat_silver_due || 0);
+  const zakatSilverDueDelta = Math.round((currSilver - prevSilver) * 100) / 100;
+
+  const prevPaid = Number(prevYear.zakat_paid ?? prevYear.zakat_due ?? 0);
+  const currPaid = Number(currYear.zakat_paid ?? currYear.zakat_due ?? 0);
+  const zakatPaidDelta = Math.round((currPaid - prevPaid) * 100) / 100;
+  const zakatPaidDeltaPct =
+    prevPaid > 0
+      ? Math.round(((zakatPaidDelta / prevPaid) * 100) * 100) / 100
       : 0;
 
   const prevMap = new Map<string, { name: string; balance: number }>();
@@ -218,6 +276,9 @@ export function compareTwoZakatYears(
     totalAssetsDeltaPct,
     zakatDueDelta,
     zakatDueDeltaPct,
+    zakatSilverDueDelta,
+    zakatPaidDelta,
+    zakatPaidDeltaPct,
     accountDiffs,
   };
 }

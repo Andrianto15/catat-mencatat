@@ -12,6 +12,11 @@ interface CompareTwoYearsProps {
 export function CompareTwoYears({ prevYear, currYear }: CompareTwoYearsProps) {
   const diff = compareTwoZakatYears(prevYear, currYear);
 
+  const effectiveCurrDue = Math.max(currYear.zakat_due || 0, currYear.zakat_silver_due || 0);
+  const currPaid = currYear.zakat_paid !== undefined && currYear.zakat_paid !== null
+    ? currYear.zakat_paid
+    : (effectiveCurrDue > 0 ? Math.ceil(effectiveCurrDue / 10000) * 10000 : 0);
+
   return (
     <div style={{
       backgroundColor: 'var(--bg-card)',
@@ -80,17 +85,54 @@ export function CompareTwoYears({ prevYear, currYear }: CompareTwoYearsProps) {
           borderRadius: 'var(--radius-lg)',
         }}>
           <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>
-            Kewajiban Zakat (2.5%)
+            Yang Dibayarkan ({currYear.hijri_year} H)
           </span>
           <div style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-primary)', marginTop: '0.25rem' }}>
-            Rp {currYear.zakat_due.toLocaleString('id-ID')}
+            Rp {currPaid.toLocaleString('id-ID')}
           </div>
           <div style={{
             fontSize: '0.75rem',
-            color: diff.zakatDueDelta >= 0 ? '#10b981' : '#ef4444',
+            color: diff.zakatPaidDelta >= 0 ? '#10b981' : '#ef4444',
             marginTop: '0.25rem',
           }}>
-            {diff.zakatDueDelta >= 0 ? '▲ Selisih' : '▼ Selisih'} Rp {Math.abs(diff.zakatDueDelta).toLocaleString('id-ID')}
+            {diff.zakatPaidDelta >= 0 ? '▲ Selisih' : '▼ Selisih'} Rp {Math.abs(diff.zakatPaidDelta).toLocaleString('id-ID')}
+          </div>
+        </div>
+      </div>
+
+      {/* Dual Nisab Comparison Cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+        <div style={{
+          backgroundColor: 'var(--bg-main)',
+          padding: '0.75rem',
+          borderRadius: 'var(--radius-lg)',
+          fontSize: '0.8125rem',
+        }}>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>
+            Zakat Acuan Emas (85g)
+          </span>
+          <div style={{ fontWeight: 700, marginTop: '0.25rem' }}>
+            Rp {Number(currYear.zakat_due || 0).toLocaleString('id-ID')}
+          </div>
+          <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)', marginTop: '0.125rem' }}>
+            {Number(currYear.zakat_due || 0) > 0 ? 'Wajib Zakat' : 'Belum Wajib'}
+          </div>
+        </div>
+
+        <div style={{
+          backgroundColor: 'var(--bg-main)',
+          padding: '0.75rem',
+          borderRadius: 'var(--radius-lg)',
+          fontSize: '0.8125rem',
+        }}>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>
+            Zakat Acuan Perak (595g)
+          </span>
+          <div style={{ fontWeight: 700, marginTop: '0.25rem' }}>
+            Rp {Number(currYear.zakat_silver_due || 0).toLocaleString('id-ID')}
+          </div>
+          <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)', marginTop: '0.125rem' }}>
+            {Number(currYear.zakat_silver_due || 0) > 0 ? 'Wajib Zakat' : 'Belum Wajib'}
           </div>
         </div>
       </div>

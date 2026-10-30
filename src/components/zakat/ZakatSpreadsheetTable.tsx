@@ -72,7 +72,7 @@ export function ZakatSpreadsheetTable({ years }: ZakatSpreadsheetProps) {
             ))}
           </tr>
 
-          {/* Nisab Row */}
+          {/* Nisab Emas Row */}
           <tr style={{ color: 'var(--text-muted)' }}>
             <td style={{ padding: '0.5rem 0.625rem' }}>Nisab (85g Emas)</td>
             {sortedYears.map((y) => (
@@ -82,14 +82,59 @@ export function ZakatSpreadsheetTable({ years }: ZakatSpreadsheetProps) {
             ))}
           </tr>
 
-          {/* Zakat Due Row */}
-          <tr style={{ fontWeight: 700, color: 'var(--color-primary)' }}>
-            <td style={{ padding: '0.625rem' }}>Zakat Wajib (2.5%)</td>
-            {sortedYears.map((y) => (
-              <td key={y.hijri_year} style={{ padding: '0.625rem', textAlign: 'right' }}>
-                Rp {y.zakat_due.toLocaleString('id-ID')}
-              </td>
-            ))}
+          {/* Zakat Emas Row */}
+          <tr style={{ fontWeight: 600, color: 'var(--text-main)', borderBottom: '1px solid var(--border-card)' }}>
+            <td style={{ padding: '0.5rem 0.625rem' }}>Zakat Emas (2.5%)</td>
+            {sortedYears.map((y) => {
+              const due = y.zakat_due || 0;
+              return (
+                <td key={y.hijri_year} style={{ padding: '0.5rem 0.625rem', textAlign: 'right' }}>
+                  {due > 0 ? `Rp ${due.toLocaleString('id-ID')}` : 'Rp 0 (Belum Wajib)'}
+                </td>
+              );
+            })}
+          </tr>
+
+          {/* Nisab Perak Row */}
+          <tr style={{ color: 'var(--text-muted)' }}>
+            <td style={{ padding: '0.5rem 0.625rem' }}>Nisab (595g Perak)</td>
+            {sortedYears.map((y) => {
+              const nisabSilver = y.nisab_silver_nominal || (y.silver_price_per_gram ? Math.round(y.silver_price_per_gram * 595) : 0);
+              return (
+                <td key={y.hijri_year} style={{ padding: '0.5rem 0.625rem', textAlign: 'right' }}>
+                  {nisabSilver > 0 ? `Rp ${nisabSilver.toLocaleString('id-ID')}` : '-'}
+                </td>
+              );
+            })}
+          </tr>
+
+          {/* Zakat Perak Row */}
+          <tr style={{ fontWeight: 600, color: 'var(--text-main)', borderBottom: '1px solid var(--border-card)' }}>
+            <td style={{ padding: '0.5rem 0.625rem' }}>Zakat Perak (2.5%)</td>
+            {sortedYears.map((y) => {
+              const silverDue = y.zakat_silver_due !== undefined ? y.zakat_silver_due : 0;
+              return (
+                <td key={y.hijri_year} style={{ padding: '0.5rem 0.625rem', textAlign: 'right' }}>
+                  {silverDue > 0 ? `Rp ${silverDue.toLocaleString('id-ID')}` : 'Rp 0 (Belum Wajib)'}
+                </td>
+              );
+            })}
+          </tr>
+
+          {/* Yang Dibayarkan Row */}
+          <tr style={{ fontWeight: 700, color: 'var(--color-primary)', backgroundColor: 'var(--bg-main)' }}>
+            <td style={{ padding: '0.625rem' }}>Yang Dibayarkan</td>
+            {sortedYears.map((y) => {
+              const effectiveDue = Math.max(y.zakat_due || 0, y.zakat_silver_due || 0);
+              const paid = y.zakat_paid !== undefined && y.zakat_paid !== null
+                ? y.zakat_paid
+                : (effectiveDue > 0 ? Math.ceil(effectiveDue / 10000) * 10000 : 0);
+              return (
+                <td key={y.hijri_year} style={{ padding: '0.625rem', textAlign: 'right', fontSize: '0.875rem' }}>
+                  Rp {paid.toLocaleString('id-ID')}
+                </td>
+              );
+            })}
           </tr>
         </tbody>
       </table>

@@ -16,6 +16,10 @@ describe('Supabase Schema Migration', () => {
     expect(sql).toContain('buyback_price_per_piece');
     expect(sql).toContain('account_type');
     expect(sql).toContain('gold_value_snapshot');
+    expect(sql).toContain('silver_price_per_gram');
+    expect(sql).toContain('nisab_silver_nominal');
+    expect(sql).toContain('zakat_silver_due');
+    expect(sql).toContain('zakat_paid');
     expect(sql).toContain('GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;');
     expect(sql).toContain('GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated, service_role;');
   });

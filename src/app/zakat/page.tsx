@@ -142,10 +142,14 @@ export default function ZakatPage() {
           masehi_year: data.masehi_year,
           reference_date: data.reference_date,
           gold_price_per_gram: data.gold_price_per_gram,
+          silver_price_per_gram: data.silver_price_per_gram,
           gold_value_snapshot: data.gold_value_snapshot,
           nisab_nominal: data.nisab_nominal,
+          nisab_silver_nominal: data.nisab_silver_nominal,
           total_assets: data.total_assets,
           zakat_due: data.zakat_due,
+          zakat_silver_due: data.zakat_silver_due,
+          zakat_paid: data.zakat_paid,
           is_locked: data.is_locked,
         })
         .eq('id', editingYear.id);
@@ -176,10 +180,14 @@ export default function ZakatPage() {
             masehi_year: data.masehi_year,
             reference_date: data.reference_date,
             gold_price_per_gram: data.gold_price_per_gram,
+            silver_price_per_gram: data.silver_price_per_gram,
             gold_value_snapshot: data.gold_value_snapshot,
             nisab_nominal: data.nisab_nominal,
+            nisab_silver_nominal: data.nisab_silver_nominal,
             total_assets: data.total_assets,
             zakat_due: data.zakat_due,
+            zakat_silver_due: data.zakat_silver_due,
+            zakat_paid: data.zakat_paid,
             is_locked: data.is_locked,
           },
         ])
@@ -357,10 +365,30 @@ export default function ZakatPage() {
                   )}
                 </div>
                 <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
-                  Total Harta: Rp {currYear.total_assets.toLocaleString('id-ID')} | Nisab: Rp {currYear.nisab_nominal.toLocaleString('id-ID')}
+                  Total Harta: Rp {currYear.total_assets.toLocaleString('id-ID')}
                 </div>
-                <div style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-primary)' }}>
-                  Zakat Wajib: Rp {currYear.zakat_due.toLocaleString('id-ID')}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginTop: '0.25rem' }}>
+                  <div style={{ padding: '0.5rem', backgroundColor: 'var(--bg-main)', borderRadius: 'var(--radius-lg)' }}>
+                    <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>Nisab Emas (85g)</div>
+                    <div style={{ fontSize: '0.8125rem', fontWeight: 600 }}>
+                      Rp {Number(currYear.nisab_nominal || 0).toLocaleString('id-ID')}
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--color-primary)', fontWeight: 700, marginTop: '0.125rem' }}>
+                      Zakat: Rp {Number(currYear.zakat_due || 0).toLocaleString('id-ID')}
+                    </div>
+                  </div>
+                  <div style={{ padding: '0.5rem', backgroundColor: 'var(--bg-main)', borderRadius: 'var(--radius-lg)' }}>
+                    <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>Nisab Perak (595g)</div>
+                    <div style={{ fontSize: '0.8125rem', fontWeight: 600 }}>
+                      Rp {Number(currYear.nisab_silver_nominal || 0).toLocaleString('id-ID')}
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--color-primary)', fontWeight: 700, marginTop: '0.125rem' }}>
+                      Zakat: Rp {Number(currYear.zakat_silver_due || 0).toLocaleString('id-ID')}
+                    </div>
+                  </div>
+                </div>
+                <div style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-primary)', marginTop: '0.25rem' }}>
+                  Yang Dibayarkan: Rp {(currYear.zakat_paid !== undefined && currYear.zakat_paid !== null ? currYear.zakat_paid : (Math.max(currYear.zakat_due || 0, currYear.zakat_silver_due || 0) > 0 ? Math.ceil(Math.max(currYear.zakat_due || 0, currYear.zakat_silver_due || 0) / 10000) * 10000 : 0)).toLocaleString('id-ID')}
                 </div>
               </div>
             )}
@@ -392,7 +420,10 @@ export default function ZakatPage() {
                       {y.hijri_year} H ({y.masehi_year} M)
                     </div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                      Total: Rp {y.total_assets.toLocaleString('id-ID')} • Zakat: Rp {y.zakat_due.toLocaleString('id-ID')}
+                      Total: Rp {y.total_assets.toLocaleString('id-ID')} • Emas: Rp {Number(y.zakat_due || 0).toLocaleString('id-ID')} • Perak: Rp {Number(y.zakat_silver_due || 0).toLocaleString('id-ID')}
+                    </div>
+                    <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-primary)', marginTop: '0.125rem' }}>
+                      Dibayar: Rp {(y.zakat_paid !== undefined && y.zakat_paid !== null ? y.zakat_paid : (Math.max(y.zakat_due || 0, y.zakat_silver_due || 0) > 0 ? Math.ceil(Math.max(y.zakat_due || 0, y.zakat_silver_due || 0) / 10000) * 10000 : 0)).toLocaleString('id-ID')}
                     </div>
                   </div>
                   <button
