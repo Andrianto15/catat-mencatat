@@ -181,3 +181,27 @@ Memperbaiki logika parser harga emas Galeri 24 agar mampu mengekstrak langsung s
    - Seluruh 29 test suites (98 tests) lolos 100%.
 4. **Dokumentasi PRD (`PRD.md`)**:
    - Memperbarui catatan teknis pada seksi Scraping Galeri24.
+
+
+---
+
+## Ringkasan Perubahan (Catat-Mencatat v0.5.5): Filter Jenis Emas & Gramasi serta Pagination Progresif pada Halaman Harga Emas (`/emas/prices`)
+
+Menambahkan filter berbasis dropdown `<select>` (Jenis Emas & Gramasi) dan mekanisme pagination progresif ("Tampilkan 5 Lainnya") pada halaman Harga Emas Harian (`/emas/prices`).
+
+### Detail Perubahan:
+1. **Helper Filter & Pagination (`src/lib/gold/actions.ts`)**:
+   - Menambahkan konstanta `DEFAULT_GOLD_PRICE_PAGE_SIZE = 5` dan fungsi `paginateGoldPrices`.
+   - Menambahkan fungsi `getUniqueGoldBrands` untuk mengekstrak daftar jenis emas unik secara alfabetis.
+   - Menambahkan fungsi `getUniqueGoldWeights` untuk mengekstrak daftar gramasi unik secara numerik ascending (mendukung filter per brand).
+   - Menambahkan fungsi `filterGoldPrices` untuk memfilter daftar harga berdasarkan `brand` dan `weightGram`.
+2. **Antarmuka Pengguna (`src/app/emas/prices/page.tsx`)**:
+   - Menambahkan Filter Bar mobile-first berisi 2 dropdown `<select className="form-select">` (`minHeight: '44px'`, label aksesibel `htmlFor`/`id`):
+     - **Jenis Emas**: `"Semua Jenis"` beserta daftar brand yang tersedia pada tanggal terpilih.
+     - **Gramasi**: `"Semua Gramasi"` beserta daftar gramasi (`{w} gr`) yang tersedia.
+   - Menambahkan empty state filter ketika kombinasi tidak ditemukan beserta tombol `"Reset Filter"`.
+   - Menambahkan pagination progresif 5 item per halaman dengan tombol `"Tampilkan 5 Lainnya"` (`minHeight: '44px'`), informasi counter `"Menampilkan X dari Y harga emas"`, dan auto-reset ke 5 saat tanggal atau filter berubah.
+3. **Pengujian Unit (`tests/gold-prices-filter-pagination.test.ts`)**:
+   - Menambahkan unit test untuk `getUniqueGoldBrands`, `getUniqueGoldWeights`, `filterGoldPrices`, `paginateGoldPrices`, serta integrasi UI di `/emas/prices`.
+4. **Dokumentasi PRD (`PRD.md`)**:
+   - Memperbarui spesifikasi F2.2 (Lihat & edit harga harian).

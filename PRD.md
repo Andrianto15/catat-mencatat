@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Implementation Complete (v0.5.1) |
+| Status | Implementation Complete (v0.5.5) |
 | Tanggal | 30-10-2026 |
 | Pemilik | Andrian (pengguna tunggal) |
 | Stack | Next.js (App Router) + Supabase (Postgres, Auth) + PWA + Vercel |
@@ -175,7 +175,8 @@ As pengguna, I want harga jual & buyback Galeri24 tersimpan harian, so that prof
 **F2.2 Lihat & edit harga harian (pengaturan modul Emas)**
 As pengguna, I want melihat dan mengedit harga hasil scraping, so that saya bisa mengisi hari yang gagal atau mengoreksi angka.
 - Acceptance:
-  - List per tanggal (terbaru di atas), filter tanggal & brand, penanda jelas untuk baris harga kosong.
+  - List per tanggal (terbaru di atas), filter tanggal, filter jenis emas (`brand`) & gramasi (`weight_gram`) berbasis dropdown `<select className="form-select">` (`minHeight: 44px`), serta penanda jelas untuk baris harga kosong.
+  - Progressive pagination: Default menampilkan 5 baris harga emas (`DEFAULT_GOLD_PRICE_PAGE_SIZE = 5`). Tersedia tombol "Tampilkan 5 Lainnya" dengan tap target mobile min 44px untuk membuka 5 data berikutnya secara bertahap hingga seluruh data tampil, dilengkapi informasi counter ("Menampilkan X dari Y harga emas") dan reset otomatis ke 5 saat tanggal, filter jenis emas, atau filter gramasi berubah. **[keputusan builder/AI]**
   - Edit harga jual/buyback; setelah diedit status menjadi `manual`.
   - Form inline edit harga jual & harga buyback memiliki jarak vertikal proporsional (`marginBottom: '0.375rem'`) antara teks label dan field input `NumberInput` untuk kenyamanan visual mobile dan desktop.
   - Bisa menambah baris manual untuk tanggal/brand/berat yang tidak ada (misal tanggal lampau untuk data lama).
