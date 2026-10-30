@@ -2,6 +2,32 @@ import { paginateMotorServices, DEFAULT_MOTOR_PAGE_SIZE, PaginatedResult } from 
 
 export const DEFAULT_ZAKAT_PAGE_SIZE = DEFAULT_MOTOR_PAGE_SIZE;
 
+export const ZAKAT_ACCOUNT_TYPES = [
+  'Bank',
+  'e-Wallet',
+  'Reksadana / Investasi',
+  'Tunai / Cash',
+  'Lainnya',
+] as const;
+
+export type ZakatAccountType = (typeof ZAKAT_ACCOUNT_TYPES)[number];
+
+export function formatZakatAccountMeta(account: {
+  account_type?: string | null;
+  institution?: string | null;
+  account_number?: string | null;
+}): string {
+  const typeLabel = account.account_type?.trim() || 'Bank';
+  const parts = [typeLabel];
+  if (account.institution?.trim()) {
+    parts.push(account.institution.trim());
+  }
+  if (account.account_number?.trim()) {
+    parts.push(account.account_number.trim());
+  }
+  return parts.join(' • ');
+}
+
 export function paginateZakatYears<T>(
   years: T[],
   limit: number = DEFAULT_ZAKAT_PAGE_SIZE

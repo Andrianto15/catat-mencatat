@@ -5,11 +5,13 @@ import Link from 'next/link';
 import { ArrowLeft, Trash2, Edit2, Check } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { Person } from '@/lib/gold/actions';
+import { ZAKAT_ACCOUNT_TYPES, formatZakatAccountMeta } from '@/lib/zakat/engine';
 
 interface AccountItem {
   id: string;
   person_id: string;
   account_name: string;
+  account_type?: string | null;
   institution?: string | null;
   account_number?: string | null;
   is_active: boolean;
@@ -22,8 +24,8 @@ export default function ZakatSettingsPage() {
   const [accounts, setAccounts] = useState<AccountItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Form State
   const [accountName, setAccountName] = useState('');
+  const [accountType, setAccountType] = useState<string>('Bank');
   const [institution, setInstitution] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -80,6 +82,7 @@ export default function ZakatSettingsPage() {
         .from('zakat_accounts')
         .update({
           account_name: accountName.trim(),
+          account_type: accountType,
           institution: institution.trim() || null,
           account_number: accountNumber.trim() || null,
         })
@@ -91,6 +94,7 @@ export default function ZakatSettingsPage() {
           user_id: userData.user.id,
           person_id: selectedPersonId,
           account_name: accountName.trim(),
+          account_type: accountType,
           institution: institution.trim() || null,
           account_number: accountNumber.trim() || null,
           is_active: true,
@@ -100,6 +104,7 @@ export default function ZakatSettingsPage() {
     }
 
     setAccountName('');
+    setAccountType('Bank');
     setInstitution('');
     setAccountNumber('');
     await fetchAccounts(selectedPersonId);
@@ -108,6 +113,7 @@ export default function ZakatSettingsPage() {
   const handleEdit = (acc: AccountItem) => {
     setEditingId(acc.id);
     setAccountName(acc.account_name);
+    setAccountType(acc.account_type || 'Bank');
     setInstitution(acc.institution || '');
     setAccountNumber(acc.account_number || '');
   };
@@ -199,67 +205,82 @@ export default function ZakatSettingsPage() {
             {editingId ? 'Edit Rekening' : 'Tambah Rekening Baru'}
           </h2>
           <form onSubmit={handleSaveAccount} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}>
-                Nama Rekening / Akun
-              </label>
-              <input
-                type="text"
-                required
-                placeholder="Contoh: BCA Utama, Tabungan Haji, Bibit Reksadana"
-                value={accountName}
-                onChange={(e) => setAccountName(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '0.625rem',
-                  borderRadius: 'var(--radius-lg)',
-                  border: '1px solid var(--border-card)',
-                  backgroundColor: 'transparent',
-                  color: 'var(--text-main)',
-                  fontSize: '0.875rem',
-                }}
-              />
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.75rem' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}>
-                  Institusi / Bank (Opsional)
+                <label
+                  htmlFor="zakat-account-name"
+                  style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}
+                >
+                  Nama Rekening / Akun
                 </label>
                 <input
+                  id="zakat-account-name"
                   type="text"
-                  placeholder="BCA / Mandiri / Jago"
+                  required
+                  className="form-input"
+                  placeholder="Contoh: BCA Utama, Tabungan Haji, Bibit Reksadana"
+                  value={accountName}
+                  onChange={(e) => setAccountName(e.target.value)}
+                  style={{ minHeight: '44px' }}
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="zakat-account-type"
+                  style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}
+                >
+                  Jenis Rekening / Tabungan
+                </label>
+                <select
+                  id="zakat-account-type"
+                  className="form-select"
+                  value={accountType}
+                  onChange={(e) => setAccountType(e.target.value)}
+                  style={{ minHeight: '44px' }}
+                >
+                  {ZAKAT_ACCOUNT_TYPES.map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.75rem' }}>
+              <div>
+                <label
+                  htmlFor="zakat-account-institution"
+                  style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}
+                >
+                  Institusi / Penyedia (Opsional)
+                </label>
+                <input
+                  id="zakat-account-institution"
+                  type="text"
+                  className="form-input"
+                  placeholder="BCA / Mandiri / GoPay / Bibit"
                   value={institution}
                   onChange={(e) => setInstitution(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '0.625rem',
-                    borderRadius: 'var(--radius-lg)',
-                    border: '1px solid var(--border-card)',
-                    backgroundColor: 'transparent',
-                    color: 'var(--text-main)',
-                    fontSize: '0.875rem',
-                  }}
+                  style={{ minHeight: '44px' }}
                 />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}>
+                <label
+                  htmlFor="zakat-account-number"
+                  style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}
+                >
                   No. Rekening (Opsional)
                 </label>
                 <input
+                  id="zakat-account-number"
                   type="text"
+                  className="form-input"
                   placeholder="123-456-789"
                   value={accountNumber}
                   onChange={(e) => setAccountNumber(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '0.625rem',
-                    borderRadius: 'var(--radius-lg)',
-                    border: '1px solid var(--border-card)',
-                    backgroundColor: 'transparent',
-                    color: 'var(--text-main)',
-                    fontSize: '0.875rem',
-                  }}
+                  style={{ minHeight: '44px' }}
                 />
               </div>
             </div>
@@ -271,6 +292,7 @@ export default function ZakatSettingsPage() {
                   onClick={() => {
                     setEditingId(null);
                     setAccountName('');
+                    setAccountType('Bank');
                     setInstitution('');
                     setAccountNumber('');
                   }}
@@ -282,6 +304,7 @@ export default function ZakatSettingsPage() {
                     color: 'var(--text-muted)',
                     fontSize: '0.875rem',
                     cursor: 'pointer',
+                    minHeight: '44px',
                   }}
                 >
                   Batal
@@ -336,11 +359,9 @@ export default function ZakatSettingsPage() {
                     <div style={{ fontWeight: 600, fontSize: '0.9375rem', color: acc.is_active ? 'var(--text-main)' : 'var(--text-muted)' }}>
                       {acc.account_name} {!acc.is_active && '(Nonaktif)'}
                     </div>
-                    {acc.institution && (
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                        {acc.institution} {acc.account_number ? `• ${acc.account_number}` : ''}
-                      </div>
-                    )}
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                      {formatZakatAccountMeta(acc)}
+                    </div>
                   </div>
                   <div style={{ display: 'flex', gap: '0.25rem' }}>
                     <button

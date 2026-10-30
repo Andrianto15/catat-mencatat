@@ -14,6 +14,7 @@ describe('Supabase Schema Migration', () => {
     expect(sql).toContain('sold_at');
     expect(sql).toContain('sold_price_per_piece');
     expect(sql).toContain('buyback_price_per_piece');
+    expect(sql).toContain('account_type');
     expect(sql).toContain('GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;');
     expect(sql).toContain('GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated, service_role;');
   });

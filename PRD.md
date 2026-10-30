@@ -225,7 +225,7 @@ Referensi tampilan lama: `docs/req_catat_zakat_mal.png` (baris = rekening/aset, 
 
 **F3.1 Struktur data**
 - Dikelompokkan per **orang** (pelaku). Pilih orang via chip/tab di atas halaman.
-- Setiap orang punya daftar **rekening/aset** sendiri (Mandiri, BSI, Gopay, Cash Kertas, dll), bisa ditambah, diurutkan, dinonaktifkan.
+- Setiap orang punya daftar **rekening/aset** sendiri (Mandiri, BSI, Gopay, Cash Kertas, dll), dengan atribut nama rekening, jenis rekening (`Bank`, `e-Wallet`, `Reksadana / Investasi`, `Tunai / Cash`, `Lainnya`; default `Bank`), institusi/penyedia (opsional), dan nomor rekening (opsional), bisa ditambah, diurutkan, dinonaktifkan.
 - Setiap orang punya catatan per **tahun Hijriah** (misal 1447 H) berisi saldo per rekening.
 
 **F3.2 Isi tahun baru**
@@ -259,7 +259,7 @@ As pengguna, I want membuat tahun baru dan tinggal mengisi saldo, so that pengis
 - **Riwayat Rekap Tahunan:** Progressive pagination menampilkan 5 riwayat tahun zakat terakhir (`DEFAULT_ZAKAT_PAGE_SIZE = 5`), dilengkapi tombol "Tampilkan 5 Lainnya" (tap target mobile min 44px), informasi counter ("Menampilkan X dari Y riwayat zakat"), dan reset otomatis ke 5 saat tab pelaku (`selectedPersonId`) berganti. **[keputusan builder/AI]**
 
 **F3.6 Pengaturan modul Zakat**
-- Daftar rekening per orang (CRUD, urutan, aktif/nonaktif).
+- Daftar rekening per orang (CRUD, jenis rekening `Bank`/`e-Wallet`/`Reksadana / Investasi`/`Tunai / Cash`/`Lainnya`, institusi, nomor rekening, urutan, aktif/nonaktif).
 - Daftar orang (sama dengan F2.7).
 
 ## 6. Success Metrics
@@ -305,7 +305,7 @@ F0.1–F0.5, F1.1–F1.4, F2.1–F2.8, F3.1–F3.6.
 | `motor_services` | id, user_id, motor_id, service_date, km int, price numeric, place, notes | |
 | `gold_prices` | id, price_date, brand, weight_gram numeric, sell_price numeric null, buyback_price numeric null, status (`berhasil`/`gagal`/`manual`), updated_at | unique(price_date, brand, weight_gram); data global (bukan per user) |
 | `gold_purchases` | id, user_id, person_id→people, purchase_date, brand, weight_gram, piece_count, price_per_piece, buyback_price_per_piece null, notes, sold_at date null, sold_price_per_piece numeric null | sold_at terisi berarti terjual (soft delete); buyback_price_per_piece menyimpan harga buyback historis saat beli |
-| `zakat_accounts` | id, user_id, person_id, name, sort_order, is_active | |
+| `zakat_accounts` | id, user_id, person_id, account_name, account_type (`Bank`/`e-Wallet`/`Reksadana / Investasi`/`Tunai / Cash`/`Lainnya`), institution, account_number, display_order, is_active | default `account_type = 'Bank'` |
 | `zakat_years` | id, user_id, person_id, hijri_year int, reference_date, gold_value_snapshot, gold_grams_snapshot, gold_price_per_gram_nisab, paid_amount null, notes | unique(person_id, hijri_year) |
 | `zakat_balances` | id, zakat_year_id, account_id, balance numeric(15,2) | unique(zakat_year_id, account_id) |
 

@@ -205,3 +205,28 @@ Menambahkan filter berbasis dropdown `<select>` (Jenis Emas & Gramasi) dan mekan
    - Menambahkan unit test untuk `getUniqueGoldBrands`, `getUniqueGoldWeights`, `filterGoldPrices`, `paginateGoldPrices`, serta integrasi UI di `/emas/prices`.
 4. **Dokumentasi PRD (`PRD.md`)**:
    - Memperbarui spesifikasi F2.2 (Lihat & edit harga harian).
+
+---
+
+## Ringkasan Perubahan (Catat-Mencatat v0.5.6): Dropdown Jenis Rekening / Tabungan pada Pengaturan Modul Zakat (`/zakat/settings`)
+
+Menambahkan dropdown jenis rekening (`Bank`, `e-Wallet`, `Reksadana / Investasi`, `Tunai / Cash`, `Lainnya`; default `Bank`) pada form Tambah/Edit Rekening di halaman Kelola Rekening & Tabungan (`/zakat/settings`), menyimpannya ke kolom baru `account_type` di tabel `zakat_accounts`, serta menampilkan metadata jenis rekening pada daftar rekening dan modal input zakat tahunan (`YearModal`).
+
+### Detail Perubahan:
+1. **Skema & Migrasi Database (`supabase/migrations/20261030000001_add_account_type_to_zakat_accounts.sql`, `supabase/migrations/20261025000000_init_schema.sql`)**:
+   - Menambahkan kolom `account_type TEXT NOT NULL DEFAULT 'Bank'` pada tabel `public.zakat_accounts`.
+
+2. **Konstanta & Helper (`src/lib/zakat/engine.ts`)**:
+   - Menambahkan konstanta `ZAKAT_ACCOUNT_TYPES = ['Bank', 'e-Wallet', 'Reksadana / Investasi', 'Tunai / Cash', 'Lainnya']` dan tipe `ZakatAccountType`.
+   - Menambahkan fungsi `formatZakatAccountMeta` untuk menggabungkan informasi jenis rekening, institusi, dan nomor rekening dengan fallback default `'Bank'`.
+
+3. **Antarmuka Pengguna (`src/app/zakat/settings/page.tsx`, `src/components/zakat/YearModal.tsx`)**:
+   - Menambahkan dropdown `<select id="zakat-account-type" className="form-select">` (`minHeight: '44px'`) dengan label aksesibel `htmlFor="zakat-account-type"` serta layout grid responsif mobile-first (`repeat(auto-fit, minmax(220px, 1fr))`).
+   - Menyertakan `account_type` saat tambah rekening baru, edit rekening, dan mereset kembali ke `'Bank'` setelah simpan atau batal edit.
+   - Menampilkan metadata jenis rekening menggunakan `formatZakatAccountMeta(acc)` pada daftar rekening di `/zakat/settings` dan daftar input saldo di `YearModal`.
+
+4. **Pengujian Unit (`tests/zakat-account-type.test.tsx`, `tests/schema.test.ts`)**:
+   - Menambahkan unit test untuk memverifikasi opsi `ZAKAT_ACCOUNT_TYPES`, fungsi `formatZakatAccountMeta`, file migrasi SQL `account_type`, serta integrasi dropdown di `ZakatSettingsPage` dan `YearModal`.
+
+5. **Dokumentasi PRD (`PRD.md`)**:
+   - Memperbarui spesifikasi F3.1, F3.6, dan tabel model data `zakat_accounts`.

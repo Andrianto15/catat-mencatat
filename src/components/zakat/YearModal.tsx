@@ -3,12 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import { X, Lock, Check, Sparkles } from 'lucide-react';
 import { getHijriRamadhanDate } from '@/lib/zakat/hijri';
-import { calculateZakat, getRoundingChips } from '@/lib/zakat/engine';
+import { calculateZakat, getRoundingChips, formatZakatAccountMeta } from '@/lib/zakat/engine';
 import { NumberInput } from '@/components/NumberInput';
 
 export interface ZakatAccount {
   id: string;
   account_name: string;
+  account_type?: string | null;
   institution?: string | null;
   account_number?: string | null;
 }
@@ -319,11 +320,9 @@ export function YearModal({
                   >
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: '0.8125rem', fontWeight: 600 }}>{acc.account_name}</div>
-                      {acc.institution && (
-                        <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>
-                          {acc.institution} {acc.account_number ? `(${acc.account_number})` : ''}
-                        </div>
-                      )}
+                      <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>
+                        {formatZakatAccountMeta(acc)}
+                      </div>
                     </div>
                     <div style={{ width: '160px' }}>
                       <NumberInput
