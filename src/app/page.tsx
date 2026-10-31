@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Bike, Coins, Scale, LogOut } from 'lucide-react';
+import { Bike, Coins, Scale, TrendingUp, LogOut } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -36,6 +36,13 @@ export default async function HomePage() {
       href: '/zakat',
       icon: Scale,
       color: '#10b981',
+    },
+    {
+      title: 'Saldo Akhir Tahun',
+      desc: 'Rekap saldo rekening, pengeluaran, dan grafik perkembangan tahunan.',
+      href: '/saldo-tahun',
+      icon: TrendingUp,
+      color: '#0ea5e9',
     },
   ];
 

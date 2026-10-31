@@ -12,6 +12,15 @@ export const ZAKAT_ACCOUNT_TYPES = [
 
 export type ZakatAccountType = (typeof ZAKAT_ACCOUNT_TYPES)[number];
 
+export interface ZakatAccount {
+  id: string;
+  account_name: string;
+  account_type?: string | null;
+  institution?: string | null;
+  account_number?: string | null;
+  is_active?: boolean;
+}
+
 export function formatZakatAccountMeta(account: {
   account_type?: string | null;
   institution?: string | null;

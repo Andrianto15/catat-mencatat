@@ -6,6 +6,8 @@ describe('Auth Guard Redirect Logic', () => {
     expect(resolveAuthRedirect('/motor', false)).toBe('/login');
     expect(resolveAuthRedirect('/emas', false)).toBe('/login');
     expect(resolveAuthRedirect('/zakat', false)).toBe('/login');
+    expect(resolveAuthRedirect('/saldo-tahun', false)).toBe('/login');
+    expect(resolveAuthRedirect('/saldo-tahun/settings', false)).toBe('/login');
   });
 
   it('should redirect authenticated users away from /login to /', () => {
@@ -15,6 +17,7 @@ describe('Auth Guard Redirect Logic', () => {
   it('should allow unauthenticated access to /login and cron endpoints', () => {
     expect(resolveAuthRedirect('/login', false)).toBeNull();
     expect(resolveAuthRedirect('/api/cron/sync-gold', false)).toBeNull();
+    expect(resolveAuthRedirect('/api/cron/telegram-reminder', false)).toBeNull();
   });
 
   it('should allow authenticated users to access protected routes', () => {
@@ -22,6 +25,8 @@ describe('Auth Guard Redirect Logic', () => {
     expect(resolveAuthRedirect('/motor', true)).toBeNull();
     expect(resolveAuthRedirect('/emas', true)).toBeNull();
     expect(resolveAuthRedirect('/zakat', true)).toBeNull();
+    expect(resolveAuthRedirect('/saldo-tahun', true)).toBeNull();
+    expect(resolveAuthRedirect('/saldo-tahun/settings', true)).toBeNull();
   });
 
   it('should define createClient in server.ts as an async function awaiting cookies()', () => {

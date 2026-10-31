@@ -15,9 +15,9 @@ Penanda: **[keputusan builder/AI]** = ditetapkan saat diskusi tanpa konfirmasi e
 
 ## 1. Executive Summary
 
-Catat-Mencatat adalah Progressive Web App (PWA) pribadi (mobile-first) untuk mencatat tiga hal yang selama ini tersebar di spreadsheet: riwayat servis motor, pembelian emas, dan perhitungan zakat mal tahunan. Dapat diinstall ke home screen smartphone dengan tampilan standalone menyerupai aplikasi native.
+Catat-Mencatat adalah Progressive Web App (PWA) pribadi (mobile-first) untuk mencatat empat hal yang selama ini tersebar di spreadsheet: riwayat servis motor, pembelian emas, perhitungan zakat mal tahunan, serta rekap saldo akhir tahun. Dapat diinstall ke home screen smartphone dengan tampilan standalone menyerupai aplikasi native.
 
-Halaman utama hanya berisi ikon tiga modul. Setiap modul punya riwayat, filter, form input via modal, dan pengaturan master data-nya sendiri. Modul emas menghitung profit berdasarkan harga buyback harian yang diambil otomatis dari situs Galeri24, dengan fallback isi manual. Modul zakat menggantikan tabel spreadsheet per tahun Hijriah, otomatis mengambil nilai emas dari modul emas, mengecek nisab, dan menyediakan perbandingan antar tahun.
+Halaman utama hanya berisi ikon empat modul. Setiap modul punya riwayat, filter, form input via modal, dan pengaturan master data-nya sendiri. Modul emas menghitung profit berdasarkan harga buyback harian yang diambil otomatis dari situs Galeri24, dengan fallback isi manual. Modul zakat menggantikan tabel spreadsheet per tahun Hijriah, otomatis mengambil nilai emas dari modul emas, mengecek nisab, dan menyediakan perbandingan antar tahun. Modul Saldo Akhir Tahun merekap total saldo rekening dan pengeluaran per tahun Masehi, memplot grafik tren tahunan, serta menyediakan reminder Telegram setiap 30 Desember.
 
 Pengguna saat ini satu orang. Data tetap dipisah per `user_id` dengan RLS agar aman dan siap bila nanti dipakai anggota keluarga.
 
@@ -65,7 +65,7 @@ As pengguna, I want login dengan email & password, so that data keuangan saya ti
 **F0.2 Halaman utama**
 As pengguna, I want halaman utama hanya berisi ikon modul, so that tampilan bersih.
 - Acceptance:
-  - Hanya 3 ikon + label: Servis Motor, Emas, Zakat Mal.
+  - Hanya 4 ikon + label: Servis Motor, Emas, Zakat Mal, Saldo Akhir Tahun.
   - Tidak ada menu pengaturan global; pengaturan berada di dalam modul masing-masing.
 
 **F0.3 Input cepat**
@@ -272,6 +272,30 @@ As pengguna, I want membuat tahun baru dan tinggal mengisi saldo, so that pengis
 - Daftar rekening per orang (CRUD, jenis rekening `Bank`/`e-Wallet`/`Reksadana / Investasi`/`Tunai / Cash`/`Lainnya`, institusi, nomor rekening, urutan, aktif/nonaktif).
 - Daftar orang (sama dengan F2.7).
 
+### 5.4 Modul Saldo Akhir Tahun & Reminder Telegram
+
+**F4.1 Struktur data & Berbagi Rekening**
+- Modul berada di route `/saldo-tahun`.
+- Dikelompokkan per orang (`people`) dan berbagi master rekening (`zakat_accounts`) yang sama dengan modul Zakat Mal.
+- Dicatat per tahun Masehi (contoh: 2018–2025).
+
+**F4.2 Input & Perhitungan Saldo Akhir Tahun**
+- Pengguna menginput saldo per rekening aktif (mendukung 2 digit desimal sen dengan split input integer dan desimal `,00`) dan nominal Pengeluaran (Rp, default 0).
+- Tidak menyertakan aset emas fisik (sesuai tabel spreadsheet keuangan).
+- `Total Rekening = Σ saldo rekening aktif pada tahun tersebut`.
+- `Saldo Akhir Tahun = Total Rekening - Pengeluaran`.
+
+**F4.3 Grafik Perkembangan & Ringkasan Expandable (Accordion)**
+- Komponen `AnnualBalanceTrendChart`: grafik garis SVG (Line Chart) responsif dengan area shading dan titik data tahunan terurut kronologis.
+- Interaktivitas Dot Grafik: saat dot tiap tahun di-hover (desktop) atau di-tap (mobile), muncul tooltip card interaktif yang menampilkan Tahun Masehi dan Saldo Akhir Tahun lengkap (`Rp X.XXX.XXX`), disertai garis pemandu vertikal (*guideline*) dan lingkaran aktif. Mendukung aksesibilitas keyboard (`tabIndex`, `Enter`/`Space`) dan native SVG `<title>`. Lingkaran dot memiliki touch target radius 18px agar ramah sentuhan di layar ponsel.
+- Daftar ringkasan per tahun: progressive pagination 5 tahun per halaman (`DEFAULT_ANNUAL_BALANCE_PAGE_SIZE = 5`), memuat Tahun, Total Rekening, Pengeluaran, Saldo Akhir Tahun, serta badge selisih (▲/▼ nominal & %) dibanding tahun sebelumnya.
+- Accordion inline: saat kartu tahun di-klik, bagian bawah kartu terbuka secara inline menampilkan rincian saldo tiap rekening serta tombol Edit dan Hapus tahun.
+
+**F4.4 Reminder Telegram Tahunan (30 Desember)**
+- Konfigurasi tersimpan di tabel `telegram_settings` (Bot Token, Chat ID, Pesan Pengingat template, toggle Aktif/Nonaktif, dan `last_sent_at`).
+- Halaman pengaturan `/saldo-tahun/settings` menyediakan form konfigurasi dan tombol "Kirim Tes Sekarang" (`POST /api/telegram/test`).
+- Endpoint Vercel Cron (`GET /api/cron/telegram-reminder`) dijadwalkan pada `0 2 30 12 *` (30 Desember pukul 09:00 WIB), dilindungi `CRON_SECRET`, dan mengirim pesan reminder ke seluruh konfigurasi aktif.
+
 ## 6. Success Metrics
 
 Aplikasi pribadi, metrik sederhana:
@@ -287,12 +311,12 @@ Aplikasi pribadi, metrik sederhana:
 ## 7. Scope
 
 ### In scope (MVP)
-F0.1–F0.5, F1.1–F1.4, F2.1–F2.8, F3.1–F3.6.
+F0.1–F0.5, F1.1–F1.4, F2.1–F2.8, F3.1–F3.6, F4.1–F4.4.
 
 ### Out of scope
 - Import CSV/spreadsheet, export.
 - Multi-user, berbagi data, role.
-- Notifikasi, reminder servis.
+- Notifikasi servis motor otomatis.
 - Sumber harga selain Galeri24 / API pihak ketiga berbayar.
 - Full offline background sync untuk mutasi data (mutasi data tetap butuh koneksi ke Supabase).
 
@@ -303,21 +327,24 @@ F0.1–F0.5, F1.1–F1.4, F2.1–F2.8, F3.1–F3.6.
 - Next.js 16 (App Router) + React 19, Server Components + Server Actions untuk CRUD; client components untuk modal, filter, grafik.
 - Supabase: Postgres + Auth (email/password), akses via `@supabase/ssr` v0.12+ dan `@supabase/supabase-js` v2.118+ (server client async `await cookies()`). Middleware Next.js untuk proteksi route.
 - PWA: Dukungan Progressive Web App via `@serwist/next` (atau `@ducanh2912/next-pwa`) dengan `manifest.webmanifest`, app icons, dan service worker caching untuk app shell & static assets.
-- Hosting: Vercel (Cron untuk scraping). **[keputusan builder/AI]**
+- Hosting: Vercel (Cron untuk scraping harga emas harian dan reminder Telegram tahunan). **[keputusan builder/AI]**
 - Bahasa: TypeScript 5.9 (`~5.9.3`).
 
 ### Model data (usulan)
 
 | Tabel | Kolom utama | Catatan |
 |---|---|---|
-| `people` | id, user_id, name, is_active | dipakai emas & zakat |
+| `people` | id, user_id, name, is_active | dipakai emas, zakat, & saldo akhir tahun |
 | `motors` | id, user_id, name, is_active | |
 | `motor_services` | id, user_id, motor_id, service_date, km int, price numeric, place, notes | |
 | `gold_prices` | id, price_date, brand, weight_gram numeric, sell_price numeric null, buyback_price numeric null, status (`berhasil`/`gagal`/`manual`), updated_at | unique(price_date, brand, weight_gram); data global (bukan per user) |
 | `gold_purchases` | id, user_id, person_id→people, purchase_date, brand, weight_gram, piece_count, price_per_piece, buyback_price_per_piece null, notes, sold_at date null, sold_price_per_piece numeric null | sold_at terisi berarti terjual (soft delete); buyback_price_per_piece menyimpan harga buyback historis saat beli |
-| `zakat_accounts` | id, user_id, person_id, account_name, account_type (`Bank`/`e-Wallet`/`Reksadana / Investasi`/`Tunai / Cash`/`Lainnya`), institution, account_number, display_order, is_active | default `account_type = 'Bank'` |
+| `zakat_accounts` | id, user_id, person_id, account_name, account_type (`Bank`/`e-Wallet`/`Reksadana / Investasi`/`Tunai / Cash`/`Lainnya`), institution, account_number, display_order, is_active | default `account_type = 'Bank'`, dipakai bersama modul zakat & saldo akhir tahun |
 | `zakat_years` | id, user_id, person_id, hijri_year int, reference_date, gold_value_snapshot, gold_grams_snapshot, gold_price_per_gram_nisab, paid_amount null, notes | unique(person_id, hijri_year) |
 | `zakat_balances` | id, zakat_year_id, account_id, balance numeric(15,2) | unique(zakat_year_id, account_id) |
+| `annual_balances` | id, user_id, person_id, masehi_year int, total_accounts numeric(15,2), expense_amount numeric(15,2), net_balance numeric(15,2), notes null | unique(person_id, masehi_year) |
+| `annual_balance_items` | id, annual_balance_id, account_id, balance numeric(15,2) | unique(annual_balance_id, account_id) |
+| `telegram_settings` | id, user_id, bot_token text, chat_id text, reminder_message text, is_enabled boolean, last_sent_at timestamptz null | unique(user_id) |
 
 - Uang memakai `numeric` (bukan float). Total, zakat, nisab, profit dihitung di kode (fungsi murni), tidak disimpan, kecuali snapshot yang disebut di atas.
 
