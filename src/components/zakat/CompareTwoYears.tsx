@@ -44,8 +44,8 @@ export function CompareTwoYears({ prevYear, currYear }: CompareTwoYearsProps) {
           gap: '0.375rem',
           padding: '0.375rem 0.625rem',
           borderRadius: 'var(--radius-lg)',
-          backgroundColor: diff.totalAssetsDelta >= 0 ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-          color: diff.totalAssetsDelta >= 0 ? '#10b981' : '#ef4444',
+          backgroundColor: diff.totalAssetsDelta >= 0 ? 'var(--color-success-bg)' : 'var(--color-danger-bg)',
+          color: diff.totalAssetsDelta >= 0 ? 'var(--color-success-text)' : 'var(--color-danger-text)',
           fontSize: '0.8125rem',
           fontWeight: 600,
         }}>
@@ -72,7 +72,7 @@ export function CompareTwoYears({ prevYear, currYear }: CompareTwoYearsProps) {
           </div>
           <div style={{
             fontSize: '0.75rem',
-            color: diff.totalAssetsDelta >= 0 ? '#10b981' : '#ef4444',
+            color: diff.totalAssetsDelta >= 0 ? 'var(--color-success-text)' : 'var(--color-danger-text)',
             marginTop: '0.25rem',
           }}>
             {diff.totalAssetsDelta >= 0 ? '▲ Naik' : '▼ Turun'} Rp {Math.abs(diff.totalAssetsDelta).toLocaleString('id-ID')}
@@ -92,7 +92,7 @@ export function CompareTwoYears({ prevYear, currYear }: CompareTwoYearsProps) {
           </div>
           <div style={{
             fontSize: '0.75rem',
-            color: diff.zakatPaidDelta >= 0 ? '#10b981' : '#ef4444',
+            color: diff.zakatPaidDelta >= 0 ? 'var(--color-success-text)' : 'var(--color-danger-text)',
             marginTop: '0.25rem',
           }}>
             {diff.zakatPaidDelta >= 0 ? '▲ Selisih' : '▼ Selisih'} Rp {Math.abs(diff.zakatPaidDelta).toLocaleString('id-ID')}
@@ -166,7 +166,7 @@ export function CompareTwoYears({ prevYear, currYear }: CompareTwoYearsProps) {
               <div style={{
                 textAlign: 'right',
                 fontWeight: 600,
-                color: acc.deltaNominal >= 0 ? '#10b981' : '#ef4444',
+                color: acc.deltaNominal >= 0 ? 'var(--color-success-text)' : 'var(--color-danger-text)',
               }}>
                 <div>
                   {acc.deltaNominal >= 0 ? '+' : ''}

@@ -127,6 +127,7 @@ export function YearModal({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const isBackdropClickRef = React.useRef(false);
+  const modalRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (initialData) {
@@ -197,6 +198,24 @@ export function YearModal({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         onClose();
+      } else if (e.key === 'Tab' && modalRef.current) {
+        const focusable = modalRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -371,6 +390,7 @@ export function YearModal({
       }}
     >
       <div
+        ref={modalRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="year-modal-title"
@@ -704,7 +724,7 @@ export function YearModal({
                 <div style={{
                   fontSize: '0.6875rem',
                   fontWeight: 600,
-                  color: calc.isWajibGold ? '#10b981' : 'var(--text-muted)',
+                  color: calc.isWajibGold ? 'var(--color-success-text)' : 'var(--text-muted)',
                   marginTop: '0.25rem',
                 }}>
                   {calc.isWajibGold ? 'Wajib Zakat (2.5%)' : 'Belum Wajib (< Nisab)'}
@@ -729,7 +749,7 @@ export function YearModal({
                 <div style={{
                   fontSize: '0.6875rem',
                   fontWeight: 600,
-                  color: calc.isWajibSilver ? '#10b981' : 'var(--text-muted)',
+                  color: calc.isWajibSilver ? 'var(--color-success-text)' : 'var(--text-muted)',
                   marginTop: '0.25rem',
                 }}>
                   {calc.isWajibSilver ? 'Wajib Zakat (2.5%)' : 'Belum Wajib (< Nisab)'}

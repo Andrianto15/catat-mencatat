@@ -157,6 +157,7 @@ export default function GoldPricesPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <Link
             href="/emas"
+            aria-label="Kembali"
             style={{
               padding: '0.375rem',
               display: 'flex',
@@ -502,7 +503,7 @@ export default function GoldPricesPage() {
                         <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.75rem' }}>
                           Harga Buyback
                         </span>
-                        <span style={{ fontWeight: 600, color: '#10b981' }}>
+                        <span style={{ fontWeight: 600, color: 'var(--color-success-text)' }}>
                           {p.buyback_price ? `Rp ${p.buyback_price.toLocaleString('id-ID')}` : '-'}
                         </span>
                       </div>

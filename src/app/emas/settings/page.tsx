@@ -88,6 +88,7 @@ export default function PeopleSettingsPage() {
       }}>
         <Link
           href="/emas"
+          aria-label="Kembali"
           style={{
             padding: '0.375rem',
             display: 'flex',
@@ -113,8 +114,12 @@ export default function PeopleSettingsPage() {
           <h2 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.875rem' }}>
             {editingId ? 'Edit Nama Pemilik' : 'Tambah Pemilik Baru'}
           </h2>
-          <form onSubmit={handleSavePerson} style={{ display: 'flex', gap: '0.5rem' }}>
+          <form onSubmit={handleSavePerson} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <label htmlFor="person-name" style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0, 0, 0, 0)', border: 0 }}>
+              Nama Pemilik
+            </label>
             <input
+              id="person-name"
               type="text"
               required
               placeholder="Contoh: Suami, Istri, Anak 1"
@@ -202,7 +207,7 @@ export default function PeopleSettingsPage() {
                         padding: '0.375rem',
                         border: 'none',
                         background: 'none',
-                        color: p.is_active ? '#10b981' : 'var(--text-muted)',
+                        color: p.is_active ? 'var(--color-success-text)' : 'var(--text-muted)',
                         cursor: 'pointer',
                         minHeight: '44px',
                         minWidth: '44px',
@@ -211,6 +216,7 @@ export default function PeopleSettingsPage() {
                         justifyContent: 'center',
                       }}
                       title={p.is_active ? 'Nonaktifkan' : 'Aktifkan'}
+                      aria-label={p.is_active ? 'Nonaktifkan' : 'Aktifkan'}
                     >
                       <Check size={18} />
                     </button>
@@ -229,6 +235,7 @@ export default function PeopleSettingsPage() {
                         justifyContent: 'center',
                       }}
                       title="Edit"
+                      aria-label="Edit"
                     >
                       <Edit2 size={18} />
                     </button>
@@ -238,7 +245,7 @@ export default function PeopleSettingsPage() {
                         padding: '0.375rem',
                         border: 'none',
                         background: 'none',
-                        color: '#ef4444',
+                        color: 'var(--color-danger-text)',
                         cursor: 'pointer',
                         minHeight: '44px',
                         minWidth: '44px',
@@ -247,6 +254,7 @@ export default function PeopleSettingsPage() {
                         justifyContent: 'center',
                       }}
                       title="Hapus"
+                      aria-label="Hapus"
                     >
                       <Trash2 size={18} />
                     </button>

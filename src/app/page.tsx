@@ -67,6 +67,7 @@ export default async function HomePage() {
             <button
               type="submit"
               title="Keluar"
+              aria-label="Keluar"
               style={{
                 background: 'none',
                 border: 'none',

@@ -32,6 +32,7 @@ export function ServiceModal({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const isBackdropClickRef = React.useRef(false);
+  const modalRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (initialData) {
@@ -53,6 +54,24 @@ export function ServiceModal({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         onClose();
+      } else if (e.key === 'Tab' && modalRef.current) {
+        const focusable = modalRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -121,6 +140,7 @@ export function ServiceModal({
       }}
     >
       <div
+        ref={modalRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="service-modal-title"
@@ -181,7 +201,7 @@ export function ServiceModal({
               onChange={(e) => setMotorId(e.target.value)}
             >
               {motors.map((m) => (
-                <option key={m.id} value={m.id} style={{ color: '#000' }}>
+                <option key={m.id} value={m.id}>
                   {m.name} {m.plate_number ? `(${m.plate_number})` : ''}
                 </option>
               ))}

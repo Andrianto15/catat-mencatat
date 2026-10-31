@@ -231,6 +231,7 @@ export default function ZakatPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <Link
             href="/"
+            aria-label="Kembali ke Beranda"
             style={{
               padding: '0.375rem',
               display: 'flex',
@@ -256,6 +257,7 @@ export default function ZakatPage() {
           <ThemeToggle />
           <Link
             href="/zakat/settings"
+            aria-label="Pengaturan Rekening"
             style={{
               padding: '0.375rem',
               display: 'flex',
@@ -505,7 +507,7 @@ export default function ZakatPage() {
           bottom: 'calc(1.25rem + env(safe-area-inset-bottom))',
           width: '56px',
           height: '56px',
-          borderRadius: '28px',
+          borderRadius: '9999px',
           backgroundColor: '#10b981',
           color: '#ffffff',
           display: 'flex',

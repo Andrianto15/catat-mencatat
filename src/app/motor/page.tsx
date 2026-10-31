@@ -137,6 +137,7 @@ export default function MotorPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <Link
             href="/"
+            aria-label="Kembali ke Beranda"
             style={{
               padding: '0.375rem',
               display: 'flex',
@@ -162,6 +163,7 @@ export default function MotorPage() {
           <ThemeToggle />
           <Link
             href="/motor/settings"
+            aria-label="Pengaturan Motor"
             style={{
               padding: '0.375rem',
               display: 'flex',
@@ -323,7 +325,7 @@ export default function MotorPage() {
           bottom: 'calc(1.25rem + env(safe-area-inset-bottom))',
           width: '56px',
           height: '56px',
-          borderRadius: '28px',
+          borderRadius: '9999px',
           backgroundColor: 'var(--color-primary)',
           color: '#ffffff',
           display: 'flex',

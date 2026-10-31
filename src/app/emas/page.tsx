@@ -164,6 +164,7 @@ export default function GoldPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <Link
             href="/"
+            aria-label="Kembali ke Beranda"
             style={{
               padding: '0.375rem',
               display: 'flex',
@@ -189,11 +190,12 @@ export default function GoldPage() {
           <ThemeToggle />
           <Link
             href="/emas/prices"
+            aria-label="Harga Emas Harian"
             style={{
               padding: '0.375rem',
               display: 'flex',
               alignItems: 'center',
-              color: '#d97706',
+              color: 'var(--color-warning-text)',
               borderRadius: 'var(--radius-lg)',
               minHeight: '44px',
               minWidth: '44px',
@@ -205,6 +207,7 @@ export default function GoldPage() {
           </Link>
           <Link
             href="/emas/settings"
+            aria-label="Pengaturan Pemilik Emas"
             style={{
               padding: '0.375rem',
               display: 'flex',
@@ -248,8 +251,8 @@ export default function GoldPage() {
               gap: '0.375rem',
               padding: '0.375rem 0.625rem',
               borderRadius: 'var(--radius-lg)',
-              backgroundColor: summary.totalProfitRp >= 0 ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-              color: summary.totalProfitRp >= 0 ? '#10b981' : '#ef4444',
+              backgroundColor: summary.totalProfitRp >= 0 ? 'var(--color-success-bg)' : 'var(--color-danger-bg)',
+              color: summary.totalProfitRp >= 0 ? 'var(--color-success-text)' : 'var(--color-danger-text)',
               fontSize: '0.8125rem',
               fontWeight: 600,
             }}>
@@ -436,7 +439,7 @@ export default function GoldPage() {
           bottom: 'calc(1.25rem + env(safe-area-inset-bottom))',
           width: '56px',
           height: '56px',
-          borderRadius: '28px',
+          borderRadius: '9999px',
           backgroundColor: '#d97706',
           color: '#ffffff',
           display: 'flex',

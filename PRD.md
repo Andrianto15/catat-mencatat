@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| Status | Implementation Complete (v0.5.5) |
-| Tanggal | 30-10-2026 |
+| Status | Implementation Complete (v0.6.0) |
+| Tanggal | 31-10-2026 |
 | Pemilik | Andrian (pengguna tunggal) |
 | Stack | Next.js (App Router) + Supabase (Postgres, Auth) + PWA + Vercel |
 | Lisensi | MIT License |
@@ -349,7 +349,17 @@ F0.1–F0.5, F1.1–F1.4, F2.1–F2.8, F3.1–F3.6.
   - HP < 640px: list card, modal sebagai bottom sheet, tombol tambah sebagai FAB, target sentuh ≥ 44px, safe-area inset.
   - Desktop > 1024px: tabel untuk riwayat; tambahan tabel & grafik di zakat.
 - Navigasi modul: header berisi tombol kembali ke beranda, judul modul, ikon pengaturan modul.
-- Aksesibilitas: kontras ≥ 4,5:1, `:focus-visible`, naik/turun tidak hanya dibedakan warna (pakai ▲/▼ + tanda), `prefers-reduced-motion` dihormati.
+- Aksesibilitas & UI Compliance:
+  - Kontras teks status & badge memenuhi WCAG AA (≥ 4.5:1) dengan semantic tokens `var(--color-success-text)` (`#15803d` / `#6ee7b7`), `var(--color-danger-text)`, `var(--color-warning-text)`.
+  - Landmark `<main>` bersifat tunggal per halaman route (`RootLayout` menggunakan `<div className="app-content">`).
+  - Seluruh tombol ikon & link kembali (`ArrowLeft`, `LogOut`, settings) dilengkapi `aria-label`.
+  - Seluruh input form di settings dan filter terhubung dengan `<label htmlFor="...">` dan `id`.
+  - Touch target interactive elements pada mobile filter pills & selectors memenuhi standar minimum 44x44px.
+  - Dialog modal dilengkapi penangkap fokus keyboard (`Tab`/`Shift+Tab` focus trap).
+  - Visualisasi grafik tren zakat memiliki `role="img"` & `aria-label`, dan tabel spreadsheet memiliki `scope="col"` serta `scope="row"`.
+  - Animasi memiliki fallback `@media (prefers-reduced-motion: reduce)` dan keyframe terstandar (`.animate-spin`).
+  - `:focus-visible` aktif dengan outline jelas.
+  - Naik/turun tidak hanya dibedakan warna (pakai ▲/▼ + tanda).
 - State kosong, loading, dan error untuk setiap list & form.
 - Mockup referensi zakat (input tahun baru + opsi perbandingan): `.superpowers/brainstorm/*/content/zakat-layout.html`.
 

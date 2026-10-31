@@ -35,11 +35,14 @@ export function ZakatSpreadsheetTable({ years }: ZakatSpreadsheetProps) {
         Matriks Zakat Antar-Tahun (Spreadsheet)
       </h3>
       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8125rem' }}>
+        <caption style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0, 0, 0, 0)', border: 0 }}>
+          Matriks Perhitungan Zakat Mal Antar-Tahun
+        </caption>
         <thead>
           <tr style={{ borderBottom: '2px solid var(--border-card)', textAlign: 'left' }}>
-            <th style={{ padding: '0.625rem', color: 'var(--text-muted)' }}>Komponen / Akun</th>
+            <th scope="col" style={{ padding: '0.625rem', color: 'var(--text-muted)' }}>Komponen / Akun</th>
             {sortedYears.map((y) => (
-              <th key={y.hijri_year} style={{ padding: '0.625rem', textAlign: 'right' }}>
+              <th scope="col" key={y.hijri_year} style={{ padding: '0.625rem', textAlign: 'right' }}>
                 <div>{y.hijri_year} H</div>
                 <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>({y.masehi_year} M)</div>
               </th>
@@ -50,7 +53,7 @@ export function ZakatSpreadsheetTable({ years }: ZakatSpreadsheetProps) {
           {/* Accounts Rows */}
           {accountList.map(([accId, accName]) => (
             <tr key={accId} style={{ borderBottom: '1px solid var(--border-card)' }}>
-              <td style={{ padding: '0.5rem 0.625rem' }}>{accName}</td>
+              <th scope="row" style={{ padding: '0.5rem 0.625rem', fontWeight: 400, textAlign: 'left' }}>{accName}</th>
               {sortedYears.map((y) => {
                 const bal = (y.balances || []).find((b) => b.account_id === accId)?.balance || 0;
                 return (
@@ -64,7 +67,7 @@ export function ZakatSpreadsheetTable({ years }: ZakatSpreadsheetProps) {
 
           {/* Total Assets Row */}
           <tr style={{ borderTop: '2px solid var(--border-card)', fontWeight: 700, backgroundColor: 'var(--bg-main)' }}>
-            <td style={{ padding: '0.625rem' }}>Total Harta</td>
+            <th scope="row" style={{ padding: '0.625rem', fontWeight: 700, textAlign: 'left' }}>Total Harta</th>
             {sortedYears.map((y) => (
               <td key={y.hijri_year} style={{ padding: '0.625rem', textAlign: 'right' }}>
                 Rp {y.total_assets.toLocaleString('id-ID')}

@@ -98,6 +98,7 @@ export function WorkshopAutocomplete({
           aria-autocomplete="list"
           aria-controls={listboxId}
           placeholder={placeholder}
+          className="form-input"
           value={value}
           onFocus={() => setIsOpen(true)}
           onChange={(e) => {
@@ -109,13 +110,7 @@ export function WorkshopAutocomplete({
           style={{
             width: '100%',
             padding: '0.625rem 2.25rem 0.625rem 0.625rem',
-            borderRadius: 'var(--radius-lg)',
-            border: '1px solid var(--border-card)',
-            backgroundColor: 'transparent',
-            color: 'var(--text-main)',
-            fontSize: '0.875rem',
             minHeight: '44px',
-            outline: 'none',
           }}
         />
         <button
@@ -128,7 +123,7 @@ export function WorkshopAutocomplete({
             right: '0.5rem',
             background: 'none',
             border: 'none',
-            color: 'var(--text-muted, #888)',
+            color: 'var(--text-muted)',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
@@ -234,7 +229,7 @@ export function WorkshopAutocomplete({
                 alignItems: 'center',
                 padding: '0.5rem 0.75rem',
                 fontSize: '0.875rem',
-                color: 'var(--text-muted, #888)',
+                color: 'var(--text-muted)',
                 fontStyle: 'italic',
               }}
             >

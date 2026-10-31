@@ -31,6 +31,7 @@ export function PurchaseModal({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const isBackdropClickRef = React.useRef(false);
+  const modalRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (initialData) {
@@ -59,6 +60,24 @@ export function PurchaseModal({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         onClose();
+      } else if (e.key === 'Tab' && modalRef.current) {
+        const focusable = modalRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -139,6 +158,7 @@ export function PurchaseModal({
       }}
     >
       <div
+        ref={modalRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="purchase-modal-title"
@@ -199,7 +219,7 @@ export function PurchaseModal({
               onChange={(e) => setPersonId(e.target.value)}
             >
               {people.map((p) => (
-                <option key={p.id} value={p.id} style={{ color: '#000' }}>
+                <option key={p.id} value={p.id}>
                   {p.name}
                 </option>
               ))}
@@ -244,11 +264,11 @@ export function PurchaseModal({
                 value={brand}
                 onChange={(e) => setBrand(e.target.value)}
               >
-                <option value="ANTAM" style={{ color: '#000' }}>ANTAM</option>
-                <option value="UBS" style={{ color: '#000' }}>UBS</option>
-                <option value="GALERI 24" style={{ color: '#000' }}>GALERI 24</option>
-                <option value="LOTUS ARCHI" style={{ color: '#000' }}>LOTUS ARCHI</option>
-                <option value="ANTAM RETRO" style={{ color: '#000' }}>ANTAM RETRO</option>
+                <option value="ANTAM">ANTAM</option>
+                <option value="UBS">UBS</option>
+                <option value="GALERI 24">GALERI 24</option>
+                <option value="LOTUS ARCHI">LOTUS ARCHI</option>
+                <option value="ANTAM RETRO">ANTAM RETRO</option>
               </select>
             </div>
           </div>

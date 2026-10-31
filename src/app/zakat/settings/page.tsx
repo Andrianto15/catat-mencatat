@@ -147,6 +147,7 @@ export default function ZakatSettingsPage() {
       }}>
         <Link
           href="/zakat"
+          aria-label="Kembali"
           style={{
             padding: '0.375rem',
             display: 'flex',
@@ -185,6 +186,9 @@ export default function ZakatSettingsPage() {
                     backgroundColor: selectedPersonId === p.id ? 'var(--color-primary)' : 'transparent',
                     color: selectedPersonId === p.id ? '#ffffff' : 'var(--text-main)',
                     cursor: 'pointer',
+                    minHeight: '44px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
                   }}
                 >
                   {p.name}
@@ -370,7 +374,7 @@ export default function ZakatSettingsPage() {
                         padding: '0.375rem',
                         border: 'none',
                         background: 'none',
-                        color: acc.is_active ? '#10b981' : 'var(--text-muted)',
+                        color: acc.is_active ? 'var(--color-success-text)' : 'var(--text-muted)',
                         cursor: 'pointer',
                         minHeight: '44px',
                         minWidth: '44px',
@@ -379,6 +383,7 @@ export default function ZakatSettingsPage() {
                         justifyContent: 'center',
                       }}
                       title={acc.is_active ? 'Nonaktifkan' : 'Aktifkan'}
+                      aria-label={acc.is_active ? 'Nonaktifkan' : 'Aktifkan'}
                     >
                       <Check size={18} />
                     </button>
@@ -397,6 +402,7 @@ export default function ZakatSettingsPage() {
                         justifyContent: 'center',
                       }}
                       title="Edit"
+                      aria-label="Edit"
                     >
                       <Edit2 size={18} />
                     </button>
@@ -406,7 +412,7 @@ export default function ZakatSettingsPage() {
                         padding: '0.375rem',
                         border: 'none',
                         background: 'none',
-                        color: '#ef4444',
+                        color: 'var(--color-danger-text)',
                         cursor: 'pointer',
                         minHeight: '44px',
                         minWidth: '44px',
@@ -415,6 +421,7 @@ export default function ZakatSettingsPage() {
                         justifyContent: 'center',
                       }}
                       title="Hapus"
+                      aria-label="Hapus"
                     >
                       <Trash2 size={18} />
                     </button>

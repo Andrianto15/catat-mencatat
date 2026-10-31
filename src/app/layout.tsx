@@ -43,7 +43,7 @@ export default function RootLayout({
       </head>
       <body>
         <div className="app-layout">
-          <main className="app-content">{children}</main>
+          <div className="app-content">{children}</div>
           <Footer />
         </div>
         <Script id="register-sw" strategy="afterInteractive">
