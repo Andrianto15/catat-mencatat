@@ -252,7 +252,7 @@ export function SellModal({
               marginTop: '0.5rem',
               padding: '0.875rem',
               borderRadius: 'var(--radius-lg)',
-              backgroundColor: '#10b981',
+              backgroundColor: 'var(--color-primary)',
               color: '#ffffff',
               border: 'none',
               fontWeight: 600,

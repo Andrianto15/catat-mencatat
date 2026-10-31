@@ -120,7 +120,7 @@ export function WorkshopAutocomplete({
           onClick={() => setIsOpen((prev) => !prev)}
           style={{
             position: 'absolute',
-            right: '0.5rem',
+            right: '0.25rem',
             background: 'none',
             border: 'none',
             color: 'var(--text-muted)',
@@ -128,8 +128,10 @@ export function WorkshopAutocomplete({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            width: '32px',
-            height: '32px',
+            width: '44px',
+            height: '44px',
+            minWidth: '44px',
+            minHeight: '44px',
           }}
         >
           <ChevronDown

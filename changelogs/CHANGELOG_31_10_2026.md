@@ -98,3 +98,33 @@ Menambahkan fitur interaktif pada titik data (dot) grafik tahunan di `AnnualBala
   - Menambahkan test case TDD interaktivitas dot di `tests/annual-balance-ui.test.tsx`.
   - 35 test suite (156 unit tests) lulus 100%.
   - Build produksi Next.js terverifikasi sukses.
+
+---
+
+## Ringkasan Perubahan: Impeccable Audit Batch Fixes (Harden, Adapt, Optimize, Polish)
+
+Menyelesaikan seluruh temuan P1/P2/P3 hasil audit Impeccable untuk menjamin kesempurnaan teknis, aksesibilitas, ergonomi mobile, dan performa aplikasi:
+
+1. **Accessibility & Theming Hardening (`/impeccable harden`)**:
+   - **Non-destructive Reduced Motion**: Mengganti wipe agresif `0.01ms !important` pada `@media (prefers-reduced-motion: reduce)` di `globals.css` dengan durasi aman `0.001s !important`, mempertahankan feedback interaktif dan mematikan perputaran `.animate-spin` tanpa merusak transisi status.
+   - **Sinkronisasi Dark Mode Badge**: Mengganti hardcoded hex light (`#fee2e2`, `#fef3c7`, `#dcfce7`) di `emas/prices/page.tsx` dengan CSS tokens semantik `var(--color-danger-bg)`, `var(--color-warning-bg)`, dan `var(--color-success-bg)` beserta warna teks pendampingnya.
+   - **Perbaikan Struktur ARIA SVG**: Memindahkan `role="img"` dari container `<div>` di `AnnualBalanceTrendChart` ke sub-elemen grafik `<g role="img">`, sehingga titik data interaktif `<g role="button">` tidak lagi tertelan oleh container gambar.
+   - **Pembersihan Hardcoded Hex**: Mengganti `#ef4444` pada tombol hapus `ServiceCard` dengan `var(--color-danger-text)` dan tombol simpan `SellModal` dengan `var(--color-primary)`.
+
+2. **Mobile Touch Targets & Standardisasi Form (`/impeccable adapt`)**:
+   - **Standardisasi Input Modal**: Seluruh field input dan select pada `ServiceModal`, `PurchaseModal`, dan `YearModal` distandarisasi menggunakan class `.form-input` / `.form-select` dengan tinggi sentuhan minimal `minHeight: 44px`.
+   - **Hit-area Chevron Autocomplete**: Memperbesar target klik tombol panah dropdown di `WorkshopAutocomplete` ke minimal 44x44px.
+   - **Target Tap Checkbox Telegram**: Menambahkan touch padding min 44px pada label toggle pengingat tahunan di `saldo-tahun/settings/page.tsx`.
+   - **Tombol Reset Filter**: Memastikan tombol Reset Filter pada `emas/prices/page.tsx` memiliki `minHeight: 44px`.
+
+3. **Optimasi Performa & Bundle Client (`/impeccable optimize`)**:
+   - **Decoupling package.json**: Memisahkan konstanta versi ke `src/lib/version.ts`, mencegah seluruh pohon `package.json` ter-bundle ke chunk JavaScript client `Footer.tsx`.
+   - **Memoization Agregasi Keuangan**: Membungkus komputasi delta dan paginasi di `saldo-tahun/page.tsx` serta ringkasan portofolio emas di `emas/page.tsx` dengan `useMemo`.
+
+4. **Hierarki Heading Semantik (`/impeccable polish`)**:
+   - Menata ulang heading pada `saldo-tahun/page.tsx` dan `AnnualBalanceTrendChart.tsx` agar urut `<h1>` -> `<h2>` -> `<h3>` tanpa melompati level `<h2>`.
+
+5. **Pengujian & Verifikasi**:
+   - Menambahkan 4 file test baru: `tests/audit-harden-fixes.test.tsx`, `tests/audit-adapt-targets.test.tsx`, `tests/audit-optimize.test.tsx`, `tests/audit-polish-hierarchy.test.tsx`.
+   - Seluruh 39 test suites (173 unit tests) lulus 100%.
+   - Detektor Impeccable mengonfirmasi 0 temuan.

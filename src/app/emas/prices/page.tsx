@@ -386,8 +386,16 @@ export default function GoldPricesPage() {
                         textTransform: 'uppercase',
                         padding: '0.15rem 0.4rem',
                         borderRadius: '0.25rem',
-                        backgroundColor: isFailed ? '#fee2e2' : p.status === 'manual' ? '#fef3c7' : '#dcfce7',
-                        color: isFailed ? '#b91c1c' : p.status === 'manual' ? '#b45309' : '#15803d',
+                        backgroundColor: isFailed
+                          ? 'var(--color-danger-bg)'
+                          : p.status === 'manual'
+                          ? 'var(--color-warning-bg)'
+                          : 'var(--color-success-bg)',
+                        color: isFailed
+                          ? 'var(--color-danger-text)'
+                          : p.status === 'manual'
+                          ? 'var(--color-warning-text)'
+                          : 'var(--color-success-text)',
                       }}>
                         {p.status}
                       </span>

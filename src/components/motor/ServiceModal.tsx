@@ -199,6 +199,7 @@ export function ServiceModal({
               className="form-select"
               value={motorId}
               onChange={(e) => setMotorId(e.target.value)}
+              style={{ minHeight: '44px' }}
             >
               {motors.map((m) => (
                 <option key={m.id} value={m.id}>
@@ -220,6 +221,7 @@ export function ServiceModal({
                 id="service-date"
                 type="date"
                 required
+                className="form-input"
                 value={serviceDate}
                 onChange={(e) => setServiceDate(e.target.value)}
                 style={{
@@ -230,6 +232,7 @@ export function ServiceModal({
                   backgroundColor: 'transparent',
                   color: 'var(--text-main)',
                   fontSize: '0.875rem',
+                  minHeight: '44px',
                 }}
               />
             </div>
@@ -242,6 +245,7 @@ export function ServiceModal({
               </label>
               <NumberInput
                 id="service-km"
+                className="form-input"
                 placeholder="12000 (opsional)"
                 value={currentKm}
                 onChange={setCurrentKm}
@@ -253,6 +257,7 @@ export function ServiceModal({
                   backgroundColor: 'transparent',
                   color: 'var(--text-main)',
                   fontSize: '0.875rem',
+                  minHeight: '44px',
                 }}
               />
             </div>
@@ -267,6 +272,7 @@ export function ServiceModal({
             </label>
             <NumberInput
               id="service-cost"
+              className="form-input"
               placeholder="150000"
               value={cost}
               onChange={setCost}
@@ -278,6 +284,7 @@ export function ServiceModal({
                 backgroundColor: 'transparent',
                 color: 'var(--text-main)',
                 fontSize: '0.875rem',
+                minHeight: '44px',
               }}
             />
           </div>

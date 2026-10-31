@@ -455,6 +455,7 @@ export function YearModal({
                 id="zakat-hijri-year"
                 type="number"
                 required
+                className="form-input"
                 value={hijriYear}
                 onChange={(e) => handleHijriChange(Number(e.target.value))}
                 style={{
@@ -465,6 +466,7 @@ export function YearModal({
                   backgroundColor: 'transparent',
                   color: 'var(--text-main)',
                   fontSize: '0.875rem',
+                  minHeight: '44px',
                 }}
               />
             </div>
@@ -479,6 +481,7 @@ export function YearModal({
                 id="zakat-ref-date"
                 type="date"
                 required
+                className="form-input"
                 value={referenceDate}
                 onChange={(e) => handleReferenceDateChange(e.target.value)}
                 style={{
@@ -489,6 +492,7 @@ export function YearModal({
                   backgroundColor: 'transparent',
                   color: 'var(--text-main)',
                   fontSize: '0.875rem',
+                  minHeight: '44px',
                 }}
               />
             </div>
@@ -505,6 +509,7 @@ export function YearModal({
               <NumberInput
                 id="zakat-gold-price"
                 required
+                className="form-input"
                 value={goldPrice}
                 onChange={handleGoldPriceChange}
                 style={{
@@ -515,6 +520,7 @@ export function YearModal({
                   backgroundColor: 'transparent',
                   color: 'var(--text-main)',
                   fontSize: '0.875rem',
+                  minHeight: '44px',
                 }}
               />
               <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem', display: 'block' }}>
@@ -532,6 +538,7 @@ export function YearModal({
               <NumberInput
                 id="zakat-silver-price"
                 required
+                className="form-input"
                 value={silverPrice}
                 onChange={(val) => setSilverPrice(val === '' ? 0 : Number(val))}
                 style={{
@@ -542,6 +549,7 @@ export function YearModal({
                   backgroundColor: 'transparent',
                   color: 'var(--text-main)',
                   fontSize: '0.875rem',
+                  minHeight: '44px',
                 }}
               />
               <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem', display: 'block' }}>

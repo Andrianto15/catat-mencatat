@@ -75,7 +75,7 @@ export function ServiceCard({ service, motorName, onEdit, onDelete }: ServiceCar
                 border: 'none',
                 padding: '0.5rem',
                 cursor: 'pointer',
-                color: '#ef4444',
+                color: 'var(--color-danger-text)',
                 minHeight: '44px',
                 minWidth: '44px',
                 display: 'flex',

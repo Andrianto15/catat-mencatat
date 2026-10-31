@@ -375,7 +375,14 @@ export default function SaldoTahunSettingsPage() {
               />
               <label
                 htmlFor="telegram-enabled-toggle"
-                style={{ fontSize: '0.875rem', fontWeight: 500, cursor: 'pointer' }}
+                style={{
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  minHeight: '44px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                }}
               >
                 Aktifkan Pengingat Tahunan 30 Desember
               </label>

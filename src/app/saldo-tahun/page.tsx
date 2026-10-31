@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Settings, Plus, TrendingUp, ChevronDown } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
@@ -96,8 +96,11 @@ export default function SaldoTahunPage() {
     }
   }, [selectedPersonId]);
 
-  const yearsWithDeltas = computeAnnualBalanceDeltas(years);
-  const paginatedYears = paginateAnnualBalances(yearsWithDeltas, visibleCount);
+  const yearsWithDeltas = useMemo(() => computeAnnualBalanceDeltas(years), [years]);
+  const paginatedYears = useMemo(
+    () => paginateAnnualBalances(yearsWithDeltas, visibleCount),
+    [yearsWithDeltas, visibleCount]
+  );
   const selectedPerson = people.find((p) => p.id === selectedPersonId);
 
   const handleSaveYear = async (data: AnnualBalanceModalSaveData) => {
@@ -316,7 +319,7 @@ export default function SaldoTahunPage() {
             }}
           >
             <TrendingUp size={40} style={{ margin: '0 auto 0.75rem', color: 'var(--text-muted)' }} />
-            <h3 style={{ fontSize: '1rem', fontWeight: 600 }}>Belum ada data Saldo Akhir Tahun</h3>
+            <h2 style={{ fontSize: '1rem', fontWeight: 600 }}>Belum ada data Saldo Akhir Tahun</h2>
             <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
               Mulai input saldo rekening per tahun untuk {selectedPerson?.name || 'pemilik'}.
             </p>
@@ -328,7 +331,7 @@ export default function SaldoTahunPage() {
 
             {/* Accordion List (Opsi A) */}
             <div>
-              <h4
+              <h2
                 style={{
                   fontSize: '0.875rem',
                   fontWeight: 600,
@@ -337,7 +340,7 @@ export default function SaldoTahunPage() {
                 }}
               >
                 Riwayat Rekap Tahunan
-              </h4>
+              </h2>
 
               <AnnualBalanceAccordionList
                 items={paginatedYears.items}

@@ -377,14 +377,17 @@ F0.1–F0.5, F1.1–F1.4, F2.1–F2.8, F3.1–F3.6, F4.1–F4.4.
   - Desktop > 1024px: tabel untuk riwayat; tambahan tabel & grafik di zakat.
 - Navigasi modul: header berisi tombol kembali ke beranda, judul modul, ikon pengaturan modul.
 - Aksesibilitas & UI Compliance:
-  - Kontras teks status & badge memenuhi WCAG AA (≥ 4.5:1) dengan semantic tokens `var(--color-success-text)` (`#15803d` / `#6ee7b7`), `var(--color-danger-text)`, `var(--color-warning-text)`.
+  - Kontras teks status & badge memenuhi WCAG AA (≥ 4.5:1) dengan semantic tokens `var(--color-success-text)` (`#15803d` / `#6ee7b7`), `var(--color-danger-text)`, `var(--color-warning-text)`, serta background status yang teradaptasi penuh pada light & dark theme.
   - Landmark `<main>` bersifat tunggal per halaman route (`RootLayout` menggunakan `<div className="app-content">`).
-  - Seluruh tombol ikon & link kembali (`ArrowLeft`, `LogOut`, settings) dilengkapi `aria-label`.
-  - Seluruh input form di settings dan filter terhubung dengan `<label htmlFor="...">` dan `id`.
-  - Touch target interactive elements pada mobile filter pills & selectors memenuhi standar minimum 44x44px.
+  - Seluruh tombol ikon & link kembali (`ArrowLeft`, `LogOut`, settings, chevron dropdown) dilengkapi `aria-label` dan touch target minimum 44x44px.
+  - Seluruh input form di settings dan seluruh modal (`ServiceModal`, `PurchaseModal`, `YearModal`, `AnnualBalanceModal`) terhubung dengan `<label htmlFor="...">` dan `id`, serta menggunakan `.form-input` / `.form-select` dengan `minHeight: 44px`.
+  - Touch target interactive elements pada mobile filter pills, checkbox toggle, dan selectors memenuhi standar minimum 44x44px.
   - Dialog modal dilengkapi penangkap fokus keyboard (`Tab`/`Shift+Tab` focus trap).
-  - Visualisasi grafik tren zakat memiliki `role="img"` & `aria-label`, dan tabel spreadsheet memiliki `scope="col"` serta `scope="row"`.
-  - Animasi memiliki fallback `@media (prefers-reduced-motion: reduce)` dan keyframe terstandar (`.animate-spin`).
+  - Visualisasi grafik SVG memisahkan peran presentasi (`role="img"` pada elemen grafik/polyline) dengan elemen interaktif (`<g role="button">`) agar tombol titik data tidak diabaikan oleh screen reader.
+  - Tabel spreadsheet zakat memiliki `scope="col"` serta `scope="row"`.
+  - Animasi memiliki fallback non-destruktif `@media (prefers-reduced-motion: reduce)` tanpa mematikan feedback interaktif secara destruktif.
+  - Heading semantik tertata tanpa loncatan level (`<h1>` -> `<h2>` -> `<h3>`).
+  - Optimasi bundle client: Versi aplikasi diisolasi via `src/lib/version.ts` (menghindari bundling full `package.json` pada client bundle), dan perhitungan agregasi keuangan di-memoize dengan `useMemo`.
   - `:focus-visible` aktif dengan outline jelas.
   - Naik/turun tidak hanya dibedakan warna (pakai ▲/▼ + tanda).
 - State kosong, loading, dan error untuk setiap list & form.

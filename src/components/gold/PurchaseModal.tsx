@@ -217,6 +217,7 @@ export function PurchaseModal({
               className="form-select"
               value={personId}
               onChange={(e) => setPersonId(e.target.value)}
+              style={{ minHeight: '44px' }}
             >
               {people.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -238,6 +239,7 @@ export function PurchaseModal({
                 id="gold-date"
                 type="date"
                 required
+                className="form-input"
                 value={purchaseDate}
                 onChange={(e) => setPurchaseDate(e.target.value)}
                 style={{
@@ -248,6 +250,7 @@ export function PurchaseModal({
                   backgroundColor: 'transparent',
                   color: 'var(--text-main)',
                   fontSize: '0.875rem',
+                  minHeight: '44px',
                 }}
               />
             </div>
@@ -263,6 +266,7 @@ export function PurchaseModal({
                 className="form-select"
                 value={brand}
                 onChange={(e) => setBrand(e.target.value)}
+                style={{ minHeight: '44px' }}
               >
                 <option value="ANTAM">ANTAM</option>
                 <option value="UBS">UBS</option>
@@ -284,6 +288,7 @@ export function PurchaseModal({
               <NumberInput
                 id="gold-weight"
                 allowDecimal
+                className="form-input"
                 placeholder="1"
                 value={weightGram}
                 onChange={setWeightGram}
@@ -295,6 +300,7 @@ export function PurchaseModal({
                   backgroundColor: 'transparent',
                   color: 'var(--text-main)',
                   fontSize: '0.875rem',
+                  minHeight: '44px',
                 }}
               />
             </div>
@@ -307,6 +313,7 @@ export function PurchaseModal({
               </label>
               <NumberInput
                 id="gold-pieces"
+                className="form-input"
                 placeholder="1"
                 value={pieceCount}
                 onChange={setPieceCount}
@@ -318,6 +325,7 @@ export function PurchaseModal({
                   backgroundColor: 'transparent',
                   color: 'var(--text-main)',
                   fontSize: '0.875rem',
+                  minHeight: '44px',
                 }}
               />
             </div>
@@ -332,6 +340,7 @@ export function PurchaseModal({
             </label>
             <NumberInput
               id="gold-price"
+              className="form-input"
               placeholder="1450000"
               value={pricePerPiece}
               onChange={setPricePerPiece}
@@ -343,6 +352,7 @@ export function PurchaseModal({
                 backgroundColor: 'transparent',
                 color: 'var(--text-main)',
                 fontSize: '0.875rem',
+                minHeight: '44px',
               }}
             />
           </div>
@@ -356,6 +366,7 @@ export function PurchaseModal({
             </label>
             <NumberInput
               id="gold-buyback-price"
+              className="form-input"
               placeholder="1320000"
               value={buybackPricePerPiece}
               onChange={setBuybackPricePerPiece}
@@ -367,6 +378,7 @@ export function PurchaseModal({
                 backgroundColor: 'transparent',
                 color: 'var(--text-main)',
                 fontSize: '0.875rem',
+                minHeight: '44px',
               }}
             />
           </div>

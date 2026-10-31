@@ -71,7 +71,6 @@ export function AnnualBalanceTrendChart({ years }: AnnualBalanceTrendChartProps)
 
   return (
     <div
-      role="img"
       aria-label="Grafik perkembangan saldo akhir tahun"
       style={{
         backgroundColor: 'var(--bg-card)',
@@ -89,9 +88,9 @@ export function AnnualBalanceTrendChart({ years }: AnnualBalanceTrendChartProps)
         }}
       >
         <div>
-          <h3 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--text-main)' }}>
+          <h2 style={{ fontSize: '0.9375rem', fontWeight: 700, color: 'var(--text-main)' }}>
             Grafik Perkembangan Saldo Akhir Tahun
-          </h3>
+          </h2>
           <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
             {sorted.length === 1
               ? `Tahun ${latest.masehi_year} M`
@@ -112,76 +111,79 @@ export function AnnualBalanceTrendChart({ years }: AnnualBalanceTrendChartProps)
           style={{ width: '100%', height: 'auto', display: 'block', minWidth: '320px' }}
           onMouseLeave={() => setActivePoint(null)}
         >
-          {/* Horizontal grid lines */}
-          <line
-            x1={padLeft}
-            y1={padTop}
-            x2={width - padRight}
-            y2={padTop}
-            stroke="var(--border-card)"
-            strokeDasharray="3 3"
-          />
-          <text
-            x={padLeft - 8}
-            y={padTop + 4}
-            fontSize="10"
-            fill="var(--text-muted)"
-            textAnchor="end"
-          >
-            {formatCompact(maxVal)}
-          </text>
+          {/* Chart Graphic Elements */}
+          <g role="img" aria-label="Grafik perkembangan saldo akhir tahun">
+            {/* Horizontal grid lines */}
+            <line
+              x1={padLeft}
+              y1={padTop}
+              x2={width - padRight}
+              y2={padTop}
+              stroke="var(--border-card)"
+              strokeDasharray="3 3"
+            />
+            <text
+              x={padLeft - 8}
+              y={padTop + 4}
+              fontSize="10"
+              fill="var(--text-muted)"
+              textAnchor="end"
+            >
+              {formatCompact(maxVal)}
+            </text>
 
-          <line
-            x1={padLeft}
-            y1={padTop + plotHeight / 2}
-            x2={width - padRight}
-            y2={padTop + plotHeight / 2}
-            stroke="var(--border-card)"
-            strokeDasharray="3 3"
-          />
-          <text
-            x={padLeft - 8}
-            y={padTop + plotHeight / 2 + 4}
-            fontSize="10"
-            fill="var(--text-muted)"
-            textAnchor="end"
-          >
-            {formatCompact(minVal + valRange / 2)}
-          </text>
+            <line
+              x1={padLeft}
+              y1={padTop + plotHeight / 2}
+              x2={width - padRight}
+              y2={padTop + plotHeight / 2}
+              stroke="var(--border-card)"
+              strokeDasharray="3 3"
+            />
+            <text
+              x={padLeft - 8}
+              y={padTop + plotHeight / 2 + 4}
+              fontSize="10"
+              fill="var(--text-muted)"
+              textAnchor="end"
+            >
+              {formatCompact(minVal + valRange / 2)}
+            </text>
 
-          <line
-            x1={padLeft}
-            y1={padTop + plotHeight}
-            x2={width - padRight}
-            y2={padTop + plotHeight}
-            stroke="var(--border-card)"
-          />
-          <text
-            x={padLeft - 8}
-            y={padTop + plotHeight + 4}
-            fontSize="10"
-            fill="var(--text-muted)"
-            textAnchor="end"
-          >
-            {formatCompact(minVal)}
-          </text>
+            <line
+              x1={padLeft}
+              y1={padTop + plotHeight}
+              x2={width - padRight}
+              y2={padTop + plotHeight}
+              stroke="var(--border-card)"
+            />
+            <text
+              x={padLeft - 8}
+              y={padTop + plotHeight + 4}
+              fontSize="10"
+              fill="var(--text-muted)"
+              textAnchor="end"
+            >
+              {formatCompact(minVal)}
+            </text>
 
-          {/* Area under curve */}
-          <polygon
-            points={polygonPoints}
-            fill="var(--color-primary)"
-            fillOpacity="0.12"
-          />
+            {/* Area under curve */}
+            <polygon
+              points={polygonPoints}
+              fill="var(--color-primary)"
+              fillOpacity="0.12"
+            />
 
-          {/* Trend line */}
-          <polyline
-            fill="none"
-            stroke="var(--color-primary)"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            points={polylinePoints}
-          />
+            {/* Trend line */}
+            <polyline
+              fill="none"
+              stroke="var(--color-primary)"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              points={polylinePoints}
+            />
+          </g>
 
           {/* Active Guideline */}
           {activeRecord && (

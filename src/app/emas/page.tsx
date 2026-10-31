@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Settings, Plus, TrendingUp, TrendingDown, Coins, LineChart, ChevronDown } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
@@ -85,14 +85,22 @@ export default function GoldPage() {
     setVisibleCount(DEFAULT_GOLD_PAGE_SIZE);
   }, [selectedPersonId, showSold]);
 
-  const paginatedPurchases = paginateGoldPurchases(filteredPurchases, visibleCount);
+  const paginatedPurchases = useMemo(
+    () => paginateGoldPurchases(filteredPurchases, visibleCount),
+    [filteredPurchases, visibleCount]
+  );
 
-  const activePurchases = purchases.filter((p) => {
-    if (selectedPersonId && p.person_id !== selectedPersonId) return false;
-    return !p.sold_at;
-  });
+  const activePurchases = useMemo(() => {
+    return purchases.filter((p) => {
+      if (selectedPersonId && p.person_id !== selectedPersonId) return false;
+      return !p.sold_at;
+    });
+  }, [purchases, selectedPersonId]);
 
-  const summary = calculateGoldAssetSummary(activePurchases, priceMap);
+  const summary = useMemo(
+    () => calculateGoldAssetSummary(activePurchases, priceMap),
+    [activePurchases, priceMap]
+  );
 
   const handleSavePurchase = async (
     data: Omit<GoldPurchase, 'id'>,
