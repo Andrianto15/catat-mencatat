@@ -23,10 +23,19 @@ colors:
   success-text-light: "#15803d"
   success-bg-dark: "rgba(16, 185, 129, 0.2)"
   success-text-dark: "#6ee7b7"
+  warning-bg-light: "#fef3c7"
+  warning-text-light: "#b45309"
+  warning-bg-dark: "rgba(245, 158, 11, 0.2)"
+  warning-text-dark: "#fbbf24"
+  overlay-backdrop: "rgba(0, 0, 0, 0.5)"
 typography:
   display:
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
     fontSize: "1.5rem"
+    fontWeight: 700
+  title-lg:
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+    fontSize: "1.25rem"
     fontWeight: 700
   headline:
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
@@ -36,15 +45,30 @@ typography:
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
     fontSize: "1rem"
     fontWeight: 600
+  subhead:
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+    fontSize: "0.9375rem"
+    fontWeight: 600
   body:
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
     fontSize: "0.875rem"
     fontWeight: 400
+  sub-body:
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+    fontSize: "0.8125rem"
+    fontWeight: 500
   caption:
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
     fontSize: "0.75rem"
     fontWeight: 500
+  micro:
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+    fontSize: "0.6875rem"
+    fontWeight: 500
 rounded:
+  xs: "0.25rem"
+  sm: "0.375rem"
+  md: "0.5rem"
   lg: "0.75rem"
   xl: "1rem"
   full: "9999px"

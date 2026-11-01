@@ -26,10 +26,12 @@ export function PurchaseModal({
   const [weightGram, setWeightGram] = useState<number | ''>(1);
   const [pieceCount, setPieceCount] = useState<number | ''>(1);
   const [pricePerPiece, setPricePerPiece] = useState<number | ''>('');
+  const [buybackPricePerPiece, setBuybackPricePerPiece] = useState<number | ''>('');
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const isBackdropClickRef = React.useRef(false);
+  const modalRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (initialData) {
@@ -39,8 +41,14 @@ export function PurchaseModal({
       setWeightGram(initialData.weight_gram);
       setPieceCount(initialData.piece_count);
       setPricePerPiece(initialData.price_per_piece);
+      setBuybackPricePerPiece(
+        initialData.buyback_price_per_piece !== null && initialData.buyback_price_per_piece !== undefined
+          ? initialData.buyback_price_per_piece
+          : ''
+      );
       setNotes(initialData.notes || '');
     } else {
+      setBuybackPricePerPiece('');
       if (people.length > 0 && !personId) {
         setPersonId(people[0].id);
       }
@@ -52,6 +60,24 @@ export function PurchaseModal({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         onClose();
+      } else if (e.key === 'Tab' && modalRef.current) {
+        const focusable = modalRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -81,6 +107,10 @@ export function PurchaseModal({
       setError('Harga per keping harus lebih dari 0.');
       return;
     }
+    if (buybackPricePerPiece !== '' && Number(buybackPricePerPiece) < 0) {
+      setError('Harga buyback tidak boleh negatif.');
+      return;
+    }
 
     try {
       setSubmitting(true);
@@ -93,6 +123,7 @@ export function PurchaseModal({
           weight_gram: Number(weightGram),
           piece_count: Number(pieceCount),
           price_per_piece: Number(pricePerPiece),
+          buyback_price_per_piece: buybackPricePerPiece !== '' ? Number(buybackPricePerPiece) : null,
           notes: notes.trim() || null,
         },
         keepOpen
@@ -101,6 +132,7 @@ export function PurchaseModal({
       if (keepOpen) {
         // Sticky fields: keep personId, purchaseDate, brand. Clear specific price/weight.
         setPricePerPiece('');
+        setBuybackPricePerPiece('');
         setNotes('');
       } else {
         onClose();
@@ -126,6 +158,7 @@ export function PurchaseModal({
       }}
     >
       <div
+        ref={modalRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="purchase-modal-title"
@@ -184,9 +217,10 @@ export function PurchaseModal({
               className="form-select"
               value={personId}
               onChange={(e) => setPersonId(e.target.value)}
+              style={{ minHeight: '44px' }}
             >
               {people.map((p) => (
-                <option key={p.id} value={p.id} style={{ color: '#000' }}>
+                <option key={p.id} value={p.id}>
                   {p.name}
                 </option>
               ))}
@@ -205,6 +239,7 @@ export function PurchaseModal({
                 id="gold-date"
                 type="date"
                 required
+                className="form-input"
                 value={purchaseDate}
                 onChange={(e) => setPurchaseDate(e.target.value)}
                 style={{
@@ -215,6 +250,7 @@ export function PurchaseModal({
                   backgroundColor: 'transparent',
                   color: 'var(--text-main)',
                   fontSize: '0.875rem',
+                  minHeight: '44px',
                 }}
               />
             </div>
@@ -230,11 +266,13 @@ export function PurchaseModal({
                 className="form-select"
                 value={brand}
                 onChange={(e) => setBrand(e.target.value)}
+                style={{ minHeight: '44px' }}
               >
-                <option value="ANTAM" style={{ color: '#000' }}>ANTAM</option>
-                <option value="UBS" style={{ color: '#000' }}>UBS</option>
-                <option value="GALERI 24" style={{ color: '#000' }}>GALERI 24</option>
-                <option value="LOTUS ARCHI" style={{ color: '#000' }}>LOTUS ARCHI</option>
+                <option value="ANTAM">ANTAM</option>
+                <option value="UBS">UBS</option>
+                <option value="GALERI 24">GALERI 24</option>
+                <option value="LOTUS ARCHI">LOTUS ARCHI</option>
+                <option value="ANTAM RETRO">ANTAM RETRO</option>
               </select>
             </div>
           </div>
@@ -250,6 +288,7 @@ export function PurchaseModal({
               <NumberInput
                 id="gold-weight"
                 allowDecimal
+                className="form-input"
                 placeholder="1"
                 value={weightGram}
                 onChange={setWeightGram}
@@ -261,6 +300,7 @@ export function PurchaseModal({
                   backgroundColor: 'transparent',
                   color: 'var(--text-main)',
                   fontSize: '0.875rem',
+                  minHeight: '44px',
                 }}
               />
             </div>
@@ -273,6 +313,7 @@ export function PurchaseModal({
               </label>
               <NumberInput
                 id="gold-pieces"
+                className="form-input"
                 placeholder="1"
                 value={pieceCount}
                 onChange={setPieceCount}
@@ -284,6 +325,7 @@ export function PurchaseModal({
                   backgroundColor: 'transparent',
                   color: 'var(--text-main)',
                   fontSize: '0.875rem',
+                  minHeight: '44px',
                 }}
               />
             </div>
@@ -298,6 +340,7 @@ export function PurchaseModal({
             </label>
             <NumberInput
               id="gold-price"
+              className="form-input"
               placeholder="1450000"
               value={pricePerPiece}
               onChange={setPricePerPiece}
@@ -309,6 +352,33 @@ export function PurchaseModal({
                 backgroundColor: 'transparent',
                 color: 'var(--text-main)',
                 fontSize: '0.875rem',
+                minHeight: '44px',
+              }}
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="gold-buyback-price"
+              style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}
+            >
+              Harga Jual / Buyback saat Beli per Keping (Rp) (Opsional)
+            </label>
+            <NumberInput
+              id="gold-buyback-price"
+              className="form-input"
+              placeholder="1320000"
+              value={buybackPricePerPiece}
+              onChange={setBuybackPricePerPiece}
+              style={{
+                width: '100%',
+                padding: '0.625rem',
+                borderRadius: 'var(--radius-lg)',
+                border: '1px solid var(--border-card)',
+                backgroundColor: 'transparent',
+                color: 'var(--text-main)',
+                fontSize: '0.875rem',
+                minHeight: '44px',
               }}
             />
           </div>

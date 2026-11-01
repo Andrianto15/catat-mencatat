@@ -44,6 +44,9 @@ export function ServiceFilter({
             backgroundColor: selectedMotorId === '' ? 'var(--color-primary)' : 'transparent',
             color: selectedMotorId === '' ? '#ffffff' : 'var(--text-main)',
             cursor: 'pointer',
+            minHeight: '44px',
+            display: 'inline-flex',
+            alignItems: 'center',
           }}
         >
           Semua Motor
@@ -63,6 +66,9 @@ export function ServiceFilter({
               backgroundColor: selectedMotorId === m.id ? 'var(--color-primary)' : 'transparent',
               color: selectedMotorId === m.id ? '#ffffff' : 'var(--text-main)',
               cursor: 'pointer',
+              minHeight: '44px',
+              display: 'inline-flex',
+              alignItems: 'center',
             }}
           >
             {m.name}
@@ -72,40 +78,44 @@ export function ServiceFilter({
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
         <div>
-          <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
+          <label htmlFor="filter-start-date" style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
             Dari Tanggal
           </label>
           <input
+            id="filter-start-date"
             type="date"
             value={startDate}
             onChange={(e) => onStartDateChange(e.target.value)}
             style={{
               width: '100%',
-              padding: '0.4rem 0.5rem',
+              padding: '0.5rem',
               borderRadius: 'var(--radius-lg)',
               border: '1px solid var(--border-card)',
               backgroundColor: 'transparent',
               color: 'var(--text-main)',
               fontSize: '0.8125rem',
+              minHeight: '44px',
             }}
           />
         </div>
         <div>
-          <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
+          <label htmlFor="filter-end-date" style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
             Sampai Tanggal
           </label>
           <input
+            id="filter-end-date"
             type="date"
             value={endDate}
             onChange={(e) => onEndDateChange(e.target.value)}
             style={{
               width: '100%',
-              padding: '0.4rem 0.5rem',
+              padding: '0.5rem',
               borderRadius: 'var(--radius-lg)',
               border: '1px solid var(--border-card)',
               backgroundColor: 'transparent',
               color: 'var(--text-main)',
               fontSize: '0.8125rem',
+              minHeight: '44px',
             }}
           />
         </div>

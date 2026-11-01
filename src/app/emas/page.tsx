@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Settings, Plus, TrendingUp, TrendingDown, Coins, LineChart } from 'lucide-react';
+import { ArrowLeft, Settings, Plus, TrendingUp, TrendingDown, Coins, LineChart, ChevronDown } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
-import { Person, GoldPurchase } from '@/lib/gold/actions';
+import { Person, GoldPurchase, DEFAULT_GOLD_PAGE_SIZE, paginateGoldPurchases } from '@/lib/gold/actions';
 import { calculateGoldAssetSummary } from '@/lib/gold/profit';
 import { GoldCard } from '@/components/gold/GoldCard';
 import { PurchaseModal } from '@/components/gold/PurchaseModal';
@@ -20,6 +20,9 @@ export default function GoldPage() {
   // Filter
   const [selectedPersonId, setSelectedPersonId] = useState('');
   const [showSold, setShowSold] = useState(false);
+
+  // Pagination
+  const [visibleCount, setVisibleCount] = useState(DEFAULT_GOLD_PAGE_SIZE);
 
   // Modals
   const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
@@ -55,7 +58,7 @@ export default function GoldPage() {
       if (pricesData) {
         for (const p of pricesData) {
           const key = `${p.brand.toUpperCase()}-${p.weight_gram}`;
-          if (map[key] === undefined) {
+          if (map[key] === undefined && p.buyback_price !== null && p.buyback_price !== undefined) {
             map[key] = p.buyback_price;
           }
         }
@@ -78,12 +81,26 @@ export default function GoldPage() {
     return true;
   });
 
-  const activePurchases = purchases.filter((p) => {
-    if (selectedPersonId && p.person_id !== selectedPersonId) return false;
-    return !p.sold_at;
-  });
+  useEffect(() => {
+    setVisibleCount(DEFAULT_GOLD_PAGE_SIZE);
+  }, [selectedPersonId, showSold]);
 
-  const summary = calculateGoldAssetSummary(activePurchases, priceMap);
+  const paginatedPurchases = useMemo(
+    () => paginateGoldPurchases(filteredPurchases, visibleCount),
+    [filteredPurchases, visibleCount]
+  );
+
+  const activePurchases = useMemo(() => {
+    return purchases.filter((p) => {
+      if (selectedPersonId && p.person_id !== selectedPersonId) return false;
+      return !p.sold_at;
+    });
+  }, [purchases, selectedPersonId]);
+
+  const summary = useMemo(
+    () => calculateGoldAssetSummary(activePurchases, priceMap),
+    [activePurchases, priceMap]
+  );
 
   const handleSavePurchase = async (
     data: Omit<GoldPurchase, 'id'>,
@@ -155,6 +172,7 @@ export default function GoldPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <Link
             href="/"
+            aria-label="Kembali ke Beranda"
             style={{
               padding: '0.375rem',
               display: 'flex',
@@ -180,11 +198,12 @@ export default function GoldPage() {
           <ThemeToggle />
           <Link
             href="/emas/prices"
+            aria-label="Harga Emas Harian"
             style={{
               padding: '0.375rem',
               display: 'flex',
               alignItems: 'center',
-              color: '#d97706',
+              color: 'var(--color-warning-text)',
               borderRadius: 'var(--radius-lg)',
               minHeight: '44px',
               minWidth: '44px',
@@ -196,6 +215,7 @@ export default function GoldPage() {
           </Link>
           <Link
             href="/emas/settings"
+            aria-label="Pengaturan Pemilik Emas"
             style={{
               padding: '0.375rem',
               display: 'flex',
@@ -239,8 +259,8 @@ export default function GoldPage() {
               gap: '0.375rem',
               padding: '0.375rem 0.625rem',
               borderRadius: 'var(--radius-lg)',
-              backgroundColor: summary.totalProfitRp >= 0 ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-              color: summary.totalProfitRp >= 0 ? '#10b981' : '#ef4444',
+              backgroundColor: summary.totalProfitRp >= 0 ? 'var(--color-success-bg)' : 'var(--color-danger-bg)',
+              color: summary.totalProfitRp >= 0 ? 'var(--color-success-text)' : 'var(--color-danger-text)',
               fontSize: '0.8125rem',
               fontWeight: 600,
             }}>
@@ -351,7 +371,7 @@ export default function GoldPage() {
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {filteredPurchases.map((purchase) => {
+            {paginatedPurchases.items.map((purchase) => {
               const key = `${purchase.brand.toUpperCase()}-${purchase.weight_gram}`;
               const currentBuyback = priceMap[key] ?? null;
 
@@ -372,6 +392,45 @@ export default function GoldPage() {
                 />
               );
             })}
+
+            {/* Pagination Controls */}
+            {paginatedPurchases.hasMore && (
+              <div style={{ marginTop: '0.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setVisibleCount((prev) => prev + DEFAULT_GOLD_PAGE_SIZE)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    width: '100%',
+                    minHeight: '44px',
+                    padding: '0.75rem 1rem',
+                    backgroundColor: 'var(--bg-card)',
+                    color: 'var(--color-primary)',
+                    border: '1px solid var(--border-card)',
+                    borderRadius: 'var(--radius-lg)',
+                    fontSize: '0.875rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'background-color 0.15s ease, border-color 0.15s ease',
+                  }}
+                  aria-label="Tampilkan 5 keping emas lainnya"
+                >
+                  <span>Tampilkan 5 Lainnya</span>
+                  <ChevronDown size={18} />
+                </button>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                  Menampilkan {paginatedPurchases.displayedCount} dari {paginatedPurchases.total} keping emas
+                </span>
+              </div>
+            )}
+            {!paginatedPurchases.hasMore && filteredPurchases.length > DEFAULT_GOLD_PAGE_SIZE && (
+              <div style={{ textAlign: 'center', padding: '0.5rem 0', color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+                Semua keping emas telah ditampilkan ({paginatedPurchases.total})
+              </div>
+            )}
           </div>
         )}
       </main>
@@ -388,7 +447,7 @@ export default function GoldPage() {
           bottom: 'calc(1.25rem + env(safe-area-inset-bottom))',
           width: '56px',
           height: '56px',
-          borderRadius: '28px',
+          borderRadius: '9999px',
           backgroundColor: '#d97706',
           color: '#ffffff',
           display: 'flex',

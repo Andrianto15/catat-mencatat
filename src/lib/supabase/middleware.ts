@@ -1,10 +1,26 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
-export function resolveAuthRedirect(pathname: string, hasUser: boolean): string | null {
-  // Public or internal routes
+export function isAllowedUser(email?: string, ownerEmailsConfig?: string): boolean {
+  if (!ownerEmailsConfig || !ownerEmailsConfig.trim()) {
+    return true; // No allowlist configured, allow any authenticated user
+  }
+  if (!email) return false;
+  const allowed = ownerEmailsConfig
+    .split(',')
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+  return allowed.includes(email.trim().toLowerCase());
+}
+
+export function resolveAuthRedirect(
+  pathname: string,
+  hasUser: boolean,
+  isAllowed: boolean = true
+): string | null {
+  // Public, internal, or API routes (API routes handle their own semantic JSON responses)
   if (
-    pathname.startsWith('/api/cron') ||
+    pathname.startsWith('/api/') ||
     pathname.startsWith('/_next') ||
     pathname.startsWith('/icons') ||
     pathname === '/manifest.json' ||
@@ -15,11 +31,11 @@ export function resolveAuthRedirect(pathname: string, hasUser: boolean): string 
 
   // Already at login page
   if (pathname === '/login') {
-    return hasUser ? '/' : null;
+    return hasUser && isAllowed ? '/' : null;
   }
 
-  // All other routes require authentication
-  if (!hasUser) {
+  // All other routes require authentication and allowed user
+  if (!hasUser || !isAllowed) {
     return '/login';
   }
 
@@ -56,7 +72,11 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const redirectPath = resolveAuthRedirect(request.nextUrl.pathname, !!user);
+  const isAllowed = isAllowedUser(
+    user?.email,
+    process.env.OWNER_EMAIL || process.env.OWNER_EMAILS
+  );
+  const redirectPath = resolveAuthRedirect(request.nextUrl.pathname, !!user, isAllowed);
   if (redirectPath) {
     const url = request.nextUrl.clone();
     url.pathname = redirectPath;

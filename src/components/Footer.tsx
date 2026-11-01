@@ -1,5 +1,5 @@
 import React from 'react';
-import packageJson from '../../package.json';
+import { APP_VERSION } from '@/lib/version';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -49,7 +49,7 @@ export default function Footer() {
               border: '1px solid var(--border-card)',
             }}
           >
-            v{packageJson.version}
+            v{APP_VERSION}
           </span>
         </p>
         <p>Aplikasi Pencatatan Pribadi</p>

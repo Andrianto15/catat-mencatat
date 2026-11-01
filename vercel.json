@@ -1,0 +1,17 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/sync-gold",
+      "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/cron/telegram-reminder",
+      "schedule": "0 2 30 12 *"
+    },
+    {
+      "path": "/api/cron/motor-reminder",
+      "schedule": "0 2 1 * *"
+    }
+  ]
+}
+

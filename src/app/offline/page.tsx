@@ -23,9 +23,9 @@ export default function OfflinePage() {
         <div style={{
           width: '64px',
           height: '64px',
-          borderRadius: '32px',
-          backgroundColor: '#fee2e2',
-          color: '#ef4444',
+          borderRadius: '9999px',
+          backgroundColor: 'var(--color-danger-bg)',
+          color: 'var(--color-danger-text)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',

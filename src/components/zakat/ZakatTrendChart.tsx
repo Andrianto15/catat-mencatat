@@ -12,12 +12,16 @@ export function ZakatTrendChart({ years }: ZakatTrendChartProps) {
   const maxAssets = Math.max(...sorted.map((y) => y.total_assets), 1);
 
   return (
-    <div style={{
-      backgroundColor: 'var(--bg-card)',
-      borderRadius: 'var(--radius-xl)',
-      border: '1px solid var(--border-card)',
-      padding: '1.25rem',
-    }}>
+    <div
+      role="img"
+      aria-label="Grafik tren total harta zakat antar-tahun"
+      style={{
+        backgroundColor: 'var(--bg-card)',
+        borderRadius: 'var(--radius-xl)',
+        border: '1px solid var(--border-card)',
+        padding: '1.25rem',
+      }}
+    >
       <h3 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '1rem' }}>
         Tren Total Harta & Zakat
       </h3>

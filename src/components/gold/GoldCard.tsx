@@ -45,6 +45,15 @@ export function GoldCard({
     maximumFractionDigits: 0,
   }).format(purchase.price_per_piece);
 
+  const formattedBuybackAtPurchase =
+    purchase.buyback_price_per_piece !== null && purchase.buyback_price_per_piece !== undefined
+      ? new Intl.NumberFormat('id-ID', {
+          style: 'currency',
+          currency: 'IDR',
+          maximumFractionDigits: 0,
+        }).format(purchase.buyback_price_per_piece)
+      : '-';
+
   return (
     <div style={{
       backgroundColor: 'var(--bg-card)',
@@ -63,8 +72,8 @@ export function GoldCard({
             <span style={{
               fontSize: '0.75rem',
               fontWeight: 700,
-              color: '#d97706',
-              backgroundColor: '#fef3c7',
+              color: 'var(--color-warning-text)',
+              backgroundColor: 'var(--color-warning-bg)',
               padding: '0.2rem 0.5rem',
               borderRadius: '0.375rem',
             }}>
@@ -96,6 +105,10 @@ export function GoldCard({
               </span>
             )}
           </div>
+          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.125rem' }}>
+            Buyback saat beli: {formattedBuybackAtPurchase}
+            {count > 1 && formattedBuybackAtPurchase !== '-' && ' / keping'}
+          </div>
         </div>
 
         {/* Action icons */}
@@ -104,12 +117,12 @@ export function GoldCard({
             <button
               onClick={() => onSell(purchase)}
               style={{
-                background: 'rgba(16, 185, 129, 0.1)',
-                border: '1px solid rgba(16, 185, 129, 0.3)',
+                background: 'var(--color-success-bg)',
+                border: '1px solid var(--border-card)',
                 borderRadius: 'var(--radius-lg)',
                 padding: '0.5rem 0.75rem',
                 cursor: 'pointer',
-                color: '#10b981',
+                color: 'var(--color-success-text)',
                 fontSize: '0.75rem',
                 fontWeight: 600,
                 minHeight: '44px',
@@ -152,7 +165,7 @@ export function GoldCard({
                 border: 'none',
                 padding: '0.5rem',
                 cursor: 'pointer',
-                color: '#ef4444',
+                color: 'var(--color-danger-text)',
                 minHeight: '44px',
                 minWidth: '44px',
                 display: 'flex',
@@ -176,8 +189,8 @@ export function GoldCard({
           justifyContent: 'space-between',
           padding: '0.5rem 0.75rem',
           borderRadius: '0.5rem',
-          backgroundColor: profit.profit_rp >= 0 ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-          color: profit.profit_rp >= 0 ? '#10b981' : '#ef4444',
+          backgroundColor: profit.profit_rp >= 0 ? 'var(--color-success-bg)' : 'var(--color-danger-bg)',
+          color: profit.profit_rp >= 0 ? 'var(--color-success-text)' : 'var(--color-danger-text)',
           fontSize: '0.8125rem',
           fontWeight: 600,
         }}>

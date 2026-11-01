@@ -86,22 +86,15 @@ export default function LoginPage() {
               id="login-email"
               type="email"
               required
+              className="form-input"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="nama@email.com"
               style={{
                 width: '100%',
                 padding: '0.75rem',
-                borderRadius: 'var(--radius-lg)',
-                border: '1px solid var(--border-card)',
-                backgroundColor: 'transparent',
-                color: 'var(--text-main)',
                 fontSize: '1rem',
-                outline: 'none',
-                boxShadow: 'none',
               }}
-              onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--color-primary)')}
-              onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--border-card)')}
             />
           </div>
 
@@ -116,22 +109,15 @@ export default function LoginPage() {
               id="login-password"
               type="password"
               required
+              className="form-input"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               style={{
                 width: '100%',
                 padding: '0.75rem',
-                borderRadius: 'var(--radius-lg)',
-                border: '1px solid var(--border-card)',
-                backgroundColor: 'transparent',
-                color: 'var(--text-main)',
                 fontSize: '1rem',
-                outline: 'none',
-                boxShadow: 'none',
               }}
-              onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--color-primary)')}
-              onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--border-card)')}
             />
           </div>
 

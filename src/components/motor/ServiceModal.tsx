@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Motor, MotorServiceItem } from '@/lib/motor/actions';
 import { NumberInput } from '@/components/NumberInput';
+import { WorkshopAutocomplete } from '@/components/motor/WorkshopAutocomplete';
 
 interface ServiceModalProps {
   isOpen: boolean;
@@ -11,6 +12,7 @@ interface ServiceModalProps {
   motors: Motor[];
   initialData?: MotorServiceItem | null;
   onSave: (data: Omit<MotorServiceItem, 'id'>, keepOpen?: boolean) => Promise<void>;
+  existingWorkshops?: string[];
 }
 
 export function ServiceModal({
@@ -19,6 +21,7 @@ export function ServiceModal({
   motors,
   initialData,
   onSave,
+  existingWorkshops = [],
 }: ServiceModalProps) {
   const [motorId, setMotorId] = useState('');
   const [serviceDate, setServiceDate] = useState(new Date().toISOString().split('T')[0]);
@@ -29,12 +32,13 @@ export function ServiceModal({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const isBackdropClickRef = React.useRef(false);
+  const modalRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (initialData) {
       setMotorId(initialData.motor_id);
       setServiceDate(initialData.service_date);
-      setCurrentKm(initialData.current_km);
+      setCurrentKm(initialData.current_km ?? '');
       setCost(initialData.cost);
       setWorkshopName(initialData.workshop_name || '');
       setNotes(initialData.notes || '');
@@ -50,6 +54,24 @@ export function ServiceModal({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         onClose();
+      } else if (e.key === 'Tab' && modalRef.current) {
+        const focusable = modalRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -67,8 +89,8 @@ export function ServiceModal({
       setError('Tanggal servis wajib diisi.');
       return;
     }
-    if (currentKm === '' || Number(currentKm) < 0) {
-      setError('Kilometer harus valid.');
+    if (currentKm !== '' && Number(currentKm) < 0) {
+      setError('Kilometer tidak boleh negatif.');
       return;
     }
     if (cost === '' || Number(cost) < 0) {
@@ -83,7 +105,7 @@ export function ServiceModal({
         {
           motor_id: motorId,
           service_date: serviceDate,
-          current_km: Number(currentKm),
+          current_km: currentKm === '' ? null : Number(currentKm),
           cost: Number(cost),
           workshop_name: workshopName.trim() || null,
           notes: notes.trim() || null,
@@ -118,6 +140,7 @@ export function ServiceModal({
       }}
     >
       <div
+        ref={modalRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="service-modal-title"
@@ -176,9 +199,10 @@ export function ServiceModal({
               className="form-select"
               value={motorId}
               onChange={(e) => setMotorId(e.target.value)}
+              style={{ minHeight: '44px' }}
             >
               {motors.map((m) => (
-                <option key={m.id} value={m.id} style={{ color: '#000' }}>
+                <option key={m.id} value={m.id}>
                   {m.name} {m.plate_number ? `(${m.plate_number})` : ''}
                 </option>
               ))}
@@ -197,6 +221,7 @@ export function ServiceModal({
                 id="service-date"
                 type="date"
                 required
+                className="form-input"
                 value={serviceDate}
                 onChange={(e) => setServiceDate(e.target.value)}
                 style={{
@@ -207,6 +232,7 @@ export function ServiceModal({
                   backgroundColor: 'transparent',
                   color: 'var(--text-main)',
                   fontSize: '0.875rem',
+                  minHeight: '44px',
                 }}
               />
             </div>
@@ -215,11 +241,12 @@ export function ServiceModal({
                 htmlFor="service-km"
                 style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}
               >
-                Kilometer (km)
+                Kilometer (km) (Opsional)
               </label>
               <NumberInput
                 id="service-km"
-                placeholder="12000"
+                className="form-input"
+                placeholder="12000 (opsional)"
                 value={currentKm}
                 onChange={setCurrentKm}
                 style={{
@@ -230,6 +257,7 @@ export function ServiceModal({
                   backgroundColor: 'transparent',
                   color: 'var(--text-main)',
                   fontSize: '0.875rem',
+                  minHeight: '44px',
                 }}
               />
             </div>
@@ -244,6 +272,7 @@ export function ServiceModal({
             </label>
             <NumberInput
               id="service-cost"
+              className="form-input"
               placeholder="150000"
               value={cost}
               onChange={setCost}
@@ -255,6 +284,7 @@ export function ServiceModal({
                 backgroundColor: 'transparent',
                 color: 'var(--text-main)',
                 fontSize: '0.875rem',
+                minHeight: '44px',
               }}
             />
           </div>
@@ -266,21 +296,12 @@ export function ServiceModal({
             >
               Nama Bengkel (Opsional)
             </label>
-            <input
+            <WorkshopAutocomplete
               id="service-workshop"
-              type="text"
-              placeholder="Bengkel Resmi / Ahass"
+              placeholder="Pilih atau ketik bengkel baru"
               value={workshopName}
-              onChange={(e) => setWorkshopName(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '0.625rem',
-                borderRadius: 'var(--radius-lg)',
-                border: '1px solid var(--border-card)',
-                backgroundColor: 'transparent',
-                color: 'var(--text-main)',
-                fontSize: '0.875rem',
-              }}
+              onChange={setWorkshopName}
+              workshops={existingWorkshops}
             />
           </div>
 

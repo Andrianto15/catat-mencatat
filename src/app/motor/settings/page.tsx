@@ -93,6 +93,7 @@ export default function MotorSettingsPage() {
       }}>
         <Link
           href="/motor"
+          aria-label="Kembali"
           style={{
             padding: '0.375rem',
             display: 'flex',
@@ -121,10 +122,11 @@ export default function MotorSettingsPage() {
           </h2>
           <form onSubmit={handleSaveMotor} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}>
+              <label htmlFor="motor-name" style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}>
                 Nama / Merk Motor
               </label>
               <input
+                id="motor-name"
                 type="text"
                 required
                 placeholder="Contoh: Honda Vario 160"
@@ -143,10 +145,11 @@ export default function MotorSettingsPage() {
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}>
+              <label htmlFor="motor-plate" style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, marginBottom: '0.25rem' }}>
                 Nomor Polisi (Opsional)
               </label>
               <input
+                id="motor-plate"
                 type="text"
                 placeholder="B 1234 XYZ"
                 value={plateNumber}
@@ -248,7 +251,7 @@ export default function MotorSettingsPage() {
                         padding: '0.375rem',
                         border: 'none',
                         background: 'none',
-                        color: m.is_active ? '#10b981' : 'var(--text-muted)',
+                        color: m.is_active ? 'var(--color-success-text)' : 'var(--text-muted)',
                         cursor: 'pointer',
                         minHeight: '44px',
                         minWidth: '44px',
@@ -257,6 +260,7 @@ export default function MotorSettingsPage() {
                         justifyContent: 'center',
                       }}
                       title={m.is_active ? 'Nonaktifkan' : 'Aktifkan'}
+                      aria-label={m.is_active ? 'Nonaktifkan' : 'Aktifkan'}
                     >
                       <Check size={18} />
                     </button>
@@ -275,6 +279,7 @@ export default function MotorSettingsPage() {
                         justifyContent: 'center',
                       }}
                       title="Edit"
+                      aria-label="Edit"
                     >
                       <Edit2 size={18} />
                     </button>
@@ -284,7 +289,7 @@ export default function MotorSettingsPage() {
                         padding: '0.375rem',
                         border: 'none',
                         background: 'none',
-                        color: '#ef4444',
+                        color: 'var(--color-danger-text)',
                         cursor: 'pointer',
                         minHeight: '44px',
                         minWidth: '44px',
@@ -293,6 +298,7 @@ export default function MotorSettingsPage() {
                         justifyContent: 'center',
                       }}
                       title="Hapus"
+                      aria-label="Hapus"
                     >
                       <Trash2 size={18} />
                     </button>

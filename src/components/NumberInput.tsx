@@ -8,21 +8,33 @@ export interface NumberInputProps
   value: number | string;
   onChange: (value: number | '') => void;
   allowDecimal?: boolean;
+  maxDecimalDigits?: number;
 }
 
 export const NumberInput: React.FC<NumberInputProps> = ({
   value,
   onChange,
   allowDecimal = false,
+  maxDecimalDigits,
   placeholder,
   style,
   ...props
 }) => {
-  const [displayValue, setDisplayValue] = useState<string>(() => formatThousand(value));
+  const [displayValue, setDisplayValue] = useState<string>(() =>
+    formatThousand(value, maxDecimalDigits)
+  );
 
   useEffect(() => {
-    setDisplayValue(formatThousand(value));
-  }, [value]);
+    const currentParsed = parseThousand(displayValue);
+    const numericValue =
+      value === '' || value === null || value === undefined ? '' : Number(value);
+
+    if (currentParsed === numericValue && (displayValue !== '' || value === '')) {
+      return;
+    }
+
+    setDisplayValue(formatThousand(value, maxDecimalDigits));
+  }, [value, maxDecimalDigits]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value;
@@ -34,20 +46,59 @@ export const NumberInput: React.FC<NumberInputProps> = ({
     }
 
     if (allowDecimal) {
-      // Allow digits and at most one decimal separator (comma or dot)
-      const sanitized = raw.replace(/[^0-9,.]/g, '');
-      const parts = sanitized.split(/[,.]/);
-      if (parts.length > 2) return;
+      let intDigits = '';
+      let decDigits: string | undefined = undefined;
 
-      const intPart = parts[0].replace(/\./g, '');
-      const formattedInt = intPart ? formatThousand(intPart) : '0';
-      const formatted = parts.length === 2 ? `${formattedInt},${parts[1]}` : formattedInt;
+      if (raw.includes(',') && raw.includes('.')) {
+        const lastComma = raw.lastIndexOf(',');
+        const lastDot = raw.lastIndexOf('.');
+        if (lastDot > lastComma) {
+          intDigits = raw.slice(0, lastDot).replace(/\D/g, '');
+          decDigits = raw.slice(lastDot + 1).replace(/\D/g, '');
+        } else {
+          intDigits = raw.slice(0, lastComma).replace(/\D/g, '');
+          decDigits = raw.slice(lastComma + 1).replace(/\D/g, '');
+        }
+      } else if (raw.includes(',')) {
+        const parts = raw.split(',');
+        if (parts.length > 2) return;
+        intDigits = parts[0].replace(/\D/g, '');
+        decDigits = parts[1].replace(/\D/g, '');
+      } else if (raw.includes('.')) {
+        const dotCount = (raw.match(/\./g) || []).length;
+        if (dotCount === 1) {
+          const parts = raw.split('.');
+          if (raw.endsWith('.') || parts[1].length !== 3) {
+            intDigits = parts[0].replace(/\D/g, '');
+            decDigits = parts[1].replace(/\D/g, '');
+          } else {
+            intDigits = raw.replace(/\D/g, '');
+          }
+        } else {
+          intDigits = raw.replace(/\D/g, '');
+        }
+      } else {
+        intDigits = raw.replace(/\D/g, '');
+      }
+
+      if (!intDigits && decDigits === undefined) {
+        setDisplayValue('');
+        onChange('');
+        return;
+      }
+
+      if (maxDecimalDigits !== undefined && decDigits !== undefined) {
+        decDigits = decDigits.slice(0, maxDecimalDigits);
+      }
+
+      const formattedInt = (intDigits || '0').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+      const formatted =
+        decDigits !== undefined ? `${formattedInt},${decDigits}` : formattedInt;
 
       setDisplayValue(formatted);
       const parsed = parseThousand(formatted);
       onChange(parsed);
     } else {
-      // Only digits
       const digitsOnly = raw.replace(/\D/g, '');
       if (!digitsOnly) {
         setDisplayValue('');
@@ -60,9 +111,10 @@ export const NumberInput: React.FC<NumberInputProps> = ({
     }
   };
 
-  const formattedPlaceholder = placeholder !== undefined && !isNaN(Number(placeholder))
-    ? formatThousand(placeholder)
-    : placeholder;
+  const formattedPlaceholder =
+    placeholder !== undefined && !isNaN(Number(placeholder))
+      ? formatThousand(placeholder, maxDecimalDigits)
+      : placeholder;
 
   return (
     <input

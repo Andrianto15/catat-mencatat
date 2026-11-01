@@ -19,6 +19,14 @@ describe('number formatting utilities', () => {
   test('formatThousand supports decimal numbers with comma', () => {
     expect(formatThousand(0.5)).toBe('0,5');
     expect(formatThousand(1250.75)).toBe('1.250,75');
+    expect(formatThousand(6951418.61)).toBe('6.951.418,61');
+    expect(formatThousand('6,951,418.61')).toBe('6.951.418,61');
+    expect(formatThousand('6.951.418,61')).toBe('6.951.418,61');
+  });
+
+  test('formatThousand supports maxDecimals truncation/limit', () => {
+    expect(formatThousand(6951418.6189, 2)).toBe('6.951.418,61');
+    expect(formatThousand('6951418.6189', 2)).toBe('6.951.418,61');
   });
 
   test('parseThousand parses formatted string to number', () => {
@@ -29,6 +37,8 @@ describe('number formatting utilities', () => {
     expect(parseThousand('1.500.000')).toBe(1500000);
     expect(parseThousand('0,5')).toBe(0.5);
     expect(parseThousand('1.250,75')).toBe(1250.75);
+    expect(parseThousand('6.951.418,61')).toBe(6951418.61);
+    expect(parseThousand('6,951,418.61')).toBe(6951418.61);
     expect(parseThousand('abc')).toBe('');
   });
 });
@@ -50,6 +60,13 @@ describe('NumberInput component', () => {
     );
     expect(html).toContain('value="0,5"');
     expect(html).toContain('inputMode="decimal"');
+  });
+
+  test('formats 2 decimal places for zakat nominal 6.951.418,61 correctly', () => {
+    const html = renderToStaticMarkup(
+      <NumberInput id="test-zakat" value={6951418.61} allowDecimal maxDecimalDigits={2} onChange={() => {}} />
+    );
+    expect(html).toContain('value="6.951.418,61"');
   });
 
   test('renders empty value when value is empty or null', () => {

@@ -2,14 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Settings, Plus, Scale, Lock, Edit2, Calendar } from 'lucide-react';
+import { ArrowLeft, Settings, Plus, Scale, Lock, Edit2, Calendar, ChevronDown } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { Person, GoldPurchase } from '@/lib/gold/actions';
 import { ZakatAccount, YearModal, YearModalSaveData } from '@/components/zakat/YearModal';
 import { CompareTwoYears } from '@/components/zakat/CompareTwoYears';
 import { ZakatSpreadsheetTable } from '@/components/zakat/ZakatSpreadsheetTable';
 import { ZakatTrendChart } from '@/components/zakat/ZakatTrendChart';
-import { resolveZakatGoldHoldings } from '@/lib/zakat/engine';
+import { resolveZakatGoldHoldings, DEFAULT_ZAKAT_PAGE_SIZE, paginateZakatYears } from '@/lib/zakat/engine';
 import ThemeToggle from '@/components/ThemeToggle';
 
 export default function ZakatPage() {
@@ -20,6 +20,9 @@ export default function ZakatPage() {
   const [goldPurchases, setGoldPurchases] = useState<GoldPurchase[]>([]);
   const [latestGoldPrice, setLatestGoldPrice] = useState<number>(1450000);
   const [loading, setLoading] = useState(true);
+
+  // Pagination
+  const [visibleCount, setVisibleCount] = useState(DEFAULT_ZAKAT_PAGE_SIZE);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -99,10 +102,13 @@ export default function ZakatPage() {
   };
 
   useEffect(() => {
+    setVisibleCount(DEFAULT_ZAKAT_PAGE_SIZE);
     if (selectedPersonId) {
       fetchPersonData(selectedPersonId);
     }
   }, [selectedPersonId]);
+
+  const paginatedYears = paginateZakatYears(years, visibleCount);
 
   const selectedPerson = people.find((p) => p.id === selectedPersonId);
 
@@ -136,9 +142,14 @@ export default function ZakatPage() {
           masehi_year: data.masehi_year,
           reference_date: data.reference_date,
           gold_price_per_gram: data.gold_price_per_gram,
+          silver_price_per_gram: data.silver_price_per_gram,
+          gold_value_snapshot: data.gold_value_snapshot,
           nisab_nominal: data.nisab_nominal,
+          nisab_silver_nominal: data.nisab_silver_nominal,
           total_assets: data.total_assets,
           zakat_due: data.zakat_due,
+          zakat_silver_due: data.zakat_silver_due,
+          zakat_paid: data.zakat_paid,
           is_locked: data.is_locked,
         })
         .eq('id', editingYear.id);
@@ -169,9 +180,14 @@ export default function ZakatPage() {
             masehi_year: data.masehi_year,
             reference_date: data.reference_date,
             gold_price_per_gram: data.gold_price_per_gram,
+            silver_price_per_gram: data.silver_price_per_gram,
+            gold_value_snapshot: data.gold_value_snapshot,
             nisab_nominal: data.nisab_nominal,
+            nisab_silver_nominal: data.nisab_silver_nominal,
             total_assets: data.total_assets,
             zakat_due: data.zakat_due,
+            zakat_silver_due: data.zakat_silver_due,
+            zakat_paid: data.zakat_paid,
             is_locked: data.is_locked,
           },
         ])
@@ -215,6 +231,7 @@ export default function ZakatPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <Link
             href="/"
+            aria-label="Kembali ke Beranda"
             style={{
               padding: '0.375rem',
               display: 'flex',
@@ -240,6 +257,7 @@ export default function ZakatPage() {
           <ThemeToggle />
           <Link
             href="/zakat/settings"
+            aria-label="Pengaturan Rekening"
             style={{
               padding: '0.375rem',
               display: 'flex',
@@ -349,10 +367,30 @@ export default function ZakatPage() {
                   )}
                 </div>
                 <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
-                  Total Harta: Rp {currYear.total_assets.toLocaleString('id-ID')} | Nisab: Rp {currYear.nisab_nominal.toLocaleString('id-ID')}
+                  Total Harta: Rp {currYear.total_assets.toLocaleString('id-ID')}
                 </div>
-                <div style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-primary)' }}>
-                  Zakat Wajib: Rp {currYear.zakat_due.toLocaleString('id-ID')}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginTop: '0.25rem' }}>
+                  <div style={{ padding: '0.5rem', backgroundColor: 'var(--bg-main)', borderRadius: 'var(--radius-lg)' }}>
+                    <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>Nisab Emas (85g)</div>
+                    <div style={{ fontSize: '0.8125rem', fontWeight: 600 }}>
+                      Rp {Number(currYear.nisab_nominal || 0).toLocaleString('id-ID')}
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--color-primary)', fontWeight: 700, marginTop: '0.125rem' }}>
+                      Zakat: Rp {Number(currYear.zakat_due || 0).toLocaleString('id-ID')}
+                    </div>
+                  </div>
+                  <div style={{ padding: '0.5rem', backgroundColor: 'var(--bg-main)', borderRadius: 'var(--radius-lg)' }}>
+                    <div style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>Nisab Perak (595g)</div>
+                    <div style={{ fontSize: '0.8125rem', fontWeight: 600 }}>
+                      Rp {Number(currYear.nisab_silver_nominal || 0).toLocaleString('id-ID')}
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--color-primary)', fontWeight: 700, marginTop: '0.125rem' }}>
+                      Zakat: Rp {Number(currYear.zakat_silver_due || 0).toLocaleString('id-ID')}
+                    </div>
+                  </div>
+                </div>
+                <div style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--color-primary)', marginTop: '0.25rem' }}>
+                  Yang Dibayarkan: Rp {(currYear.zakat_paid !== undefined && currYear.zakat_paid !== null ? currYear.zakat_paid : (Math.max(currYear.zakat_due || 0, currYear.zakat_silver_due || 0) > 0 ? Math.ceil(Math.max(currYear.zakat_due || 0, currYear.zakat_silver_due || 0) / 10000) * 10000 : 0)).toLocaleString('id-ID')}
                 </div>
               </div>
             )}
@@ -366,7 +404,7 @@ export default function ZakatPage() {
               <h4 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-muted)' }}>
                 Riwayat Rekap Tahunan
               </h4>
-              {years.map((y) => (
+              {paginatedYears.items.map((y) => (
                 <div
                   key={y.id}
                   style={{
@@ -384,7 +422,10 @@ export default function ZakatPage() {
                       {y.hijri_year} H ({y.masehi_year} M)
                     </div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                      Total: Rp {y.total_assets.toLocaleString('id-ID')} • Zakat: Rp {y.zakat_due.toLocaleString('id-ID')}
+                      Total: Rp {y.total_assets.toLocaleString('id-ID')} • Emas: Rp {Number(y.zakat_due || 0).toLocaleString('id-ID')} • Perak: Rp {Number(y.zakat_silver_due || 0).toLocaleString('id-ID')}
+                    </div>
+                    <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-primary)', marginTop: '0.125rem' }}>
+                      Dibayar: Rp {(y.zakat_paid !== undefined && y.zakat_paid !== null ? y.zakat_paid : (Math.max(y.zakat_due || 0, y.zakat_silver_due || 0) > 0 ? Math.ceil(Math.max(y.zakat_due || 0, y.zakat_silver_due || 0) / 10000) * 10000 : 0)).toLocaleString('id-ID')}
                     </div>
                   </div>
                   <button
@@ -410,6 +451,45 @@ export default function ZakatPage() {
                   </button>
                 </div>
               ))}
+
+              {/* Pagination Controls */}
+              {paginatedYears.hasMore && (
+                <div style={{ marginTop: '0.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+                  <button
+                    type="button"
+                    onClick={() => setVisibleCount((prev) => prev + DEFAULT_ZAKAT_PAGE_SIZE)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.5rem',
+                      width: '100%',
+                      minHeight: '44px',
+                      padding: '0.75rem 1rem',
+                      backgroundColor: 'var(--bg-card)',
+                      color: 'var(--color-primary)',
+                      border: '1px solid var(--border-card)',
+                      borderRadius: 'var(--radius-lg)',
+                      fontSize: '0.875rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      transition: 'background-color 0.15s ease, border-color 0.15s ease',
+                    }}
+                    aria-label="Tampilkan 5 riwayat zakat lainnya"
+                  >
+                    <span>Tampilkan 5 Lainnya</span>
+                    <ChevronDown size={18} />
+                  </button>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                    Menampilkan {paginatedYears.displayedCount} dari {paginatedYears.total} riwayat zakat
+                  </span>
+                </div>
+              )}
+              {!paginatedYears.hasMore && years.length > DEFAULT_ZAKAT_PAGE_SIZE && (
+                <div style={{ textAlign: 'center', padding: '0.5rem 0', color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+                  Semua riwayat zakat telah ditampilkan ({paginatedYears.total})
+                </div>
+              )}
             </div>
           </>
         )}
@@ -427,7 +507,7 @@ export default function ZakatPage() {
           bottom: 'calc(1.25rem + env(safe-area-inset-bottom))',
           width: '56px',
           height: '56px',
-          borderRadius: '28px',
+          borderRadius: '9999px',
           backgroundColor: '#10b981',
           color: '#ffffff',
           display: 'flex',
@@ -456,6 +536,7 @@ export default function ZakatPage() {
         initialData={editingYear}
         latestGoldPrice1g={latestGoldPrice}
         goldValueFromHoldings={computeGoldHoldingValue('2026-02-18', latestGoldPrice)}
+        computeGoldHoldingValue={computeGoldHoldingValue}
         onSave={handleSaveYear}
       />
     </div>

@@ -1,16 +1,17 @@
 import Link from 'next/link';
-import { Bike, Coins, Scale, LogOut } from 'lucide-react';
+import { Bike, Coins, Scale, TrendingUp } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
+import LogoutButton from '@/components/LogoutButton';
 
 export default async function HomePage() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   const handleLogout = async () => {
     'use server';
-    const s = createClient();
+    const s = await createClient();
     await s.auth.signOut();
     redirect('/login');
   };
@@ -36,6 +37,13 @@ export default async function HomePage() {
       href: '/zakat',
       icon: Scale,
       color: '#10b981',
+    },
+    {
+      title: 'Saldo Akhir Tahun',
+      desc: 'Rekap saldo rekening, pengeluaran, dan grafik perkembangan tahunan.',
+      href: '/saldo-tahun',
+      icon: TrendingUp,
+      color: '#0ea5e9',
     },
   ];
 
@@ -63,27 +71,7 @@ export default async function HomePage() {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
           <ThemeToggle />
-          <form action={handleLogout}>
-            <button
-              type="submit"
-              title="Keluar"
-              style={{
-                background: 'none',
-                border: 'none',
-                color: 'var(--text-muted)',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                padding: '0.5rem',
-                borderRadius: 'var(--radius-lg)',
-                minHeight: '44px',
-                minWidth: '44px',
-                justifyContent: 'center',
-              }}
-            >
-              <LogOut size={20} />
-            </button>
-          </form>
+          <LogoutButton aria-label="Keluar" onLogout={handleLogout} />
         </div>
       </header>
 
