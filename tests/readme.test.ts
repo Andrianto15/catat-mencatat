@@ -20,6 +20,7 @@ describe('Project README.md', () => {
     expect(content).toContain('npm install');
     expect(content).toContain('npm run dev');
     expect(content).toContain('npm test');
+    expect(content).toContain('/api/cron/motor-reminder');
   });
 
   it('references PRD and design guidelines without duplicating them', () => {

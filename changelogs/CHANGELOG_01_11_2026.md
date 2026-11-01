@@ -161,5 +161,33 @@ Membuat dokumentasi `README.md` terstruktur untuk orientasi pengembang dan pandu
 4. **Rilis Versi 0.10.2**:
    - Bump versi aplikasi dari `0.10.1` ke `0.10.2` pada `package.json`, `package-lock.json`, `src/lib/version.ts`, dan `PRD.md`.
 
+---
+
+## Ringkasan Perubahan: Vercel Cron Pengingat Servis Motor Bulanan
+
+Mengotomatiskan pengiriman pengingat jadwal servis motor (2-3 bulan) ke Telegram melalui Vercel Cron job bulanan.
+
+### Detail Perubahan:
+
+1. **Endpoint Cron (`src/app/api/cron/motor-reminder/route.ts`)**:
+   - Handler `GET /api/cron/motor-reminder` dilindungi autentikasi ganda: token Bearer `CRON_SECRET` dan verifikasi sesi allowlist pemilik (`isAllowedUser`).
+   - Membaca konfigurasi `telegram_settings` aktif, lalu mengevaluasi motor aktif setiap pengguna.
+   - Memfilter motor berstatus `DUE` (2-3 bulan) dan `OVERDUE` (>3 bulan) menggunakan `calculateMotorReminder`.
+   - Mengirim 1 pesan ringkasan gabungan per pengguna ke Telegram via `sendTelegramMessage` dengan proteksi panjang maksimal teks (4000 karakter). Anti-spam: tidak mengirim pesan jika tidak ada motor yang jatuh tempo.
+
+2. **Konfigurasi Penjadwalan Vercel (`vercel.json`)**:
+   - Mendaftarkan path `/api/cron/motor-reminder` dengan schedule `0 2 1 * *` (tanggal 1 setiap bulan pukul 09:00 WIB / 02:00 UTC).
+
+3. **Pengujian Unit Test (Jest)**:
+   - Menambahkan `tests/cron-motor-reminder.test.ts` (3 test cases): otentikasi cron secret/session, penanganan tanpa motor jatuh tempo, dan pengiriman notifikasi gabungan.
+   - Seluruh 48 test suites (233 test cases) lulus 100%.
+
+4. **Pembaruan Dokumentasi**:
+   - Memperbarui `PRD.md` mencakup Vercel Cron otomatis pada spesifikasi fitur `F1.5`.
+
+5. **Pembaruan README & Rilis Versi 0.10.3**:
+   - Memperbarui `README.md` pada bagian Background Jobs untuk mendokumentasikan endpoint `/api/cron/motor-reminder`.
+   - Bump versi aplikasi dari `0.10.2` ke `0.10.3` pada `package.json`, `package-lock.json`, `src/lib/version.ts`, dan `PRD.md`.
+
 
 

@@ -118,10 +118,11 @@ npm run test:coverage
 
 ## Background Jobs (Vercel Cron)
 
-Aplikasi memiliki dua endpoint cron terjadwal yang dikonfigurasi melalui `vercel.json`:
+Aplikasi memiliki tiga endpoint cron terjadwal yang dikonfigurasi melalui `vercel.json`:
 
 - `GET /api/cron/sync-gold`: Sinkronisasi otomatis harga harian emas dari Galeri24 (dijalankan setiap hari pukul 02:00 UTC).
 - `GET /api/cron/telegram-reminder`: Pengiriman notifikasi reminder rekapitulasi tahunan via Telegram Bot (dijalankan setiap 30 Desember pukul 02:00 UTC).
+- `GET /api/cron/motor-reminder`: Pengiriman notifikasi pengingat servis motor berkala 2-3 bulan via Telegram Bot (dijalankan tanggal 1 setiap bulan pukul 02:00 UTC).
 
 Endpoint dilindungi dengan header otentikasi `Authorization: Bearer <CRON_SECRET>` atau sesi aktif Supabase pemilik akun.
 

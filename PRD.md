@@ -2,7 +2,7 @@
 
 |         |                                                                                           |
 | ------- | ----------------------------------------------------------------------------------------- |
-| Status  | Implementation Complete (v0.10.2)                                                         |
+| Status  | Implementation Complete (v0.10.3)                                                         |
 | Tanggal | 01-11-2026                                                                                |
 | Pemilik | Andrian (pengguna tunggal)                                                                |
 | Stack   | Next.js (App Router) + Supabase (Postgres, Auth) + PWA + Vercel                           |
@@ -191,6 +191,11 @@ As pengguna, I want melihat estimasi jadwal servis motor berikutnya (2-3 bulan d
     - `NO_SERVICE` ("Belum Ada Riwayat"): bila motor belum memiliki catatan servis.
   - Tampilan UI: Card pengingat responsif (`ServiceReminderCard`) di halaman `/motor`, menampilkan nama motor, tanggal servis terakhir, KM terakhir, rentang estimasi servis berikutnya, dan status badge dengan kontras tinggi.
   - Tombol aksi "Kirim Pengingat Telegram": Memiliki target sentuhan min 44px, memicu `POST /api/motor/reminder/telegram` yang mengirim ringkasan servis ke Telegram menggunakan kredensial Bot Token & Chat ID dari tabel `telegram_settings`. Dilengkapi proteksi sesi auth dan CSRF guard.
+  - Vercel Cron Otomatis:
+    - Route `GET /api/cron/motor-reminder` terjadwal setiap tanggal 1 pukul 09:00 WIB (`0 2 1 * *`) di `vercel.json`.
+    - Dilindungi otentikasi `CRON_SECRET` (fail-closed jika production tanpa secret atau header tidak valid) serta mendukung verifikasi sesi login admin.
+    - Menyeleksi motor aktif pengguna yang berstatus `DUE` atau `OVERDUE`.
+    - Jika terdapat motor yang jatuh tempo servis, cron mengirimkan 1 pesan ringkasan gabungan ke Telegram pengguna via `sendTelegramMessage`. Jika tidak ada motor jatuh tempo, notifikasi tidak dikirim (anti-spam).
 
 ### 5.2 Modul Emas
 
