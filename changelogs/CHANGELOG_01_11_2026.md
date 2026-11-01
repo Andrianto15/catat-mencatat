@@ -133,3 +133,33 @@ Menyelesaikan 5 temuan keamanan (SEC-08 s.d. SEC-12) yang teridentifikasi dalam 
 7. **Rilis Versi 0.10.1**:
    - Bump versi aplikasi dari `0.10.0` ke `0.10.1` pada `package.json`, `package-lock.json`, `src/lib/version.ts`, dan `PRD.md`.
 
+---
+
+## Ringkasan Perubahan: Dokumentasi README Repositori
+
+Membuat dokumentasi `README.md` terstruktur untuk orientasi pengembang dan panduan instalasi repositori tanpa menduplikasi detail bisnis yang sudah ada di `PRD.md`.
+
+### Detail Perubahan:
+
+1. **Pembuatan `README.md`**:
+   - Header terpusat dengan logo aplikasi (`public/logo.svg`) dan deskripsi ringkas sistem.
+   - Ringkasan domain modul aplikasi dan tautan rujukan ke `PRD.md`.
+   - Spesifikasi prasyarat dan stack: Node.js `>=26.0.0`, Next.js 16, React 19, Supabase, TypeScript, Jest.
+   - Panduan langkah demi langkah setup lokal (klon repo, pasang dependensi, konfigurasi `.env.local` dari `.env.example`, migrasi database Supabase).
+   - Perintah pengoperasian (development server, production build, dan pengujian Jest).
+   - Dokumentasi endpoint background jobs (Vercel Cron) dan parameter autentikasinya.
+   - Peta struktur repositori dan referensi dokumen (`PRD.md`, `DESIGN.md`, `AGENTS.md`).
+   - Mengikuti panduan `create-readme`: tanpa section terpisah `LICENSE` / `CHANGELOG` / `CONTRIBUTING`, minim emoji, menggunakan GFM dan GitHub admonitions (`> [!NOTE]`, `> [!IMPORTANT]`, `> [!TIP]`).
+
+2. **Pengujian Unit Test (Jest)**:
+   - Menambahkan pengujian `tests/readme.test.ts` untuk memverifikasi keberadaan `README.md`, referensi logo, dokumentasi perintah setup & test, tautan dokumen acuan, dan pengecualian section terlarang.
+   - Seluruh 47 test suites (230 test cases) lulus 100%.
+
+3. **Pembaruan Dokumentasi**:
+   - Memperbarui `PRD.md` pada bagian `Testing` untuk mencakup verifikasi `tests/readme.test.ts`.
+
+4. **Rilis Versi 0.10.2**:
+   - Bump versi aplikasi dari `0.10.1` ke `0.10.2` pada `package.json`, `package-lock.json`, `src/lib/version.ts`, dan `PRD.md`.
+
+
+

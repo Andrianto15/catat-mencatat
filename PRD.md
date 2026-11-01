@@ -2,7 +2,7 @@
 
 |         |                                                                                           |
 | ------- | ----------------------------------------------------------------------------------------- |
-| Status  | Implementation Complete (v0.10.1)                                                         |
+| Status  | Implementation Complete (v0.10.2)                                                         |
 | Tanggal | 01-11-2026                                                                                |
 | Pemilik | Andrian (pengguna tunggal)                                                                |
 | Stack   | Next.js (App Router) + Supabase (Postgres, Auth) + PWA + Vercel                           |
@@ -429,7 +429,7 @@ F0.1–F0.5, F1.1–F1.5, F2.1–F2.8, F3.1–F3.6, F4.1–F4.4.
 ### Testing (sesuai AGENTS.md)
 
 - Jest, file di `tests/`.
-- Wajib dites: perhitungan profit (F2.5), pemilihan harga fallback, nilai emas zakat (F3.3), total/nisab/zakat (F3.4), pembulatan chip, konversi tanggal Hijriah, parser Galeri24 (fixture HTML tersimpan di `tests/fixtures/`), fail-closed authentication cron sync-gold (`tests/cron-sync-gold-auth.test.ts`), validasi bot token & CSRF telegram (`tests/telegram-sender-security.test.ts`), scraper security & buyback fallback (`tests/scraper-security.test.ts`), single-owner allowlist middleware (`tests/auth-guard.test.ts`), RLS hardening migration (`tests/rls-hardening-migration.test.ts`), PWA cache isolation & logout purging (`tests/pwa.test.ts`), fail-closed owner allowlist & UUID validation pada Telegram reminder motor (`tests/motor-telegram-api.test.ts`), fail-closed telegram cron authentication (`tests/telegram-reminder.test.tsx`), serta defensive date clamping & truncation (`tests/motor-reminder.test.ts`).
+- Wajib dites: perhitungan profit (F2.5), pemilihan harga fallback, nilai emas zakat (F3.3), total/nisab/zakat (F3.4), pembulatan chip, konversi tanggal Hijriah, parser Galeri24 (fixture HTML tersimpan di `tests/fixtures/`), fail-closed authentication cron sync-gold (`tests/cron-sync-gold-auth.test.ts`), validasi bot token & CSRF telegram (`tests/telegram-sender-security.test.ts`), scraper security & buyback fallback (`tests/scraper-security.test.ts`), single-owner allowlist middleware (`tests/auth-guard.test.ts`), RLS hardening migration (`tests/rls-hardening-migration.test.ts`), PWA cache isolation & logout purging (`tests/pwa.test.ts`), fail-closed owner allowlist & UUID validation pada Telegram reminder motor (`tests/motor-telegram-api.test.ts`), fail-closed telegram cron authentication (`tests/telegram-reminder.test.tsx`), defensive date clamping & truncation (`tests/motor-reminder.test.ts`), serta verifikasi integritas dokumentasi repositori (`tests/readme.test.ts`).
 
 ## 9. Design & UX Requirements
 
