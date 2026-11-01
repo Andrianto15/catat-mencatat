@@ -168,13 +168,17 @@ export function parseGaleri24Html(html: string): ParsedGoldPrice[] {
     lastIndex = tableMatch.index + tableMatch[0].length;
 
     let tableBrand = '';
-    const headingRegex =
-      /<h[1-6][^>]*>([\s\S]*?)<\/h[1-6]>|<[^>]+class="[^"]*(?:vendor|title|brand)[^"]*"[^>]*>([\s\S]*?)<\/[^>]+>/gi;
+    // Use linear non-backtracking regex to safely extract heading or vendor tags
+    const headingRegex = /<(h[1-6]|div|span|p)\b([^>]*)>([\s\S]*?)<\/\1>/gi;
     let headingMatch;
     while ((headingMatch = headingRegex.exec(preText)) !== null) {
-      const headingText = headingMatch[1] || headingMatch[2] || '';
-      const candidate = cleanBrandName(headingText);
-      if (candidate) tableBrand = candidate;
+      const tag = headingMatch[1].toLowerCase();
+      const attrs = headingMatch[2];
+      const inner = headingMatch[3];
+      if (tag.startsWith('h') || /(?:vendor|title|brand)/i.test(attrs)) {
+        const candidate = cleanBrandName(inner);
+        if (candidate) tableBrand = candidate;
+      }
     }
 
     parseRows(tableHtml, tableBrand, results);
@@ -196,13 +200,24 @@ export async function fetchLiveGaleri24Prices(): Promise<ParsedGoldPrice[]> {
           'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
       },
       next: { revalidate: 0 },
+      signal:
+        typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function'
+          ? AbortSignal.timeout(10000)
+          : undefined,
     });
 
     if (!res.ok) {
       throw new Error(`Failed to fetch from Galeri24: HTTP ${res.status}`);
     }
 
-    const html = await res.text();
+    // Limit maximum response size to 2MB to prevent memory exhaustion
+    const contentLength = res.headers.get('content-length');
+    if (contentLength && parseInt(contentLength, 10) > 2 * 1024 * 1024) {
+      throw new Error('Upstream response exceeded maximum size limit (2MB)');
+    }
+
+    const rawHtml = await res.text();
+    const html = rawHtml.length > 2 * 1024 * 1024 ? rawHtml.slice(0, 2 * 1024 * 1024) : rawHtml;
     return parseGaleri24Html(html);
   } catch (error) {
     console.error('Error fetching Galeri24 gold prices:', error);

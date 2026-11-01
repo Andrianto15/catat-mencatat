@@ -58,7 +58,7 @@ export default function GoldPage() {
       if (pricesData) {
         for (const p of pricesData) {
           const key = `${p.brand.toUpperCase()}-${p.weight_gram}`;
-          if (map[key] === undefined) {
+          if (map[key] === undefined && p.buyback_price !== null && p.buyback_price !== undefined) {
             map[key] = p.buyback_price;
           }
         }

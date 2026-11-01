@@ -48,18 +48,28 @@ export async function GET(request: NextRequest) {
     const parsedPrices = await fetchLiveGaleri24Prices();
 
     if (parsedPrices.length === 0) {
-      // Record failure for today as per PRD review focus
-      await supabase.from('gold_prices').upsert(
-        {
-          price_date: todayStr,
-          brand: 'ANTAM',
-          weight_gram: 1,
-          sell_price: null,
-          buyback_price: null,
-          status: 'gagal',
-        },
-        { onConflict: 'price_date,brand,weight_gram' }
-      );
+      // Record failure for today only if no existing valid prices exist for today
+      const { data: existing } = await supabase
+        .from('gold_prices')
+        .select('id, sell_price, buyback_price')
+        .eq('price_date', todayStr)
+        .eq('brand', 'ANTAM')
+        .eq('weight_gram', 1)
+        .maybeSingle();
+
+      if (!existing || (existing.sell_price === null && existing.buyback_price === null)) {
+        await supabase.from('gold_prices').upsert(
+          {
+            price_date: todayStr,
+            brand: 'ANTAM',
+            weight_gram: 1,
+            sell_price: null,
+            buyback_price: null,
+            status: 'gagal',
+          },
+          { onConflict: 'price_date,brand,weight_gram' }
+        );
+      }
 
       return NextResponse.json({
         success: false,
