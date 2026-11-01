@@ -1,13 +1,13 @@
 # PRD: Catat-Mencatat
 
-| | |
-|---|---|
-| Status | Implementation Complete (v0.6.0) |
-| Tanggal | 31-10-2026 |
-| Pemilik | Andrian (pengguna tunggal) |
-| Stack | Next.js (App Router) + Supabase (Postgres, Auth) + PWA + Vercel |
-| Lisensi | MIT License |
-| Sumber | `docs/app_requirement.txt`, `docs/req_catat_zakat_mal.png`, sesi brainstorming 25-10-2026 |
+|         |                                                                                           |
+| ------- | ----------------------------------------------------------------------------------------- |
+| Status  | Implementation Complete (v0.6.0)                                                          |
+| Tanggal | 31-10-2026                                                                                |
+| Pemilik | Andrian (pengguna tunggal)                                                                |
+| Stack   | Next.js (App Router) + Supabase (Postgres, Auth) + PWA + Vercel                           |
+| Lisensi | MIT License                                                                               |
+| Sumber  | `docs/app_requirement.txt`, `docs/req_catat_zakat_mal.png`, sesi brainstorming 25-10-2026 |
 
 Penanda: **[keputusan builder/AI]** = ditetapkan saat diskusi tanpa konfirmasi eksplisit, boleh dikoreksi.
 
@@ -30,18 +30,21 @@ Pengguna saat ini satu orang. Data tetap dipisah per `user_id` dengan RLS agar a
 ## 3. Goals & Objectives
 
 ### Goals
+
 1. Satu tempat untuk tiga catatan, nyaman dipakai dari HP sebagai PWA installable.
 2. Profit dan total aset emas per pemilik terhitung otomatis dengan harga terbaru.
 3. Isi zakat tahunan cukup mengisi saldo; total, zakat 2,5%, nisab, dan nilai emas terhitung otomatis.
 4. Perbandingan zakat antar tahun mudah dibaca di HP.
 
 ### Non-goals
+
 - Import otomatis dari spreadsheet (data lama diinput manual oleh pengguna).
 - Multi-user / login anggota keluarga (struktur data siap, fitur tidak dibuat).
 - Pengingat jadwal servis, notifikasi, atau analitik servis.
 - Aplikasi native khusus toko aplikasi (App Store/Play Store) & full offline data sync (mutasi data tetap butuh internet ke Supabase).
 
 ### Anti-goals (gagal walau "jalan")
+
 - Angka zakat tahun lalu berubah sendiri karena harga emas berubah.
 - Hasil scraping menimpa harga yang sudah dikoreksi manual.
 - Data keuangan bisa dibaca tanpa login atau orang lain bisa mendaftar akun.
@@ -57,19 +60,23 @@ Pengguna saat ini satu orang. Data tetap dipisah per `user_id` dengan RLS agar a
 
 **F0.1 Login**
 As pengguna, I want login dengan email & password, so that data keuangan saya tidak terbuka untuk publik.
+
 - Acceptance:
   - Semua halaman selain `/login` mengarah ke `/login` bila belum login.
   - Pendaftaran akun baru dimatikan (Supabase Auth: disable signups). Akun dibuat manual via dashboard Supabase.
+  - Proteksi single-owner di level aplikasi: Next.js middleware memeriksa `OWNER_EMAIL` (atau `OWNER_EMAILS`); user terautentikasi yang tidak ada dalam daftar diarahkan ke `/login`.
   - Ada tombol logout kecil di header (ikon), tidak mengganggu grid modul. **[keputusan builder/AI]**
 
 **F0.2 Halaman utama**
 As pengguna, I want halaman utama hanya berisi ikon modul, so that tampilan bersih.
+
 - Acceptance:
   - Hanya 4 ikon + label: Servis Motor, Emas, Zakat Mal, Saldo Akhir Tahun.
   - Tidak ada menu pengaturan global; pengaturan berada di dalam modul masing-masing.
 
 **F0.3 Input cepat**
 As pengguna, I want form yang cepat diisi berulang, so that memasukkan data lama tidak melelahkan.
+
 - Acceptance:
   - Form tambah memakai modal responsif:
     - Mobile (< 640px): bottom sheet (`border-radius` atas, safe-area-inset bottom).
@@ -83,6 +90,7 @@ As pengguna, I want form yang cepat diisi berulang, so that memasukkan data lama
   - Setiap catatan bisa diedit dan dihapus (hapus dengan konfirmasi).
 
 **F0.4 Format angka & Pemisah Ribuan (Thousand Separator)**
+
 - Rupiah dan kuantitas besar ditampilkan dalam format `id-ID` (`Rp 1.234.567` atau `12.000 km`).
 - Seluruh input angka pada formulir menggunakan komponen `NumberInput` dengan pemisah ribuan otomatis (`.`):
   - Modul Motor: Kilometer (`current_km`, opsional) dan Biaya Servis (`cost`).
@@ -95,6 +103,7 @@ As pengguna, I want form yang cepat diisi berulang, so that memasukkan data lama
 
 **F0.5 Dukungan PWA (Progressive Web App)**
 As pengguna, I want menginstall aplikasi ke home screen HP layaknya native app, so that akses lebih cepat dan tanpa address bar browser.
+
 - Acceptance:
   - Tersedia Web App Manifest (`manifest.json` / `manifest.webmanifest`) dengan name "Catat Mencatat", short_name, icons (192x192, 512x512, maskable), theme_color (`#4682b4`), background_color (`#f8fafc`).
   - Display mode: `standalone`.
@@ -103,6 +112,7 @@ As pengguna, I want menginstall aplikasi ke home screen HP layaknya native app, 
 
 **F0.6 Switch Theme (Dark / Light / System)**
 As pengguna, I want mengubah tema aplikasi antara Terang (Light), Gelap (Dark), dan Otomatis Sistem (System), so that mata nyaman saat menggunakan aplikasi dalam berbagai kondisi pencahayaan.
+
 - Acceptance:
   - Tombol ikon toggle tema tersedia di header halaman utama dan header modul-modul (`/motor`, `/emas`, `/zakat`).
   - Siklus pergantian saat tombol diklik: Terang (`light`) -> Gelap (`dark`) -> Sistem (`system`) -> Terang.
@@ -113,15 +123,17 @@ As pengguna, I want mengubah tema aplikasi antara Terang (Light), Gelap (Dark), 
 
 **F0.7 Footer Aplikasi**
 As pengguna, I want melihat footer informatif di semua halaman termasuk login, so that terdapat informasi identitas aplikasi dan lisensi yang konsisten.
+
 - Acceptance:
   - Footer terpasang di seluruh halaman aplikasi (`/login`, `/`, `/motor`, `/emas`, `/zakat`, dan halaman pengaturan).
   - Menggunakan tag semantik `<footer>`.
   - Memuat nama aplikasi "Catat-Mencatat", badge versi dinamis dari `package.json` (`v{version}`), deskripsi ringkas "Aplikasi Pencatatan Pribadi", tahun berjalan dinamis, serta status lisensi MIT.
-  - Desain *mobile-first* bersih tanpa slop visual, mematuhi padding safe area bawah layar (`calc(1.25rem + env(safe-area-inset-bottom))`) agar ramah layar sentuh HP.
+  - Desain _mobile-first_ bersih tanpa slop visual, mematuhi padding safe area bawah layar (`calc(1.25rem + env(safe-area-inset-bottom))`) agar ramah layar sentuh HP.
   - Tata letak sticky bottom flex flow sehingga footer tetap berada di bagian bawah tampilan pada halaman pendek maupun panjang.
 
 **F0.8 Standar Aksesibilitas, Modal & Ergonomi Mobile (Audit Impeccable)**
 As pengguna, I want aplikasi mematuhi standar aksesibilitas WCAG dan kenyamanan sentuhan mobile, so that navigasi dan input data selalu mulus dan inklusif.
+
 - Acceptance:
   - Viewport tidak mengunci zoom pengguna (`userScalable: false` / `maximumScale: 1` ditiadakan untuk WCAG 1.4.4 Resize Text).
   - Seluruh modal dialog mengimplementasikan WAI-ARIA (`role="dialog"`, `aria-modal="true"`, `aria-labelledby`), tombol tutup 44x44px dengan `aria-label="Tutup"`, serta penutupan via tombol `Escape` dan klik luar modal.
@@ -132,6 +144,7 @@ As pengguna, I want aplikasi mematuhi standar aksesibilitas WCAG dan kenyamanan 
 
 **F0.9 Identitas Visual, Logo & Favicon**
 As pengguna, I want aplikasi memiliki logo representatif, favicon, dan icon home screen mobile yang konsisten, so that aplikasi mudah dikenali saat dibuka di browser maupun diinstall di smartphone.
+
 - Acceptance:
   - Komponen Logo SVG (`Logo.tsx`) mandiri, scalable, tanpa dependensi eksternal, dengan aksesibilitas `role="img"` dan `aria-label="Logo Catat-Mencatat"`.
   - Desain logo merepresentasikan esensi "catat-mencatat": notepad spiral minimalis berlatar Steel Blue (`#4682b4`), item checklist aktif dengan checkmark hijau (`#10b981`), dan pensil aksen emas (`#f59e0b`) pada sudut 45 derajat.
@@ -143,6 +156,7 @@ As pengguna, I want aplikasi memiliki logo representatif, favicon, dan icon home
 
 **F1.1 Riwayat servis**
 As pengguna, I want melihat riwayat servis, so that saya tahu kapan dan berapa biaya servis sebelumnya.
+
 - Kolom: No, Tanggal servis, Motor, KM, Harga, Tempat, Catatan.
 - Urut default tanggal terbaru di atas.
 - HP: tampil sebagai list card; desktop: tabel.
@@ -150,13 +164,16 @@ As pengguna, I want melihat riwayat servis, so that saya tahu kapan dan berapa b
 - Progressive pagination: Default menampilkan 5 catatan servis terakhir (`DEFAULT_MOTOR_PAGE_SIZE = 5`). Tersedia tombol "Tampilkan 5 Lainnya" dengan tap target mobile min 44px untuk membuka 5 data berikutnya secara bertahap hingga seluruh data tampil, dilengkapi informasi counter ("Menampilkan X dari Y catatan") dan reset otomatis ke 5 saat filter aktif berubah. **[keputusan builder/AI]**
 
 **F1.2 Filter**
+
 - Filter motor (multi) dan rentang tanggal. Filter bisa direset.
 
 **F1.3 Tambah/edit servis (modal)**
+
 - Field wajib: tanggal, motor, harga (≥ 0).
 - Field opsional: KM (integer ≥ 0; jika dikosongkan pada riwayat ditampilkan `-`), tempat / nama bengkel (dropdown autocomplete berbasis riwayat bengkel sebelumnya dengan opsi tambah baru jika belum ada di pilihan, navigasi keyboard lengkap, dan tap target mobile min 44px) **[keputusan builder/AI]**, catatan (teks bebas, maks 1000 karakter).
 
 **F1.4 Pengaturan modul: daftar motor**
+
 - CRUD daftar motor (nama, misal "NMax", "Beat").
 - Motor yang sudah punya riwayat tidak bisa dihapus, hanya dinonaktifkan (hilang dari pilihan form, tetap muncul di filter & riwayat).
 
@@ -164,6 +181,7 @@ As pengguna, I want melihat riwayat servis, so that saya tahu kapan dan berapa b
 
 **F2.1 Harga emas harian (data `gold_prices`)**
 As pengguna, I want harga jual & buyback Galeri24 tersimpan harian, so that profit dan nilai aset terhitung otomatis.
+
 - Acceptance:
   - Job harian (Vercel Cron, 1x/hari, ±09:00 WIB) memanggil route handler Next.js yang dilindungi `CRON_SECRET`.
   - Job mengambil `https://galeri24.co.id/harga-emas`, mem-parsing harga per **brand + berat keping**: harga jual & buyback (harga per keping).
@@ -174,6 +192,7 @@ As pengguna, I want harga jual & buyback Galeri24 tersimpan harian, so that prof
 
 **F2.2 Lihat & edit harga harian (pengaturan modul Emas)**
 As pengguna, I want melihat dan mengedit harga hasil scraping, so that saya bisa mengisi hari yang gagal atau mengoreksi angka.
+
 - Acceptance:
   - List per tanggal (terbaru di atas), filter tanggal, filter jenis emas (`brand`) & gramasi (`weight_gram`) berbasis dropdown `<select className="form-select">` (`minHeight: 44px`), serta penanda jelas untuk baris harga kosong.
   - Progressive pagination: Default menampilkan 5 baris harga emas (`DEFAULT_GOLD_PRICE_PAGE_SIZE = 5`). Tersedia tombol "Tampilkan 5 Lainnya" dengan tap target mobile min 44px untuk membuka 5 data berikutnya secara bertahap hingga seluruh data tampil, dilengkapi informasi counter ("Menampilkan X dari Y harga emas") dan reset otomatis ke 5 saat tanggal, filter jenis emas, atau filter gramasi berubah. **[keputusan builder/AI]**
@@ -182,6 +201,7 @@ As pengguna, I want melihat dan mengedit harga hasil scraping, so that saya bisa
   - Bisa menambah baris manual untuk tanggal/brand/berat yang tidak ada (misal tanggal lampau untuk data lama).
 
 **F2.3 Riwayat pembelian emas**
+
 - Kolom: No, Tanggal beli, Brand, Berat (gram), Harga beli (per keping), Buyback saat beli (per keping; tampil nominal Rp jika ada atau `-` jika `null`), Tempat / Catatan, Pemilik, Profit (Rp), Profit (%), Aksi (Edit, Hapus, Jual).
 - Satu baris = satu keping (atau multi-keping dengan `piece_count`). Beli beberapa jenis keping dibantu tombol "Simpan & tambah lagi". **[keputusan builder/AI]**
 - Filter: brand, rentang tanggal, pemilik.
@@ -190,11 +210,13 @@ As pengguna, I want melihat dan mengedit harga hasil scraping, so that saya bisa
 - Progressive pagination: Default menampilkan 5 keping emas terakhir (`DEFAULT_GOLD_PAGE_SIZE = 5`). Tersedia tombol "Tampilkan 5 Lainnya" dengan tap target mobile min 44px untuk membuka 5 data berikutnya secara bertahap hingga seluruh data tampil, dilengkapi informasi counter ("Menampilkan X dari Y keping emas") dan reset otomatis ke 5 saat filter aktif (`selectedPersonId`, `showSold`) berubah. **[keputusan builder/AI]**
 
 **F2.4 Tambah/edit pembelian (modal)**
+
 - Field wajib: tanggal, brand (pilihan brand emas, default "ANTAM"), berat gram (> 0, desimal), jumlah keping (`piece_count` >= 1), harga beli per keping, pemilik.
 - Field opsional: "Harga Jual / Buyback saat Beli per Keping (Rp)" (`buyback_price_per_piece`, input manual sebagai catatan historis, boleh kosong/`null`), catatan/tempat (`notes`).
 
 **F2.5 Perhitungan profit**
 Definisi:
+
 - `harga_beli_per_gram = harga_beli_per_keping / berat`
 - `buyback_kini_per_gram = buyback per keping terbaru (non-kosong) untuk brand+berat yang sama / berat`
 - `Profit (Rp) = (buyback_kini_per_gram − harga_beli_per_gram) × berat`
@@ -203,15 +225,18 @@ Definisi:
 - Bila tidak ada harga sama sekali untuk brand+berat itu: profit tampil "–" dengan keterangan "harga buyback belum ada".
 
 **F2.6 Ringkasan aset per pemilik**
+
 - Card per pemilik: total gram dan total nilai (Σ buyback kini per keping), plus total profit.
 - Hanya menghitung keping aktif yang **belum dijual** (`sold_at IS NULL`). Ringkasan selalu seluruh aset aktif pemilik. **[keputusan builder/AI]**
 
 **F2.7 Pengaturan modul: daftar orang**
+
 - CRUD daftar orang (nama). Dipakai bersama modul Emas (pemilik) dan Zakat (pelaku). Bisa dibuka dari pengaturan kedua modul; datanya sama.
 - Orang yang punya data tidak bisa dihapus, hanya dinonaktifkan.
 
 **F2.8 Penjualan Emas (Modal Jual)**
 As pengguna, I want tombol jual untuk mencatat emas yang dilepas, so that aset aktif berkurang dan tidak muncul lagi di layar utama.
+
 - Acceptance:
   - Tombol "Jual" pada keping emas di riwayat.
   - Modal input: Tanggal jual (wajib, tidak boleh sebelum tanggal beli, tidak di masa depan) dan Harga jual per keping (wajib, numeric ≥ 0).
@@ -224,12 +249,14 @@ As pengguna, I want tombol jual untuk mencatat emas yang dilepas, so that aset a
 Referensi tampilan lama: `docs/req_catat_zakat_mal.png` (baris = rekening/aset, kolom = tahun Hijriah, baris Total, Zakat 2,5%, Yang dibayarkan).
 
 **F3.1 Struktur data**
+
 - Dikelompokkan per **orang** (pelaku). Pilih orang via chip/tab di atas halaman.
 - Setiap orang punya daftar **rekening/aset** sendiri (Mandiri, BSI, Gopay, Cash Kertas, dll), dengan atribut nama rekening, jenis rekening (`Bank`, `e-Wallet`, `Reksadana / Investasi`, `Tunai / Cash`, `Lainnya`; default `Bank`), institusi/penyedia (opsional), dan nomor rekening (opsional), bisa ditambah, diurutkan, dinonaktifkan.
 - Setiap orang punya catatan per **tahun Hijriah** (misal 1447 H) berisi saldo per rekening.
 
 **F3.2 Isi tahun baru**
 As pengguna, I want membuat tahun baru dan tinggal mengisi saldo, so that pengisian tahunan cepat.
+
 - Acceptance:
   - "Tambah tahun" mengusulkan tahun Hijriah berikutnya; daftar rekening aktif disalin dari tahun sebelumnya dengan saldo kosong.
   - Saldo mendukung desimal 2 digit (contoh data `6.951.418,61`). UI memisahkan text box nominal ribuan utama (`NumberInput` murni digit dengan format titik otomatis) dan text box terpisah untuk 2 digit desimal di belakang koma (default `00`, `maxLength=2`, `inputMode="numeric"`, dipisahkan tanda `,`), sehingga pengetikan angka ribuan berlangsung lancar dan langsung tanpa perlu mengetik titik secara manual. **[keputusan builder/AI]**
@@ -238,6 +265,7 @@ As pengguna, I want membuat tahun baru dan tinggal mengisi saldo, so that pengis
   - Tahun lama bisa dibuat (untuk input data 1444–1446 H).
 
 **F3.3 Baris Emas otomatis & editable**
+
 - Baris "Emas" bukan rekening manual; nilainya dihitung otomatis dari modul Emas sebagai nilai default:
   `Σ (buyback per keping pada tanggal acuan, per brand+berat) untuk semua keping milik orang itu dengan tanggal beli ≤ tanggal acuan DAN (sold_at IS NULL ATAU sold_at > tanggal acuan)`.
 - Pada form input/edit tahun zakat (`YearModal`), field `"Nilai Emas Fisik Tertahan (1 Ramadhan) (Rp)"` (`id="zakat-gold-holdings"`, menggunakan `NumberInput` dengan tap target minimal 44px) langsung terisi otomatis dari hasil perhitungan modul Emas, namun bersifat **editable** (bisa diubah manual) untuk kebutuhan input data tahun-tahun lalu.
@@ -245,6 +273,7 @@ As pengguna, I want membuat tahun baru dan tinggal mengisi saldo, so that pengis
 - Saat tahun disimpan, nilai emas dikunci sebagai snapshot (`gold_value_snapshot`) pada tabel `zakat_years`. Saat mengedit tahun yang sudah tersimpan, form menampilkan nilai snapshot yang tersimpan sebelumnya (atau selisih `total_assets - Σ saldo rekening` untuk kompatibilitas data lama). **[keputusan builder/AI]**
 
 **F3.4 Perhitungan & Acuan Zakat (Dual Nisab Emas & Perak)**
+
 - `Total = Σ saldo rekening + nilai emas` (dijaga presisi 2 digit desimal untuk menghindari artefak floating-point).
 - **Dual Acuan Nisab (Emas & Perak)**:
   - `Nisab Emas = 85 × harga emas per gram pada tanggal acuan`. Harga emas per gram diambil dari harga jual emas 1 gram pada tanggal acuan (bisa diedit manual).
@@ -261,6 +290,7 @@ As pengguna, I want membuat tahun baru dan tinggal mengisi saldo, so that pengis
   - Tersimpan permanen di database (`zakat_years.zakat_paid`) dan ikut ditampilkan di tabel spreadsheet, komparasi mobile, overview card, serta riwayat rekap tahunan. **[keputusan builder/AI]**
 
 **F3.5 Perbandingan antar tahun**
+
 - **HP (tampilan utama):** pilih dua tahun (default: tahun terbaru vs sebelumnya). Per rekening tampil saldo tahun terpilih + perubahan (▲/▼, nominal & %) dibanding tahun pembanding. Baris Total, Zakat Acuan Emas (85g), Zakat Acuan Perak (595g), dan Yang dibayarkan juga dibandingkan.
 - **Desktop (tambahan):**
   - Tabel seperti spreadsheet: rekening di kolom kiri (sticky), tahun sebagai kolom, scroll horizontal, memuat baris Total Harta, Nisab Emas, Zakat Emas, Nisab Perak, Zakat Perak, dan Yang Dibayarkan.
@@ -269,29 +299,34 @@ As pengguna, I want membuat tahun baru dan tinggal mengisi saldo, so that pengis
 - **Riwayat Rekap Tahunan:** Progressive pagination menampilkan 5 riwayat tahun zakat terakhir (`DEFAULT_ZAKAT_PAGE_SIZE = 5`), dilengkapi tombol "Tampilkan 5 Lainnya" (tap target mobile min 44px), informasi counter ("Menampilkan X dari Y riwayat zakat"), rincian zakat emas & perak serta nominal yang dibayarkan, dan reset otomatis ke 5 saat tab pelaku (`selectedPersonId`) berganti. **[keputusan builder/AI]**
 
 **F3.6 Pengaturan modul Zakat**
+
 - Daftar rekening per orang (CRUD, jenis rekening `Bank`/`e-Wallet`/`Reksadana / Investasi`/`Tunai / Cash`/`Lainnya`, institusi, nomor rekening, urutan, aktif/nonaktif).
 - Daftar orang (sama dengan F2.7).
 
 ### 5.4 Modul Saldo Akhir Tahun & Reminder Telegram
 
 **F4.1 Struktur data & Berbagi Rekening**
+
 - Modul berada di route `/saldo-tahun`.
 - Dikelompokkan per orang (`people`) dan berbagi master rekening (`zakat_accounts`) yang sama dengan modul Zakat Mal.
 - Dicatat per tahun Masehi (contoh: 2018–2025).
 
 **F4.2 Input & Perhitungan Saldo Akhir Tahun**
+
 - Pengguna menginput saldo per rekening aktif (mendukung 2 digit desimal sen dengan split input integer dan desimal `,00`) dan nominal Pengeluaran (Rp, default 0).
 - Tidak menyertakan aset emas fisik (sesuai tabel spreadsheet keuangan).
 - `Total Rekening = Σ saldo rekening aktif pada tahun tersebut`.
 - `Saldo Akhir Tahun = Total Rekening - Pengeluaran`.
 
 **F4.3 Grafik Perkembangan & Ringkasan Expandable (Accordion)**
+
 - Komponen `AnnualBalanceTrendChart`: grafik garis SVG (Line Chart) responsif dengan area shading dan titik data tahunan terurut kronologis.
-- Interaktivitas Dot Grafik: saat dot tiap tahun di-hover (desktop) atau di-tap (mobile), muncul tooltip card interaktif yang menampilkan Tahun Masehi dan Saldo Akhir Tahun lengkap (`Rp X.XXX.XXX`), disertai garis pemandu vertikal (*guideline*) dan lingkaran aktif. Mendukung aksesibilitas keyboard (`tabIndex`, `Enter`/`Space`) dan native SVG `<title>`. Lingkaran dot memiliki touch target radius 18px agar ramah sentuhan di layar ponsel.
+- Interaktivitas Dot Grafik: saat dot tiap tahun di-hover (desktop) atau di-tap (mobile), muncul tooltip card interaktif yang menampilkan Tahun Masehi dan Saldo Akhir Tahun lengkap (`Rp X.XXX.XXX`), disertai garis pemandu vertikal (_guideline_) dan lingkaran aktif. Mendukung aksesibilitas keyboard (`tabIndex`, `Enter`/`Space`) dan native SVG `<title>`. Lingkaran dot memiliki touch target radius 18px agar ramah sentuhan di layar ponsel.
 - Daftar ringkasan per tahun: progressive pagination 5 tahun per halaman (`DEFAULT_ANNUAL_BALANCE_PAGE_SIZE = 5`), memuat Tahun, Total Rekening, Pengeluaran, Saldo Akhir Tahun, serta badge selisih (▲/▼ nominal & %) dibanding tahun sebelumnya.
 - Accordion inline: saat kartu tahun di-klik, bagian bawah kartu terbuka secara inline menampilkan rincian saldo tiap rekening serta tombol Edit dan Hapus tahun.
 
 **F4.4 Reminder Telegram Tahunan (30 Desember)**
+
 - Konfigurasi tersimpan di tabel `telegram_settings` (Bot Token, Chat ID, Pesan Pengingat template, toggle Aktif/Nonaktif, dan `last_sent_at`).
 - Halaman pengaturan `/saldo-tahun/settings` menyediakan form konfigurasi dan tombol "Kirim Tes Sekarang" (`POST /api/telegram/test`).
 - Endpoint Vercel Cron (`GET /api/cron/telegram-reminder`) dijadwalkan pada `0 2 30 12 *` (30 Desember pukul 09:00 WIB), dilindungi `CRON_SECRET`, dan mengirim pesan reminder ke seluruh konfigurasi aktif.
@@ -300,20 +335,22 @@ As pengguna, I want membuat tahun baru dan tinggal mengisi saldo, so that pengis
 
 Aplikasi pribadi, metrik sederhana:
 
-| Metrik | Target |
-|---|---|
-| Spreadsheet lama tidak dipakai lagi | 100% data lama terinput dalam 1 bulan setelah rilis |
-| Zakat Ramadhan berikutnya diisi lewat app | Ya, tanpa kembali ke spreadsheet |
-| Keberhasilan scraping harian | ≥ 90% hari berstatus `berhasil` per bulan |
-| Waktu input 1 catatan servis/emas di HP | ≤ 30 detik |
-| Angka zakat tahun lalu stabil | 0 perubahan tanpa aksi "Hitung ulang" |
+| Metrik                                    | Target                                              |
+| ----------------------------------------- | --------------------------------------------------- |
+| Spreadsheet lama tidak dipakai lagi       | 100% data lama terinput dalam 1 bulan setelah rilis |
+| Zakat Ramadhan berikutnya diisi lewat app | Ya, tanpa kembali ke spreadsheet                    |
+| Keberhasilan scraping harian              | ≥ 90% hari berstatus `berhasil` per bulan           |
+| Waktu input 1 catatan servis/emas di HP   | ≤ 30 detik                                          |
+| Angka zakat tahun lalu stabil             | 0 perubahan tanpa aksi "Hitung ulang"               |
 
 ## 7. Scope
 
 ### In scope (MVP)
+
 F0.1–F0.5, F1.1–F1.4, F2.1–F2.8, F3.1–F3.6, F4.1–F4.4.
 
 ### Out of scope
+
 - Import CSV/spreadsheet, export.
 - Multi-user, berbagi data, role.
 - Notifikasi servis motor otomatis.
@@ -323,6 +360,7 @@ F0.1–F0.5, F1.1–F1.4, F2.1–F2.8, F3.1–F3.6, F4.1–F4.4.
 ## 8. Technical Considerations
 
 ### Arsitektur
+
 - Runtime: Node.js 26 LTS (`>=26.0.0`, dikunci via `.nvmrc` dan `package.json#engines`).
 - Next.js 16 (App Router) + React 19, Server Components + Server Actions untuk CRUD; client components untuk modal, filter, grafik.
 - Supabase: Postgres + Auth (email/password), akses via `@supabase/ssr` v0.12+ dan `@supabase/supabase-js` v2.118+ (server client async `await cookies()`). Middleware Next.js untuk proteksi route.
@@ -332,23 +370,24 @@ F0.1–F0.5, F1.1–F1.4, F2.1–F2.8, F3.1–F3.6, F4.1–F4.4.
 
 ### Model data (usulan)
 
-| Tabel | Kolom utama | Catatan |
-|---|---|---|
-| `people` | id, user_id, name, is_active | dipakai emas, zakat, & saldo akhir tahun |
-| `motors` | id, user_id, name, is_active | |
-| `motor_services` | id, user_id, motor_id, service_date, km int, price numeric, place, notes | |
-| `gold_prices` | id, price_date, brand, weight_gram numeric, sell_price numeric null, buyback_price numeric null, status (`berhasil`/`gagal`/`manual`), updated_at | unique(price_date, brand, weight_gram); data global (bukan per user) |
-| `gold_purchases` | id, user_id, person_id→people, purchase_date, brand, weight_gram, piece_count, price_per_piece, buyback_price_per_piece null, notes, sold_at date null, sold_price_per_piece numeric null | sold_at terisi berarti terjual (soft delete); buyback_price_per_piece menyimpan harga buyback historis saat beli |
-| `zakat_accounts` | id, user_id, person_id, account_name, account_type (`Bank`/`e-Wallet`/`Reksadana / Investasi`/`Tunai / Cash`/`Lainnya`), institution, account_number, display_order, is_active | default `account_type = 'Bank'`, dipakai bersama modul zakat & saldo akhir tahun |
-| `zakat_years` | id, user_id, person_id, hijri_year int, reference_date, gold_value_snapshot, gold_grams_snapshot, gold_price_per_gram_nisab, paid_amount null, notes | unique(person_id, hijri_year) |
-| `zakat_balances` | id, zakat_year_id, account_id, balance numeric(15,2) | unique(zakat_year_id, account_id) |
-| `annual_balances` | id, user_id, person_id, masehi_year int, total_accounts numeric(15,2), expense_amount numeric(15,2), net_balance numeric(15,2), notes null | unique(person_id, masehi_year) |
-| `annual_balance_items` | id, annual_balance_id, account_id, balance numeric(15,2) | unique(annual_balance_id, account_id) |
-| `telegram_settings` | id, user_id, bot_token text, chat_id text, reminder_message text, is_enabled boolean, last_sent_at timestamptz null | unique(user_id) |
+| Tabel                  | Kolom utama                                                                                                                                                                               | Catatan                                                                                                          |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `people`               | id, user_id, name, is_active                                                                                                                                                              | dipakai emas, zakat, & saldo akhir tahun                                                                         |
+| `motors`               | id, user_id, name, is_active                                                                                                                                                              |                                                                                                                  |
+| `motor_services`       | id, user_id, motor_id, service_date, km int, price numeric, place, notes                                                                                                                  |                                                                                                                  |
+| `gold_prices`          | id, price_date, brand, weight_gram numeric, sell_price numeric null, buyback_price numeric null, status (`berhasil`/`gagal`/`manual`), updated_at                                         | unique(price_date, brand, weight_gram); data global (bukan per user)                                             |
+| `gold_purchases`       | id, user_id, person_id→people, purchase_date, brand, weight_gram, piece_count, price_per_piece, buyback_price_per_piece null, notes, sold_at date null, sold_price_per_piece numeric null | sold_at terisi berarti terjual (soft delete); buyback_price_per_piece menyimpan harga buyback historis saat beli |
+| `zakat_accounts`       | id, user_id, person_id, account_name, account_type (`Bank`/`e-Wallet`/`Reksadana / Investasi`/`Tunai / Cash`/`Lainnya`), institution, account_number, display_order, is_active            | default `account_type = 'Bank'`, dipakai bersama modul zakat & saldo akhir tahun                                 |
+| `zakat_years`          | id, user_id, person_id, hijri_year int, reference_date, gold_value_snapshot, gold_grams_snapshot, gold_price_per_gram_nisab, paid_amount null, notes                                      | unique(person_id, hijri_year)                                                                                    |
+| `zakat_balances`       | id, zakat_year_id, account_id, balance numeric(15,2)                                                                                                                                      | unique(zakat_year_id, account_id)                                                                                |
+| `annual_balances`      | id, user_id, person_id, masehi_year int, total_accounts numeric(15,2), expense_amount numeric(15,2), net_balance numeric(15,2), notes null                                                | unique(person_id, masehi_year)                                                                                   |
+| `annual_balance_items` | id, annual_balance_id, account_id, balance numeric(15,2)                                                                                                                                  | unique(annual_balance_id, account_id)                                                                            |
+| `telegram_settings`    | id, user_id, bot_token text, chat_id text, reminder_message text, is_enabled boolean, last_sent_at timestamptz null                                                                       | unique(user_id)                                                                                                  |
 
 - Uang memakai `numeric` (bukan float). Total, zakat, nisab, profit dihitung di kode (fungsi murni), tidak disimpan, kecuali snapshot yang disebut di atas.
 
 ### Keamanan
+
 - RLS aktif di semua tabel. Tabel ber-`user_id`: hanya `auth.uid() = user_id` boleh select/insert/update/delete. `zakat_balances` lewat join ke `zakat_years`.
 - `gold_prices`: select & update untuk user terautentikasi; insert/upsert oleh job cron memakai service role key (hanya di server, tidak pernah ke client).
 - Route cron menolak request tanpa header `Authorization: Bearer ${CRON_SECRET}`.
@@ -356,6 +395,7 @@ F0.1–F0.5, F1.1–F1.4, F2.1–F2.8, F3.1–F3.6, F4.1–F4.4.
 - Teks pengguna dirender sebagai teks (tanpa `dangerouslySetInnerHTML`); query via Supabase client (parameterized).
 
 ### Scraping Galeri24
+
 - Halaman `galeri24.co.id/harga-emas` menyajikan data harga via Nuxt 3 SSR state payload `<script>` dan tabel HTML per brand (diperbarui 30-10-2026).
 - Parser dipisah sebagai fungsi murni `parseGaleri24Html(html) → [{brand, weight_gram, sell_price, buyback_price}]` agar bisa dites dengan fixture HTML/state.
 - Mendukung ekstraksi dehydrated state Nuxt 3 (`parseNuxtPayload`), serta fallback parsing tabel HTML (format 3 kolom dengan heading vendor dan format 4 kolom).
@@ -363,9 +403,11 @@ F0.1–F0.5, F1.1–F1.4, F2.1–F2.8, F3.1–F3.6, F4.1–F4.4.
 - Request dengan User-Agent wajar, 1x/hari, timeout ±15 detik.
 
 ### Tanggal Hijriah
+
 - Konversi 1 Ramadhan → Masehi memakai kalender `islamic-umalqura` (`Intl.DateTimeFormat`), hasil bisa diubah manual.
 
 ### Testing (sesuai AGENTS.md)
+
 - Jest, file di `tests/`.
 - Wajib dites: perhitungan profit (F2.5), pemilihan harga fallback, nilai emas zakat (F3.3), total/nisab/zakat (F3.4), pembulatan chip, konversi tanggal Hijriah, parser Galeri24 (fixture HTML tersimpan di `tests/fixtures/`).
 
@@ -397,24 +439,24 @@ F0.1–F0.5, F1.1–F1.4, F2.1–F2.8, F3.1–F3.6, F4.1–F4.4.
 
 Urutan fase (tanpa tanggal target):
 
-| Fase | Isi |
-|---|---|
-| 0 | Setup Next.js + Supabase + PWA dasar (manifest, icon, service worker), skema & RLS, auth, layout dasar + token DESIGN.md, halaman utama |
-| 1 | Modul Servis Motor (F1) |
-| 2 | Harga emas harian: parser, cron, halaman lihat/edit (F2.1–F2.2) |
-| 3 | Pembelian & penjualan emas, profit, ringkasan, daftar orang (F2.3–F2.8) |
-| 4 | Zakat: rekening, tahun, baris emas, nisab, perbandingan (F3) |
-| 5 | Polish: PWA install & offline fallback audit, state kosong/error, dark mode, aksesibilitas, input data lama |
+| Fase | Isi                                                                                                                                     |
+| ---- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| 0    | Setup Next.js + Supabase + PWA dasar (manifest, icon, service worker), skema & RLS, auth, layout dasar + token DESIGN.md, halaman utama |
+| 1    | Modul Servis Motor (F1)                                                                                                                 |
+| 2    | Harga emas harian: parser, cron, halaman lihat/edit (F2.1–F2.2)                                                                         |
+| 3    | Pembelian & penjualan emas, profit, ringkasan, daftar orang (F2.3–F2.8)                                                                 |
+| 4    | Zakat: rekening, tahun, baris emas, nisab, perbandingan (F3)                                                                            |
+| 5    | Polish: PWA install & offline fallback audit, state kosong/error, dark mode, aksesibilitas, input data lama                             |
 
 ## 11. Risks & Mitigation
 
-| Risiko | Dampak | Mitigasi |
-|---|---|---|
-| Struktur HTML Galeri24 berubah / situs memblokir | Harga harian kosong | Status `gagal` + baris kosong + edit manual; parser terisolasi & dites dengan fixture |
-| Tidak ada harga historis untuk data lama (1444–1446 H, pembelian lama) | Profit/emas zakat tidak terhitung | Tambah baris harga manual untuk tanggal lampau; nilai emas zakat bisa diisi manual |
-| Konversi Hijriah beda dengan Kemenag | Tanggal acuan meleset 1 hari | Tanggal acuan bisa diubah manual |
-| Service role key bocor | Data global bisa diubah | Key hanya di env server Vercel; tidak diakses dari client |
-| Vercel Cron Hobby 1x/hari & bisa telat | Harga hari itu belum ada pagi hari | Fallback harga terakhir + tombol "Ambil ulang sekarang" |
+| Risiko                                                                 | Dampak                             | Mitigasi                                                                              |
+| ---------------------------------------------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------- |
+| Struktur HTML Galeri24 berubah / situs memblokir                       | Harga harian kosong                | Status `gagal` + baris kosong + edit manual; parser terisolasi & dites dengan fixture |
+| Tidak ada harga historis untuk data lama (1444–1446 H, pembelian lama) | Profit/emas zakat tidak terhitung  | Tambah baris harga manual untuk tanggal lampau; nilai emas zakat bisa diisi manual    |
+| Konversi Hijriah beda dengan Kemenag                                   | Tanggal acuan meleset 1 hari       | Tanggal acuan bisa diubah manual                                                      |
+| Service role key bocor                                                 | Data global bisa diubah            | Key hanya di env server Vercel; tidak diakses dari client                             |
+| Vercel Cron Hobby 1x/hari & bisa telat                                 | Harga hari itu belum ada pagi hari | Fallback harga terakhir + tombol "Ambil ulang sekarang"                               |
 
 ## 12. Dependencies & Assumptions
 
@@ -426,4 +468,4 @@ Urutan fase (tanpa tanggal target):
 
 ## 13. Open Questions
 
-*(Semua pertanyaan desain utama sudah terjawab)*
+_(Semua pertanyaan desain utama sudah terjawab)_

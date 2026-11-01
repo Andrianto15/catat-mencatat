@@ -1,4 +1,4 @@
-import { resolveAuthRedirect } from '../src/lib/supabase/middleware';
+import { resolveAuthRedirect, isAllowedUser } from '../src/lib/supabase/middleware';
 
 describe('Auth Guard Redirect Logic', () => {
   it('should redirect unauthenticated users to /login for protected routes', () => {
@@ -27,6 +27,34 @@ describe('Auth Guard Redirect Logic', () => {
     expect(resolveAuthRedirect('/zakat', true)).toBeNull();
     expect(resolveAuthRedirect('/saldo-tahun', true)).toBeNull();
     expect(resolveAuthRedirect('/saldo-tahun/settings', true)).toBeNull();
+  });
+
+  it('should validate owner email allowlist correctly via isAllowedUser', () => {
+    // If no config provided, defaults to open / allow all authenticated users
+    expect(isAllowedUser('stranger@example.com', undefined)).toBe(true);
+    expect(isAllowedUser('stranger@example.com', '')).toBe(true);
+
+    // If config provided, only listed emails are allowed (case-insensitive & trimmed)
+    expect(isAllowedUser('owner@example.com', 'owner@example.com')).toBe(true);
+    expect(isAllowedUser('OWNER@EXAMPLE.COM', 'owner@example.com')).toBe(true);
+    expect(isAllowedUser('co-owner@example.com', 'owner@example.com, co-owner@example.com')).toBe(true);
+    expect(isAllowedUser('stranger@example.com', 'owner@example.com')).toBe(false);
+    expect(isAllowedUser(undefined, 'owner@example.com')).toBe(false);
+  });
+
+  it('should redirect non-allowed authenticated users to /login and allow them to stay on /login', () => {
+    expect(resolveAuthRedirect('/', true, false)).toBe('/login');
+    expect(resolveAuthRedirect('/motor', true, false)).toBe('/login');
+    // On /login page, if authenticated but not allowed, do NOT redirect to / (stay on /login)
+    expect(resolveAuthRedirect('/login', true, false)).toBeNull();
+  });
+
+  it('should list OWNER_EMAIL in .env.example', () => {
+    const fs = require('fs');
+    const path = require('path');
+    const envExamplePath = path.join(process.cwd(), '.env.example');
+    const content = fs.readFileSync(envExamplePath, 'utf8');
+    expect(content).toContain('OWNER_EMAIL');
   });
 
   it('should define createClient in server.ts as an async function awaiting cookies()', () => {
