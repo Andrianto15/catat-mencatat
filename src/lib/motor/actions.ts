@@ -138,3 +138,106 @@ export function filterWorkshopSuggestions(workshops: string[], query: string): s
   if (!q) return workshops;
   return workshops.filter((w) => w.toLowerCase().includes(q));
 }
+
+export type ServiceReminderStatus = 'UPCOMING' | 'DUE' | 'OVERDUE' | 'NO_SERVICE';
+
+export interface MotorServiceReminder {
+  motorId: string;
+  motorName: string;
+  plateNumber?: string | null;
+  lastServiceDate: string | null;
+  lastKm: number | null;
+  nextServiceMinDate: string | null;
+  nextServiceMaxDate: string | null;
+  status: ServiceReminderStatus;
+  daysUntilMinDue?: number;
+  daysOverdue?: number;
+}
+
+export function addMonthsClamped(dateStr: string, months: number): string {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const targetMonthIndex = m - 1 + months;
+  const targetYear = y + Math.floor(targetMonthIndex / 12);
+  const normalizedMonth = ((targetMonthIndex % 12) + 12) % 12;
+  const daysInMonth = new Date(targetYear, normalizedMonth + 1, 0).getDate();
+  const clampedDay = Math.min(d, daysInMonth);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${targetYear}-${pad(normalizedMonth + 1)}-${pad(clampedDay)}`;
+}
+
+export function calculateMotorReminder(
+  services: MotorServiceItem[],
+  motor: Motor,
+  currentDate?: string
+): MotorServiceReminder {
+  const todayStr = currentDate || new Date().toISOString().split('T')[0];
+  const motorServices = services.filter((s) => s.motor_id === motor.id);
+
+  if (motorServices.length === 0) {
+    return {
+      motorId: motor.id,
+      motorName: motor.name,
+      plateNumber: motor.plate_number,
+      lastServiceDate: null,
+      lastKm: null,
+      nextServiceMinDate: null,
+      nextServiceMaxDate: null,
+      status: 'NO_SERVICE',
+    };
+  }
+
+  const sorted = [...motorServices].sort((a, b) => {
+    if (b.service_date !== a.service_date) {
+      return b.service_date.localeCompare(a.service_date);
+    }
+    return (b.current_km ?? 0) - (a.current_km ?? 0);
+  });
+
+  const latest = sorted[0];
+  const lastDate = latest.service_date;
+  const lastKm = latest.current_km ?? null;
+
+  const minNext = addMonthsClamped(lastDate, 2);
+  const maxNext = addMonthsClamped(lastDate, 3);
+
+  const todayTime = new Date(`${todayStr}T00:00:00Z`).getTime();
+  const minTime = new Date(`${minNext}T00:00:00Z`).getTime();
+  const maxTime = new Date(`${maxNext}T00:00:00Z`).getTime();
+  const oneDay = 1000 * 60 * 60 * 24;
+
+  let status: ServiceReminderStatus;
+  let daysUntilMinDue: number | undefined;
+  let daysOverdue: number | undefined;
+
+  if (todayStr < minNext) {
+    status = 'UPCOMING';
+    daysUntilMinDue = Math.round((minTime - todayTime) / oneDay);
+  } else if (todayStr <= maxNext) {
+    status = 'DUE';
+  } else {
+    status = 'OVERDUE';
+    daysOverdue = Math.round((todayTime - maxTime) / oneDay);
+  }
+
+  return {
+    motorId: motor.id,
+    motorName: motor.name,
+    plateNumber: motor.plate_number,
+    lastServiceDate: lastDate,
+    lastKm,
+    nextServiceMinDate: minNext,
+    nextServiceMaxDate: maxNext,
+    status,
+    daysUntilMinDue,
+    daysOverdue,
+  };
+}
+
+export function getAllMotorReminders(
+  services: MotorServiceItem[],
+  motors: Motor[],
+  currentDate?: string
+): MotorServiceReminder[] {
+  const activeMotors = motors.filter((m) => m.is_active);
+  return activeMotors.map((m) => calculateMotorReminder(services, m, currentDate));
+}

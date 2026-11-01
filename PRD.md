@@ -2,8 +2,8 @@
 
 |         |                                                                                           |
 | ------- | ----------------------------------------------------------------------------------------- |
-| Status  | Implementation Complete (v0.6.0)                                                          |
-| Tanggal | 31-10-2026                                                                                |
+| Status  | Implementation Complete (v0.10.0)                                                         |
+| Tanggal | 01-11-2026                                                                                |
 | Pemilik | Andrian (pengguna tunggal)                                                                |
 | Stack   | Next.js (App Router) + Supabase (Postgres, Auth) + PWA + Vercel                           |
 | Lisensi | MIT License                                                                               |
@@ -40,7 +40,7 @@ Pengguna saat ini satu orang. Data tetap dipisah per `user_id` dengan RLS agar a
 
 - Import otomatis dari spreadsheet (data lama diinput manual oleh pengguna).
 - Multi-user / login anggota keluarga (struktur data siap, fitur tidak dibuat).
-- Pengingat jadwal servis, notifikasi, atau analitik servis.
+- Analitik biaya servis mendalam / prediksi kerusakan mesin.
 - Aplikasi native khusus toko aplikasi (App Store/Play Store) & full offline data sync (mutasi data tetap butuh internet ke Supabase).
 
 ### Anti-goals (gagal walau "jalan")
@@ -176,6 +176,21 @@ As pengguna, I want melihat riwayat servis, so that saya tahu kapan dan berapa b
 
 - CRUD daftar motor (nama, misal "NMax", "Beat").
 - Motor yang sudah punya riwayat tidak bisa dihapus, hanya dinonaktifkan (hilang dari pilihan form, tetap muncul di filter & riwayat).
+
+**F1.5 Pengingat Servis Motor (2-3 Bulan) & Notifikasi Telegram**
+As pengguna, I want melihat estimasi jadwal servis motor berikutnya (2-3 bulan dari servis terakhir) di halaman List dan dapat mengirimkan notifikasi ke Telegram, so that saya tidak terlewat melakukan servis rutin berkala.
+
+- Acceptance:
+  - Perhitungan jadwal servis berikutnya per motor:
+    - Batas awal: +2 bulan dari tanggal servis terakhir (`addMonthsClamped(lastServiceDate, 2)`).
+    - Batas akhir: +3 bulan dari tanggal servis terakhir (`addMonthsClamped(lastServiceDate, 3)`).
+  - Status indikator:
+    - `UPCOMING` ("Belum Waktunya (Aman)"): bila tanggal hari ini < batas 2 bulan.
+    - `DUE` ("Waktunya Servis"): bila tanggal hari ini berada di rentang 2 - 3 bulan.
+    - `OVERDUE` ("Lewat Jadwal"): bila tanggal hari ini > batas 3 bulan.
+    - `NO_SERVICE` ("Belum Ada Riwayat"): bila motor belum memiliki catatan servis.
+  - Tampilan UI: Card pengingat responsif (`ServiceReminderCard`) di halaman `/motor`, menampilkan nama motor, tanggal servis terakhir, KM terakhir, rentang estimasi servis berikutnya, dan status badge dengan kontras tinggi.
+  - Tombol aksi "Kirim Pengingat Telegram": Memiliki target sentuhan min 44px, memicu `POST /api/motor/reminder/telegram` yang mengirim ringkasan servis ke Telegram menggunakan kredensial Bot Token & Chat ID dari tabel `telegram_settings`. Dilengkapi proteksi sesi auth dan CSRF guard.
 
 ### 5.2 Modul Emas
 
@@ -347,13 +362,13 @@ Aplikasi pribadi, metrik sederhana:
 
 ### In scope (MVP)
 
-F0.1–F0.5, F1.1–F1.4, F2.1–F2.8, F3.1–F3.6, F4.1–F4.4.
+F0.1–F0.5, F1.1–F1.5, F2.1–F2.8, F3.1–F3.6, F4.1–F4.4.
 
 ### Out of scope
 
 - Import CSV/spreadsheet, export.
 - Multi-user, berbagi data, role.
-- Notifikasi servis motor otomatis.
+- Prediksi kerusakan mesin berbasis machine learning.
 - Sumber harga selain Galeri24 / API pihak ketiga berbayar.
 - Full offline background sync untuk mutasi data (mutasi data tetap butuh koneksi ke Supabase).
 

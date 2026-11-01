@@ -57,3 +57,44 @@ Menyelesaikan seluruh 7 temuan keamanan (`needs_validation`) yang teridentifikas
 
 8. **Rilis Versi 0.9.0**:
    - Bump versi aplikasi dari `0.8.0` ke `0.9.0` pada `package.json`, `package-lock.json`, dan `src/lib/version.ts`.
+
+---
+
+## Ringkasan Perubahan: Pengingat Servis Motor (2-3 Bulan) & Notifikasi Telegram
+
+Menambahkan fitur pengingat jadwal servis motor berkala di halaman riwayat/list Servis Motor (`/motor`) yang menghitung estimasi servis berikutnya (rentang 2 - 3 bulan dari tanggal servis terakhir) serta integrasi pengiriman notifikasi pengingat ke Telegram.
+
+### Detail Perubahan:
+
+1. **Engine Kalkulasi Jadwal Servis Motor (`src/lib/motor/actions.ts`)**:
+   - Menambahkan fungsi kalender aman `addMonthsClamped(dateStr, months)` yang meng-clamp tanggal tujuan secara otomatis untuk bulan dengan jumlah hari lebih pendek (termasuk kabisat) dan menangani pergantian tahun.
+   - Menambahkan fungsi `calculateMotorReminder` untuk menghitung:
+     - `nextServiceMinDate` (+2 bulan dari tanggal servis terakhir).
+     - `nextServiceMaxDate` (+3 bulan dari tanggal servis terakhir).
+     - Penentuan status pengingat: `UPCOMING` (< 2 bulan), `DUE` (2-3 bulan), `OVERDUE` (> 3 bulan), dan `NO_SERVICE` (belum ada riwayat servis).
+   - Menambahkan fungsi `getAllMotorReminders` untuk mengevaluasi seluruh motor aktif.
+
+2. **Endpoint API Notifikasi Telegram (`src/app/api/motor/reminder/telegram/route.ts`)**:
+   - Menyediakan handler `POST /api/motor/reminder/telegram` dengan validasi sesi login Supabase Auth.
+   - Proteksi keamanan: validasi `Content-Type: application/json` (415) dan guard CSRF Same-Origin serta `Sec-Fetch-Site` (403).
+   - Mengambil konfigurasi bot token dan chat ID dari tabel `telegram_settings` milik pengguna.
+   - Mengirim notifikasi Telegram dengan ringkasan nama motor, tanggal servis terakhir, KM terakhir, rentang tanggal estimasi servis berikutnya, dan status servis.
+
+3. **Komponen UI Mobile-First (`src/components/motor/ServiceReminderCard.tsx`)**:
+   - Desain antarmuka responsif tanpa slop visual menggunakan CSS variables tema yang ada (`var(--bg-card)`, `var(--border-card)`, `var(--text-main)`, `var(--text-muted)`).
+   - Badge status semantik dengan kontras warna tinggi (Waktunya Servis, Lewat Jadwal, Belum Waktunya, Belum Ada Riwayat).
+   - Tombol aksi "Kirim Pengingat Telegram" dengan touch target mobile minimal 44px (`minHeight: 44px`), state loading interaktif, dan banner notifikasi hasil pengiriman.
+   - Terintegrasi di halaman utama modul Servis Motor (`src/app/motor/page.tsx`), otomatis menyesuaikan saat filter motor aktif dipilih.
+
+4. **Pengujian Unit Test (Jest)**:
+   - `tests/motor-reminder.test.ts`: 10 test case untuk fungsi kalkulasi bulan, clamp tanggal, status pengingat, dan handling banyak motor.
+   - `tests/motor-telegram-api.test.ts`: 7 test case untuk route API (Content-Type, CSRF, auth, motor_id, konfigurasi telegram, pengiriman pesan).
+   - `tests/motor-reminder-ui.test.tsx`: 4 test case untuk render status DUE, OVERDUE, UPCOMING, NO_SERVICE, dan touch target 44px.
+   - Seluruh 46 test suites (216 test cases) lulus 100%.
+
+5. **Pembaruan Dokumentasi**:
+   - Menambahkan spesifikasi fitur `F1.5 Pengingat Servis Motor (2-3 Bulan) & Notifikasi Telegram` pada `PRD.md`.
+
+6. **Rilis Versi 0.10.0**:
+   - Bump versi aplikasi ke `0.10.0` pada `package.json`, `package-lock.json`, `src/lib/version.ts`, dan `PRD.md`.
+

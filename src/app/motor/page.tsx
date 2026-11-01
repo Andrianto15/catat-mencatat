@@ -12,10 +12,13 @@ import {
   DEFAULT_MOTOR_PAGE_SIZE,
   paginateMotorServices,
   getUniqueWorkshops,
+  calculateMotorReminder,
+  getAllMotorReminders,
 } from '@/lib/motor/actions';
 import { ServiceCard } from '@/components/motor/ServiceCard';
 import { ServiceFilter } from '@/components/motor/ServiceFilter';
 import { ServiceModal } from '@/components/motor/ServiceModal';
+import { ServiceReminderCard } from '@/components/motor/ServiceReminderCard';
 import ThemeToggle from '@/components/ThemeToggle';
 
 export default function MotorPage() {
@@ -120,6 +123,14 @@ export default function MotorPage() {
 
   const existingWorkshops = React.useMemo(() => getUniqueWorkshops(services), [services]);
 
+  const reminders = React.useMemo(() => {
+    if (selectedMotorId) {
+      const motor = motors.find((m) => m.id === selectedMotorId);
+      return motor ? [calculateMotorReminder(services, motor)] : [];
+    }
+    return getAllMotorReminders(services, motors);
+  }, [services, motors, selectedMotorId]);
+
   return (
     <div style={{ flex: 1, backgroundColor: 'var(--bg-main)', paddingBottom: '5rem' }}>
       {/* Header */}
@@ -222,6 +233,9 @@ export default function MotorPage() {
             </div>
           </div>
         </div>
+
+        {/* Next Service Reminder */}
+        {reminders.length > 0 && <ServiceReminderCard reminders={reminders} />}
 
         {/* Filter Controls */}
         <ServiceFilter
