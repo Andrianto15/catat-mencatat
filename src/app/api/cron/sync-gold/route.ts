@@ -1,13 +1,36 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { createClient as createServerClient } from '@/lib/supabase/server';
 import { fetchLiveGaleri24Prices } from '@/lib/gold/scraper';
 
 export async function GET(request: NextRequest) {
-  // Authorization check for Vercel Cron or manual admin trigger
+  // Authorization check for Vercel Cron or authenticated user session (Tarik Live button)
   const authHeader = request.headers.get('authorization');
   const cronSecret = process.env.CRON_SECRET;
 
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+  let isAuthorized = false;
+
+  // 1. Check Bearer token if CRON_SECRET is configured
+  if (cronSecret && authHeader === `Bearer ${cronSecret}`) {
+    isAuthorized = true;
+  }
+
+  // 2. If not authorized by cron token, check for authenticated user session
+  if (!isAuthorized) {
+    try {
+      const serverSupabase = await createServerClient();
+      const {
+        data: { user },
+      } = await serverSupabase.auth.getUser();
+      if (user) {
+        isAuthorized = true;
+      }
+    } catch {
+      // Ignore session check errors and fall through to unauthorized
+    }
+  }
+
+  if (!isAuthorized) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
