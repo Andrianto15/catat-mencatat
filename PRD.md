@@ -388,9 +388,14 @@ F0.1–F0.5, F1.1–F1.4, F2.1–F2.8, F3.1–F3.6, F4.1–F4.4.
 
 ### Keamanan
 
-- RLS aktif di semua tabel. Tabel ber-`user_id`: hanya `auth.uid() = user_id` boleh select/insert/update/delete. `zakat_balances` lewat join ke `zakat_years`.
-- `gold_prices`: select & update untuk user terautentikasi; insert/upsert oleh job cron memakai service role key (hanya di server, tidak pernah ke client).
-- Route cron menolak request tanpa header `Authorization: Bearer ${CRON_SECRET}`.
+- RLS aktif di semua tabel:
+  - Tabel ber-`user_id`: hanya `auth.uid() = user_id` boleh select/insert/update/delete.
+  - Verifikasi kepemilikan Foreign Key: Child tables (`motor_services`, `gold_purchases`, `zakat_accounts`, `zakat_years`, `annual_balances`, `zakat_balances`, `annual_balance_items`) memverifikasi kepemilikan entitas relasi (`motors`, `people`, `zakat_accounts`) milik `auth.uid()` via `EXISTS` check pada `USING` dan `WITH CHECK`.
+  - `gold_prices`: data harga harian global; `SELECT`, `INSERT`, dan `UPDATE` diizinkan untuk role `authenticated`, sedangkan `DELETE` dibatasi hanya untuk `service_role` (mencegah penghapusan riwayat harga massal).
+- Proteksi single-owner: Next.js middleware memeriksa `OWNER_EMAIL` (atau `OWNER_EMAILS`); user terautentikasi yang tidak ada di allowlist dialihkan ke `/login`. Pendaftaran akun publik dimatikan di Supabase Auth.
+- Route cron (`/api/cron/*`): fail-closed authentication mewajibkan token Bearer `CRON_SECRET` atau sesi login Supabase aktif (untuk aksi tombol "Tarik Live" di browser).
+- Outbound Telegram: validasi ketat format Bot Token (`^[0-9]+:[A-Za-z0-9_-]+$`) dan Chat ID (`^-?[0-9]+$` atau username channel) untuk mencegah URL traversal/query injection, serta proteksi CSRF Same-Origin dan header `Content-Type: application/json` pada `POST /api/telegram/test`.
+- PWA Service Worker: precache hanya mencakup aset statis (`/offline`, `/manifest.json`, ikon); rute dinamis beridentitas user (`/`) tidak dimasukkan ke dalam precache, dan cache storage dibersihkan saat user logout.
 - Validasi input di server (zod atau sejenis): angka ≥ 0, tanggal valid & tidak di masa depan, panjang teks dibatasi.
 - Teks pengguna dirender sebagai teks (tanpa `dangerouslySetInnerHTML`); query via Supabase client (parameterized).
 
