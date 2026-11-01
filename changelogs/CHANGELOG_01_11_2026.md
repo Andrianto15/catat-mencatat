@@ -53,3 +53,7 @@ Menyelesaikan seluruh 7 temuan keamanan (`needs_validation`) yang teridentifikas
      - Penambahan test case di `tests/auth-guard.test.ts` dan `tests/pwa.test.ts`.
    - Seluruh 43 test suites (195 test cases) lulus 100% tanpa snapshot drift.
    - Build produksi Next.js 16 (`npm run build`) sukses tanpa error TypeScript/lint.
+
+
+8. **Rilis Versi 0.9.0**:
+   - Bump versi aplikasi dari `0.8.0` ke `0.9.0` pada `package.json`, `package-lock.json`, dan `src/lib/version.ts`.
