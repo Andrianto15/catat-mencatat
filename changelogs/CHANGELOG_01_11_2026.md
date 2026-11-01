@@ -98,3 +98,38 @@ Menambahkan fitur pengingat jadwal servis motor berkala di halaman riwayat/list 
 6. **Rilis Versi 0.10.0**:
    - Bump versi aplikasi ke `0.10.0` pada `package.json`, `package-lock.json`, `src/lib/version.ts`, dan `PRD.md`.
 
+---
+
+## Ringkasan Perubahan: Remediasi Security Re-Audit (Motor & Telegram Features)
+
+Menyelesaikan 5 temuan keamanan (SEC-08 s.d. SEC-12) yang teridentifikasi dalam sesi audit ulang keamanan setelah penambahan fitur motor service reminder & notifikasi Telegram.
+
+### Detail Perubahan:
+
+1. **Penegakan Owner Allowlist pada Endpoint Telegram (`SEC-08`)**:
+   - Memasang verifikasi `isAllowedUser()` pada `POST /api/motor/reminder/telegram` dan `POST /api/telegram/test`.
+   - Mengembalikan HTTP 403 Forbidden (`Forbidden: Akun tidak memiliki akses`) jika user yang login via Supabase tidak terdaftar dalam allowlist `OWNER_EMAIL` / `OWNER_EMAILS`.
+
+2. **Perbaikan Fail-Closed Cron Telegram Reminder (`SEC-09`)**:
+   - Menghapus celah fail-open di non-production pada `GET /api/cron/telegram-reminder`.
+   - Wajib membawa Bearer token `CRON_SECRET` yang valid di semua environment (status 401 jika salah/kosong di non-production, status 500 jika tidak dikonfigurasi di production).
+
+3. **Penanganan Malformed JSON (400) & Validasi Format UUID (`SEC-10`)**:
+   - Menangani `SyntaxError` saat parse JSON payload pada route API POST dengan respon 400 Bad Request (`Format JSON tidak valid`), bukan 500 Internal Server Error.
+   - Memvalidasi format UUID regex pada parameter `motor_id` sebelum melakukan query database.
+
+4. **Normalisasi Respon Otorisasi API di Middleware (`SEC-11`)**:
+   - Memperbarui `resolveAuthRedirect` di `src/lib/supabase/middleware.ts` untuk meloloskan route `/api/*` agar route handler API mengembalikan respon semantik 401/403 JSON, mencegah redirect 307 ke halaman HTML login.
+
+5. **Defensive Date Clamping & Truncation Teks Telegram (`SEC-12`)**:
+   - Menambahkan validasi regex format `YYYY-MM-DD` pada `addMonthsClamped` di `src/lib/motor/actions.ts` agar tidak menghasilkan `NaN-NaN-NaN` pada input invalid.
+   - Membatasi panjang teks pengingat maksimal 4000 karakter (`slice(0, 3997) + '...'`) sebelum dikirim ke Telegram Bot API guna mencegah error 400 batasan 4096 karakter dari Telegram.
+
+6. **Verifikasi Pengujian & Integritas Build**:
+   - Menambahkan 9 test case baru di `tests/motor-telegram-api.test.ts`, `tests/telegram-sender-security.test.ts`, `tests/telegram-reminder.test.tsx`, `tests/auth-guard.test.ts`, dan `tests/motor-reminder.test.ts`.
+   - Seluruh 46 test suites (225 test cases) PASS 100%.
+   - Build produksi Next.js 16 (`npm run build`) sukses tanpa error.
+
+7. **Rilis Versi 0.10.1**:
+   - Bump versi aplikasi dari `0.10.0` ke `0.10.1` pada `package.json`, `package-lock.json`, `src/lib/version.ts`, dan `PRD.md`.
+

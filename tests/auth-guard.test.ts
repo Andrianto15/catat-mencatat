@@ -20,6 +20,13 @@ describe('Auth Guard Redirect Logic', () => {
     expect(resolveAuthRedirect('/api/cron/telegram-reminder', false)).toBeNull();
   });
 
+  it('should pass through all /api/ routes so handlers return JSON 401/403 instead of 307 redirect', () => {
+    expect(resolveAuthRedirect('/api/motor/reminder/telegram', false)).toBeNull();
+    expect(resolveAuthRedirect('/api/telegram/test', false)).toBeNull();
+    expect(resolveAuthRedirect('/api/motor/reminder/telegram', true, false)).toBeNull();
+    expect(resolveAuthRedirect('/api/telegram/test', true, false)).toBeNull();
+  });
+
   it('should allow authenticated users to access protected routes', () => {
     expect(resolveAuthRedirect('/', true)).toBeNull();
     expect(resolveAuthRedirect('/motor', true)).toBeNull();

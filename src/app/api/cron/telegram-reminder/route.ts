@@ -3,18 +3,21 @@ import { createClient } from '@supabase/supabase-js';
 import { sendTelegramMessage } from '@/lib/telegram/sender';
 
 export async function GET(request: NextRequest) {
-  // Authorization check for Vercel Cron or manual admin trigger
+  // Authorization check for Vercel Cron or manual admin trigger (fail-closed)
   const authHeader = request.headers.get('authorization');
   const cronSecret = process.env.CRON_SECRET;
 
-  if (process.env.NODE_ENV === 'production' && !cronSecret) {
-    return NextResponse.json(
-      { error: 'Server misconfiguration: CRON_SECRET is required in production' },
-      { status: 500 }
-    );
+  if (!cronSecret) {
+    if (process.env.NODE_ENV === 'production') {
+      return NextResponse.json(
+        { error: 'Server misconfiguration: CRON_SECRET is required in production' },
+        { status: 500 }
+      );
+    }
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+  if (authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

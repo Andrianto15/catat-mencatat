@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { validateTelegramConfig, sendTelegramMessage } from '@/lib/telegram/sender';
+import { isAllowedUser } from '@/lib/supabase/middleware';
 
 export async function POST(request: NextRequest) {
   // 1. Content-Type validation
@@ -47,12 +48,30 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  // 3. Owner Allowlist verification
+  if (!isAllowedUser(user.email, process.env.OWNER_EMAIL || process.env.OWNER_EMAILS)) {
+    return NextResponse.json(
+      { success: false, error: 'Forbidden: Akun tidak memiliki akses.' },
+      { status: 403 }
+    );
+  }
+
+  // 4. Parse request body
+  let body: any;
   try {
-    const body = await request.json();
+    body = await request.json();
+  } catch {
+    return NextResponse.json(
+      { success: false, error: 'Bad Request: Format JSON tidak valid.' },
+      { status: 400 }
+    );
+  }
+
+  try {
     const validation = validateTelegramConfig({
-      botToken: body.bot_token,
-      chatId: body.chat_id,
-      message: body.reminder_message,
+      botToken: body?.bot_token,
+      chatId: body?.chat_id,
+      message: body?.reminder_message,
     });
 
     if (!validation.valid) {

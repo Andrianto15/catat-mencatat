@@ -30,6 +30,12 @@ describe('Motor Service Reminder Engine', () => {
     it('menangani tahun kabisat saat clamp Februari', () => {
       expect(addMonthsClamped('2024-01-31', 1)).toBe('2024-02-29');
     });
+
+    it('mengembalikan string kosong jika format tanggal tidak valid', () => {
+      expect(addMonthsClamped('invalid-date', 2)).toBe('');
+      expect(addMonthsClamped('', 2)).toBe('');
+      expect(addMonthsClamped('2026/01/15', 2)).toBe('');
+    });
   });
 
   describe('calculateMotorReminder', () => {

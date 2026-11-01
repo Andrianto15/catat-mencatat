@@ -155,6 +155,9 @@ export interface MotorServiceReminder {
 }
 
 export function addMonthsClamped(dateStr: string, months: number): string {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    return '';
+  }
   const [y, m, d] = dateStr.split('-').map(Number);
   const targetMonthIndex = m - 1 + months;
   const targetYear = y + Math.floor(targetMonthIndex / 12);

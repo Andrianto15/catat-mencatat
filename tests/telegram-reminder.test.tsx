@@ -127,6 +127,21 @@ describe('Telegram Reminder Library and Cron', () => {
         process.env.CRON_SECRET = originalSecret;
       }
     });
+
+    it('returns 401 when CRON_SECRET is unset in non-production environment (fail-closed)', async () => {
+      const originalEnv = process.env.NODE_ENV;
+      const originalSecret = process.env.CRON_SECRET;
+      (process.env as any).NODE_ENV = 'development';
+      delete process.env.CRON_SECRET;
+      try {
+        const req = new Request('http://localhost:3000/api/cron/telegram-reminder');
+        const res = await cronHandler(req as any);
+        expect(res.status).toBe(401);
+      } finally {
+        (process.env as any).NODE_ENV = originalEnv;
+        process.env.CRON_SECRET = originalSecret;
+      }
+    });
   });
 
   describe('Settings Page /saldo-tahun/settings', () => {

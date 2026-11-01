@@ -1,6 +1,18 @@
 import { NextRequest } from 'next/server';
 import { validateTelegramConfig, sendTelegramMessage } from '../src/lib/telegram/sender';
 
+let mockUser: any = { id: 'u1', email: 'stranger@example.com' };
+jest.mock('@/lib/supabase/server', () => ({
+  createClient: jest.fn().mockImplementation(async () => ({
+    auth: {
+      getUser: jest.fn().mockImplementation(async () => ({
+        data: { user: mockUser },
+        error: mockUser ? null : new Error('No user'),
+      })),
+    },
+  })),
+}));
+
 describe('Telegram Config Security Validation', () => {
   it('should reject bot tokens with URL traversal, query strings, or fragments', () => {
     expect(validateTelegramConfig({ botToken: '123:ABC/setWebhook?', chatId: '123' }).valid).toBe(false);
@@ -65,6 +77,18 @@ describe('Telegram Config Security Validation', () => {
   });
 
   describe('POST /api/telegram/test Route Security', () => {
+    const originalEnv = { ...process.env };
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+      process.env = { ...originalEnv };
+      delete process.env.OWNER_EMAIL;
+      delete process.env.OWNER_EMAILS;
+    });
+
+    afterAll(() => {
+      process.env = originalEnv;
+    });
     it('should reject non-JSON Content-Type with 415', async () => {
       const { POST } = require('../src/app/api/telegram/test/route');
       const req = new NextRequest('http://localhost:3000/api/telegram/test', {
@@ -108,6 +132,48 @@ describe('Telegram Config Security Validation', () => {
 
       const res = await POST(req);
       expect(res.status).toBe(403);
+    });
+
+    it('should reject malformed JSON body with 400', async () => {
+      const { POST } = require('../src/app/api/telegram/test/route');
+      const req = new NextRequest('http://localhost:3000/api/telegram/test', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: 'invalid-json-{',
+      });
+
+      const res = await POST(req);
+      expect(res.status).toBe(400);
+      const data = await res.json();
+      expect(data.error).toContain('Format JSON tidak valid');
+    });
+
+    it('should reject authenticated user who is not in OWNER_EMAIL allowlist with 403', async () => {
+      const originalOwner = process.env.OWNER_EMAIL;
+      process.env.OWNER_EMAIL = 'owner@example.com';
+      try {
+        const { POST } = require('../src/app/api/telegram/test/route');
+        const req = new NextRequest('http://localhost:3000/api/telegram/test', {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify({
+            bot_token: '123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ',
+            chat_id: '123456789',
+          }),
+        });
+
+        const res = await POST(req);
+        // Should be 403 Forbidden because mock user email in default test setup is not owner@example.com
+        expect(res.status).toBe(403);
+        const data = await res.json();
+        expect(data.error).toContain('tidak memiliki akses');
+      } finally {
+        process.env.OWNER_EMAIL = originalOwner;
+      }
     });
   });
 });

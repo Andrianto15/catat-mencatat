@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { calculateMotorReminder } from '@/lib/motor/actions';
 import { sendTelegramMessage, validateTelegramConfig } from '@/lib/telegram/sender';
+import { isAllowedUser } from '@/lib/supabase/middleware';
 
 export async function POST(request: NextRequest) {
   // 1. Content-Type validation
@@ -50,16 +51,43 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
 
-  try {
-    const body = await request.json();
-    const motorId = typeof body.motor_id === 'string' ? body.motor_id.trim() : '';
+  // 3. Owner Allowlist verification
+  if (!isAllowedUser(user.email, process.env.OWNER_EMAIL || process.env.OWNER_EMAILS)) {
+    return NextResponse.json(
+      { success: false, error: 'Forbidden: Akun tidak memiliki akses.' },
+      { status: 403 }
+    );
+  }
 
-    if (!motorId) {
-      return NextResponse.json(
-        { success: false, error: 'Parameter motor_id wajib diisi.' },
-        { status: 400 }
-      );
-    }
+  // 4. Parse request body
+  let body: any;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json(
+      { success: false, error: 'Bad Request: Format JSON tidak valid.' },
+      { status: 400 }
+    );
+  }
+
+  const motorId = typeof body?.motor_id === 'string' ? body.motor_id.trim() : '';
+
+  if (!motorId) {
+    return NextResponse.json(
+      { success: false, error: 'Parameter motor_id wajib diisi.' },
+      { status: 400 }
+    );
+  }
+
+  const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  if (!UUID_REGEX.test(motorId)) {
+    return NextResponse.json(
+      { success: false, error: 'Format motor_id tidak valid (harus UUID).' },
+      { status: 400 }
+    );
+  }
+
+  try {
 
     // Fetch motor
     const { data: motor, error: motorErr } = await supabase
@@ -141,7 +169,8 @@ export async function POST(request: NextRequest) {
       'Aplikasi Catat-Mencatat',
     ];
 
-    const text = lines.join('\n');
+    const rawText = lines.join('\n');
+    const text = rawText.length > 4000 ? `${rawText.slice(0, 3997)}...` : rawText;
 
     const sendRes = await sendTelegramMessage({
       botToken: validation.botToken,

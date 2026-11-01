@@ -18,9 +18,9 @@ export function resolveAuthRedirect(
   hasUser: boolean,
   isAllowed: boolean = true
 ): string | null {
-  // Public or internal routes
+  // Public, internal, or API routes (API routes handle their own semantic JSON responses)
   if (
-    pathname.startsWith('/api/cron') ||
+    pathname.startsWith('/api/') ||
     pathname.startsWith('/_next') ||
     pathname.startsWith('/icons') ||
     pathname === '/manifest.json' ||
