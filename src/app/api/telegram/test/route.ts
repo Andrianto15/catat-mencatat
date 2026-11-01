@@ -3,6 +3,43 @@ import { createClient } from '@/lib/supabase/server';
 import { validateTelegramConfig, sendTelegramMessage } from '@/lib/telegram/sender';
 
 export async function POST(request: NextRequest) {
+  // 1. Content-Type validation
+  const contentType = request.headers.get('content-type') || '';
+  if (!contentType.toLowerCase().includes('application/json')) {
+    return NextResponse.json(
+      { success: false, error: 'Unsupported Media Type: Content-Type must be application/json' },
+      { status: 415 }
+    );
+  }
+
+  // 2. CSRF / Origin protection
+  const origin = request.headers.get('origin');
+  const host = request.headers.get('host');
+  if (origin && host) {
+    try {
+      const originHost = new URL(origin).host;
+      if (originHost !== host) {
+        return NextResponse.json(
+          { success: false, error: 'Forbidden: Cross-site request rejected' },
+          { status: 403 }
+        );
+      }
+    } catch {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden: Invalid origin' },
+        { status: 403 }
+      );
+    }
+  }
+
+  const secFetchSite = request.headers.get('sec-fetch-site');
+  if (secFetchSite === 'cross-site') {
+    return NextResponse.json(
+      { success: false, error: 'Forbidden: Cross-site request rejected' },
+      { status: 403 }
+    );
+  }
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 

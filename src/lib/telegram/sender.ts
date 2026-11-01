@@ -39,6 +39,28 @@ export function validateTelegramConfig(input: {
     };
   }
 
+  const tokenRegex = /^[0-9]+:[A-Za-z0-9_-]+$/;
+  if (!tokenRegex.test(botToken)) {
+    return {
+      valid: false,
+      error: 'Format Telegram Bot Token tidak valid (contoh: 123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ).',
+      botToken,
+      chatId,
+      message,
+    };
+  }
+
+  const chatIdRegex = /^(?:-?[0-9]+|@[A-Za-z0-9_]{5,})$/;
+  if (!chatIdRegex.test(chatId)) {
+    return {
+      valid: false,
+      error: 'Format Telegram Chat ID tidak valid (contoh: 123456789 atau -100123456789).',
+      botToken,
+      chatId,
+      message,
+    };
+  }
+
   return {
     valid: true,
     botToken,
@@ -68,6 +90,21 @@ export async function sendTelegramMessage({
 }: SendTelegramMessageParams): Promise<SendTelegramMessageResult> {
   const cleanToken = (botToken || '').trim();
   const cleanChatId = (chatId || '').trim();
+
+  // Guard against URL delimiter / query / fragment injection in bot token or chat ID
+  if (/[/?#\s]/.test(cleanToken)) {
+    return {
+      ok: false,
+      error: 'Format Telegram Bot Token tidak valid (mengandung karakter terlarang)',
+    };
+  }
+  if (/[/?#\s]/.test(cleanChatId)) {
+    return {
+      ok: false,
+      error: 'Format Telegram Chat ID tidak valid (mengandung karakter terlarang)',
+    };
+  }
+
   const url = `https://api.telegram.org/bot${cleanToken}/sendMessage`;
 
   try {
