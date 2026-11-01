@@ -22,4 +22,22 @@ describe('PWA Manifest & Integration', () => {
     expect(icon192).toBeDefined();
     expect(icon512).toBeDefined();
   });
+
+  it('should not include authenticated root route "/" in PRECACHE_ASSETS in public/sw.js', () => {
+    const swPath = path.join(process.cwd(), 'public/sw.js');
+    expect(fs.existsSync(swPath)).toBe(true);
+    const swCode = fs.readFileSync(swPath, 'utf8');
+
+    // Should NOT have '/' in PRECACHE_ASSETS array
+    expect(swCode).not.toMatch(/PRECACHE_ASSETS\s*=\s*\[[^\]]*'\/',/);
+    expect(swCode).toContain("'/offline'");
+    expect(swCode).toContain("'/manifest.json'");
+  });
+
+  it('should handle CLEAR_CACHE message event in public/sw.js for logout cache purging', () => {
+    const swPath = path.join(process.cwd(), 'public/sw.js');
+    const swCode = fs.readFileSync(swPath, 'utf8');
+
+    expect(swCode).toContain('CLEAR_CACHE');
+  });
 });

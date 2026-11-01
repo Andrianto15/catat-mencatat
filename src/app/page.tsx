@@ -1,8 +1,9 @@
 import Link from 'next/link';
-import { Bike, Coins, Scale, TrendingUp, LogOut } from 'lucide-react';
+import { Bike, Coins, Scale, TrendingUp } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
+import LogoutButton from '@/components/LogoutButton';
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -70,28 +71,7 @@ export default async function HomePage() {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
           <ThemeToggle />
-          <form action={handleLogout}>
-            <button
-              type="submit"
-              title="Keluar"
-              aria-label="Keluar"
-              style={{
-                background: 'none',
-                border: 'none',
-                color: 'var(--text-muted)',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                padding: '0.5rem',
-                borderRadius: 'var(--radius-lg)',
-                minHeight: '44px',
-                minWidth: '44px',
-                justifyContent: 'center',
-              }}
-            >
-              <LogOut size={20} />
-            </button>
-          </form>
+          <LogoutButton aria-label="Keluar" onLogout={handleLogout} />
         </div>
       </header>
 

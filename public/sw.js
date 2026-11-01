@@ -2,7 +2,6 @@ const CACHE_NAME = 'catat-mencatat-v1';
 const OFFLINE_URL = '/offline';
 
 const PRECACHE_ASSETS = [
-  '/',
   '/offline',
   '/manifest.json',
   '/icons/icon-192x192.png',
@@ -16,6 +15,14 @@ self.addEventListener('install', (event) => {
     })
   );
   self.skipWaiting();
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'CLEAR_CACHE') {
+    event.waitUntil(
+      caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
+    );
+  }
 });
 
 self.addEventListener('activate', (event) => {
